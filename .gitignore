@@ -1,0 +1,7 @@
+inapp-voice/Pods/
+inapp-voice/Dependencies/
+inapp-voice/xcuserdata/
+inapp-voice/*.ipa
+inapp-voice/*.hmap
+inapp-voice/.build/
+.DS_Store
