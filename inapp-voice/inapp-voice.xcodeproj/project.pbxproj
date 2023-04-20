@@ -21,6 +21,8 @@
 		EA8CDA2629EF7CBF00BFDDF5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2529EF7CBF00BFDDF5 /* Assets.xcassets */; };
 		EA8CDA2929EF7CBF00BFDDF5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2729EF7CBF00BFDDF5 /* LaunchScreen.storyboard */; };
 		EAC0146B29F10DBB00723BC4 /* JSONstringify.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */; };
+		EAC0146E29F13BF200723BC4 /* DataChildViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */; };
+		EAC0147129F1426900723BC4 /* VonageClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0147029F1426900723BC4 /* VonageClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +44,8 @@
 		EA8CDA2829EF7CBF00BFDDF5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EA8CDA2A29EF7CBF00BFDDF5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONstringify.swift; sourceTree = "<group>"; };
+		EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataChildViewController.swift; sourceTree = "<group>"; };
+		EAC0147029F1426900723BC4 /* VonageClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VonageClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,13 +94,14 @@
 			path = Manager;
 			sourceTree = "<group>";
 		};
-		EA3C6B9529F004BA0049D4BA /* Views */ = {
+		EA3C6B9529F004BA0049D4BA /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				EAC0146C29F13BDB00723BC4 /* Childs */,
 				EA8CDA2029EF7CBD00BFDDF5 /* LoginViewController.swift */,
 				EA3C6B9629F004D00049D4BA /* DialerViewController.swift */,
 			);
-			path = Views;
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 		EA5DEAC129F0CD1100373430 /* Models */ = {
@@ -105,6 +110,7 @@
 				EA5DEAC229F0CD3200373430 /* Region.swift */,
 				EA5DEAC429F0F18000373430 /* UserData.swift */,
 				EA5DEAC629F0F52E00373430 /* UserModel.swift */,
+				EAC0147029F1426900723BC4 /* VonageClient.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -130,18 +136,34 @@
 		EA8CDA1B29EF7CBD00BFDDF5 /* inapp-voice */ = {
 			isa = PBXGroup;
 			children = (
+				EAC0146F29F140E200723BC4 /* Views */,
 				EA5DEAC129F0CD1100373430 /* Models */,
-				EA3C6B9529F004BA0049D4BA /* Views */,
+				EA3C6B9529F004BA0049D4BA /* Controllers */,
 				EA3C6B9229F003B20049D4BA /* Manager */,
 				EA3C6B8F29F001A30049D4BA /* Utils */,
 				EA8CDA1C29EF7CBD00BFDDF5 /* AppDelegate.swift */,
 				EA8CDA1E29EF7CBD00BFDDF5 /* SceneDelegate.swift */,
-				EA8CDA2229EF7CBD00BFDDF5 /* Main.storyboard */,
 				EA8CDA2529EF7CBF00BFDDF5 /* Assets.xcassets */,
 				EA8CDA2729EF7CBF00BFDDF5 /* LaunchScreen.storyboard */,
 				EA8CDA2A29EF7CBF00BFDDF5 /* Info.plist */,
 			);
 			path = "inapp-voice";
+			sourceTree = "<group>";
+		};
+		EAC0146C29F13BDB00723BC4 /* Childs */ = {
+			isa = PBXGroup;
+			children = (
+				EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */,
+			);
+			path = Childs;
+			sourceTree = "<group>";
+		};
+		EAC0146F29F140E200723BC4 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				EA8CDA2229EF7CBD00BFDDF5 /* Main.storyboard */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -267,7 +289,9 @@
 				EA5DEAC529F0F18000373430 /* UserData.swift in Sources */,
 				EA3C6B9729F004D00049D4BA /* DialerViewController.swift in Sources */,
 				EA8CDA1F29EF7CBD00BFDDF5 /* SceneDelegate.swift in Sources */,
+				EAC0147129F1426900723BC4 /* VonageClient.swift in Sources */,
 				EA5DEAC729F0F52E00373430 /* UserModel.swift in Sources */,
+				EAC0146E29F13BF200723BC4 /* DataChildViewController.swift in Sources */,
 				EA3C6B9129F001B30049D4BA /* UI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -418,6 +442,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "inapp-voice/Info.plist";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone access required in order to make and receive audio calls.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -446,6 +471,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "inapp-voice/Info.plist";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone access required in order to make and receive audio calls.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;

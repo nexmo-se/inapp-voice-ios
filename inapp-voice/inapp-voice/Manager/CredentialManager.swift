@@ -54,7 +54,6 @@ struct CredentialManager {
                     }
                 }
                 if let safeData = data {
-                    print("credential")
                     if let user = self.parseJSON(credentialData: safeData) {
                         UserModel.user = user
                         self.delegate?.didUpdateUser(user: user)
@@ -68,7 +67,6 @@ struct CredentialManager {
     func parseJSON(credentialData: Data) -> UserData?{
         let decoder = JSONDecoder()
         do {
-            print("json data", credentialData)
             let decodedData = try decoder.decode(UserData.self, from: credentialData)
             return decodedData
         } catch {

@@ -276,6 +276,9 @@
                                     </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="y4v-qD-50f">
                                         <rect key="frame" x="0.0" y="110.00000000000003" width="339" height="44"/>
+                                        <accessibility key="accessibilityConfiguration">
+                                            <bool key="isElement" value="NO"/>
+                                        </accessibility>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="Q5L-lM-Pn7"/>
                                         </constraints>
@@ -304,7 +307,7 @@
                                     <constraint firstAttribute="height" constant="340" id="BOj-qM-93v"/>
                                 </constraints>
                                 <connections>
-                                    <segue destination="Zzg-2J-dlC" kind="embed" id="5s1-Di-oxI"/>
+                                    <segue destination="Zzg-2J-dlC" kind="embed" identifier="dialerToDataChildVC" id="5s1-Di-oxI"/>
                                 </connections>
                             </containerView>
                         </subviews>
@@ -342,10 +345,10 @@
             </objects>
             <point key="canvasLocation" x="2148" y="-14.77832512315271"/>
         </scene>
-        <!--DataViewController-->
+        <!--DataChildViewController-->
         <scene sceneID="hj5-jS-8sH">
             <objects>
-                <viewController id="Zzg-2J-dlC" userLabel="DataViewController" sceneMemberID="viewController">
+                <viewController id="Zzg-2J-dlC" userLabel="DataChildViewController" customClass="DataChildViewController" customModule="inapp_voice" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="4Qd-xq-aXy">
                         <rect key="frame" x="0.0" y="0.0" width="347" height="340"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -451,6 +454,9 @@
                                             <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </buttonConfiguration>
+                                        <connections>
+                                            <action selector="copyButtonClicked:" destination="Zzg-2J-dlC" eventType="touchUpInside" id="wdi-J3-FN8"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <constraints>
@@ -476,6 +482,11 @@
                             <constraint firstItem="uQ2-3E-Xvw" firstAttribute="leading" secondItem="4Qd-xq-aXy" secondAttribute="leading" constant="12" id="pSe-7j-mCd"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="memberLegId" destination="rj4-3O-Exj" id="pk9-tV-o2n"/>
+                        <outlet property="myLegId" destination="78T-fj-tf4" id="MXH-I1-qOZ"/>
+                        <outlet property="region" destination="V0E-XB-6Jz" id="y1s-QZ-d1p"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Qe0-yj-9f9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
