@@ -11,7 +11,7 @@
         <!--LoginViewController-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" userLabel="LoginViewController" customClass="ViewController" customModule="inapp_voice" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" userLabel="LoginViewController" customClass="LoginViewController" customModule="inapp_voice" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -88,12 +88,22 @@
                                                                     <constraint firstAttribute="height" constant="42" id="Ujv-36-9t4"/>
                                                                 </constraints>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                                <textInputTraits key="textInputTraits"/>
+                                                                <textInputTraits key="textInputTraits" autocorrectionType="no" returnKeyType="search"/>
                                                             </textField>
+                                                            <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="h94-fH-ZpN" userLabel="RegionTableView">
+                                                                <rect key="frame" x="0.0" y="78.333333333333371" width="295" height="128"/>
+                                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="128" id="J5q-G8-wRX"/>
+                                                                </constraints>
+                                                            </tableView>
                                                         </subviews>
                                                         <constraints>
                                                             <constraint firstItem="nMq-lB-Ye9" firstAttribute="leading" secondItem="Khd-l4-sHv" secondAttribute="leading" id="6hZ-qG-87c"/>
                                                             <constraint firstAttribute="trailing" secondItem="nMq-lB-Ye9" secondAttribute="trailing" id="BQO-Tm-ZCD"/>
+                                                            <constraint firstItem="h94-fH-ZpN" firstAttribute="top" secondItem="nMq-lB-Ye9" secondAttribute="bottom" constant="8" id="IED-pL-3da"/>
+                                                            <constraint firstAttribute="trailing" secondItem="h94-fH-ZpN" secondAttribute="trailing" id="eaW-bw-J0U"/>
+                                                            <constraint firstItem="h94-fH-ZpN" firstAttribute="leading" secondItem="Khd-l4-sHv" secondAttribute="leading" id="juu-c9-WXf"/>
                                                         </constraints>
                                                     </stackView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="cd6-az-GcQ" userLabel="PinStackView">
@@ -112,7 +122,7 @@
                                                                     <constraint firstAttribute="height" constant="42" id="20q-bt-Ivc"/>
                                                                 </constraints>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                                <textInputTraits key="textInputTraits"/>
+                                                                <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
                                                             </textField>
                                                         </subviews>
                                                         <constraints>
@@ -143,6 +153,9 @@
                                                     </backgroundConfiguration>
                                                     <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="submitButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kmc-zB-IfD"/>
+                                                </connections>
                                             </button>
                                         </subviews>
                                         <constraints>
@@ -173,6 +186,14 @@
                             <constraint firstItem="aar-g8-Nsv" firstAttribute="top" secondItem="mOY-tT-FAL" secondAttribute="bottom" id="v9o-1h-qJU"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="pinTextField" destination="zS2-R3-nEI" id="ydF-c0-qVX"/>
+                        <outlet property="regionTableView" destination="h94-fH-ZpN" id="2lt-sd-mSW"/>
+                        <outlet property="regionTextField" destination="nMq-lB-Ye9" id="gmk-i1-tpL"/>
+                        <outlet property="submitButton" destination="Xis-aM-sZ4" id="mc6-Rw-6iH"/>
+                        <outlet property="usernameTextField" destination="8l1-fc-1iO" id="71a-LQ-etR"/>
+                        <segue destination="JHY-4T-jkk" kind="presentation" identifier="goToDialerVC" modalPresentationStyle="fullScreen" id="GLk-sC-R7y"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
@@ -181,7 +202,7 @@
         <!--DialerViewController-->
         <scene sceneID="5Qd-dK-FqU">
             <objects>
-                <viewController id="JHY-4T-jkk" userLabel="DialerViewController" customClass="ViewController" customModule="inapp_voice" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="JHY-4T-jkk" userLabel="DialerViewController" customClass="DialerViewController" customModule="inapp_voice" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="qpC-4R-g9h">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -207,6 +228,9 @@
                                 <rect key="frame" x="283.66666666666669" y="61" width="77.333333333333314" height="34.333333333333343"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Logout"/>
+                                <connections>
+                                    <action selector="logoutButtonClicked:" destination="JHY-4T-jkk" eventType="touchUpInside" id="obL-DM-aj0"/>
+                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User 1 (US)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sk3-f4-Vjn">
                                 <rect key="frame" x="18" y="125.00000000000001" width="339" height="26.666666666666671"/>
@@ -262,6 +286,9 @@
                                             </backgroundConfiguration>
                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </buttonConfiguration>
+                                        <connections>
+                                            <action selector="callButtonClicked:" destination="JHY-4T-jkk" eventType="touchUpInside" id="O7Q-Eb-tUy"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <constraints>
@@ -304,6 +331,12 @@
                             <constraint firstItem="5mQ-1z-aGy" firstAttribute="top" secondItem="sk3-f4-Vjn" secondAttribute="bottom" constant="48" id="w0l-vp-Qq8"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="B9H-BT-hZA"/>
+                    <connections>
+                        <outlet property="callUserTextField" destination="Azz-sl-HIX" id="fB6-la-Oou"/>
+                        <outlet property="usernameRegionLabel" destination="sk3-f4-Vjn" id="2RW-rV-Dq3"/>
+                        <segue destination="eda-6H-IFq" kind="presentation" identifier="goToCallController" modalPresentationStyle="fullScreen" id="Drc-54-XGF"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="k7S-a7-c6i" sceneMemberID="firstResponder"/>
             </objects>
@@ -434,6 +467,7 @@
                                 </constraints>
                             </stackView>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="DVl-g6-Ez9"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="uQ2-3E-Xvw" secondAttribute="trailing" constant="12" id="BHc-Kx-L1Y"/>

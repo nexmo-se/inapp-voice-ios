@@ -8,26 +8,40 @@
 
 /* Begin PBXBuildFile section */
 		A66DBBED35310C4EFB8D653B /* Pods_inapp_voice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C1FE7CC88207812554976A2 /* Pods_inapp_voice.framework */; };
+		EA3C6B9129F001B30049D4BA /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C6B9029F001B30049D4BA /* UI.swift */; };
+		EA3C6B9429F003FA0049D4BA /* CredentialManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C6B9329F003FA0049D4BA /* CredentialManager.swift */; };
+		EA3C6B9729F004D00049D4BA /* DialerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C6B9629F004D00049D4BA /* DialerViewController.swift */; };
+		EA5DEAC329F0CD3200373430 /* Region.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DEAC229F0CD3200373430 /* Region.swift */; };
+		EA5DEAC529F0F18000373430 /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DEAC429F0F18000373430 /* UserData.swift */; };
+		EA5DEAC729F0F52E00373430 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DEAC629F0F52E00373430 /* UserModel.swift */; };
 		EA8CDA1D29EF7CBD00BFDDF5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA1C29EF7CBD00BFDDF5 /* AppDelegate.swift */; };
 		EA8CDA1F29EF7CBD00BFDDF5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA1E29EF7CBD00BFDDF5 /* SceneDelegate.swift */; };
-		EA8CDA2129EF7CBD00BFDDF5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA2029EF7CBD00BFDDF5 /* ViewController.swift */; };
+		EA8CDA2129EF7CBD00BFDDF5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA2029EF7CBD00BFDDF5 /* LoginViewController.swift */; };
 		EA8CDA2429EF7CBD00BFDDF5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2229EF7CBD00BFDDF5 /* Main.storyboard */; };
 		EA8CDA2629EF7CBF00BFDDF5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2529EF7CBF00BFDDF5 /* Assets.xcassets */; };
 		EA8CDA2929EF7CBF00BFDDF5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2729EF7CBF00BFDDF5 /* LaunchScreen.storyboard */; };
+		EAC0146B29F10DBB00723BC4 /* JSONstringify.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		02172B473E26F68BCA04D4E7 /* Pods-inapp-voice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-inapp-voice.release.xcconfig"; path = "Target Support Files/Pods-inapp-voice/Pods-inapp-voice.release.xcconfig"; sourceTree = "<group>"; };
 		6C1FE7CC88207812554976A2 /* Pods_inapp_voice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_inapp_voice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9547B70E74C9D42B48EA1D34 /* Pods-inapp-voice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-inapp-voice.debug.xcconfig"; path = "Target Support Files/Pods-inapp-voice/Pods-inapp-voice.debug.xcconfig"; sourceTree = "<group>"; };
+		EA3C6B9029F001B30049D4BA /* UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
+		EA3C6B9329F003FA0049D4BA /* CredentialManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialManager.swift; sourceTree = "<group>"; };
+		EA3C6B9629F004D00049D4BA /* DialerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialerViewController.swift; sourceTree = "<group>"; };
+		EA5DEAC229F0CD3200373430 /* Region.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Region.swift; sourceTree = "<group>"; };
+		EA5DEAC429F0F18000373430 /* UserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserData.swift; sourceTree = "<group>"; };
+		EA5DEAC629F0F52E00373430 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		EA8CDA1929EF7CBD00BFDDF5 /* inapp-voice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "inapp-voice.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA8CDA1C29EF7CBD00BFDDF5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EA8CDA1E29EF7CBD00BFDDF5 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		EA8CDA2029EF7CBD00BFDDF5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		EA8CDA2029EF7CBD00BFDDF5 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		EA8CDA2329EF7CBD00BFDDF5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EA8CDA2529EF7CBF00BFDDF5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EA8CDA2829EF7CBF00BFDDF5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EA8CDA2A29EF7CBF00BFDDF5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONstringify.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,8 +70,43 @@
 				9547B70E74C9D42B48EA1D34 /* Pods-inapp-voice.debug.xcconfig */,
 				02172B473E26F68BCA04D4E7 /* Pods-inapp-voice.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		EA3C6B8F29F001A30049D4BA /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				EA3C6B9029F001B30049D4BA /* UI.swift */,
+				EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		EA3C6B9229F003B20049D4BA /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				EA3C6B9329F003FA0049D4BA /* CredentialManager.swift */,
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
+		EA3C6B9529F004BA0049D4BA /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				EA8CDA2029EF7CBD00BFDDF5 /* LoginViewController.swift */,
+				EA3C6B9629F004D00049D4BA /* DialerViewController.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		EA5DEAC129F0CD1100373430 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				EA5DEAC229F0CD3200373430 /* Region.swift */,
+				EA5DEAC429F0F18000373430 /* UserData.swift */,
+				EA5DEAC629F0F52E00373430 /* UserModel.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		EA8CDA1029EF7CBD00BFDDF5 = {
@@ -81,9 +130,12 @@
 		EA8CDA1B29EF7CBD00BFDDF5 /* inapp-voice */ = {
 			isa = PBXGroup;
 			children = (
+				EA5DEAC129F0CD1100373430 /* Models */,
+				EA3C6B9529F004BA0049D4BA /* Views */,
+				EA3C6B9229F003B20049D4BA /* Manager */,
+				EA3C6B8F29F001A30049D4BA /* Utils */,
 				EA8CDA1C29EF7CBD00BFDDF5 /* AppDelegate.swift */,
 				EA8CDA1E29EF7CBD00BFDDF5 /* SceneDelegate.swift */,
-				EA8CDA2029EF7CBD00BFDDF5 /* ViewController.swift */,
 				EA8CDA2229EF7CBD00BFDDF5 /* Main.storyboard */,
 				EA8CDA2529EF7CBF00BFDDF5 /* Assets.xcassets */,
 				EA8CDA2729EF7CBF00BFDDF5 /* LaunchScreen.storyboard */,
@@ -207,9 +259,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EA8CDA2129EF7CBD00BFDDF5 /* ViewController.swift in Sources */,
+				EA8CDA2129EF7CBD00BFDDF5 /* LoginViewController.swift in Sources */,
+				EAC0146B29F10DBB00723BC4 /* JSONstringify.swift in Sources */,
 				EA8CDA1D29EF7CBD00BFDDF5 /* AppDelegate.swift in Sources */,
+				EA5DEAC329F0CD3200373430 /* Region.swift in Sources */,
+				EA3C6B9429F003FA0049D4BA /* CredentialManager.swift in Sources */,
+				EA5DEAC529F0F18000373430 /* UserData.swift in Sources */,
+				EA3C6B9729F004D00049D4BA /* DialerViewController.swift in Sources */,
 				EA8CDA1F29EF7CBD00BFDDF5 /* SceneDelegate.swift in Sources */,
+				EA5DEAC729F0F52E00373430 /* UserModel.swift in Sources */,
+				EA3C6B9129F001B30049D4BA /* UI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

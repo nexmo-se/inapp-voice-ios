@@ -5,3 +5,7 @@ inapp-voice/*.ipa
 inapp-voice/*.hmap
 inapp-voice/.build/
 .DS_Store
+
+node_modules/
+key/
+.env
