@@ -21,6 +21,7 @@ class LoginViewController: UIViewController {
     
     var regionSearchResult = Region.countries
     var credentialManager = CredentialManager()
+    var user: UserModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,25 +108,25 @@ extension LoginViewController: UITableViewDelegate {
 
 //MARK: CredentialManagerDelegate
 extension LoginViewController: CredentialManagerDelegate {
-    func didUpdateUser(user: UserData) {
+    func didUpdateUser(user: UserModel) {
+        self.user = user
         DispatchQueue.main.async {
             self.submitButton.isEnabled = true
+            self.performSegue(withIdentifier: "goToCallVC", sender: self)
         }
-
-        if (user.error != nil) {
-            DispatchQueue.main.async {
-                let alert = UIAlertController(title: user.error, message: nil , preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-            }
-            return
-        }
-        if (UserModel.user == nil) {
-            // TODO: show alert?
-            return
-        }
+    }
+    func handleCredentialManagerError(message: String) {
         DispatchQueue.main.async {
-            self.performSegue(withIdentifier: "goToDialerVC", sender: self)
+            self.submitButton.isEnabled = true
+            let alert = UIAlertController(title: message, message: nil , preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let vc = segue.destination as? CallViewController {
+            vc.user = user
         }
     }
     

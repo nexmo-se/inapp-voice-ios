@@ -1,29 +1,29 @@
 //
-//  NetworkManager.swift
+//  MembersManager.swift
 //  inapp-voice
 //
-//  Created by iujie on 19/04/2023.
+//  Created by iujie on 21/04/2023.
 //
 
 import Foundation
 
-protocol CredentialManagerDelegate {
-    func didUpdateUser(user: UserModel)
-    func handleCredentialManagerError(message: String)
+protocol MembersManagerDelegate {
+    func didUpdateMembers(memberList: MemberModel)
+    func handleMembersManagerError(message: String)
 }
 
-struct CredentialManager {    
-    var delegate: CredentialManagerDelegate?
+struct MembersManager {
+    var delegate: MembersManagerDelegate?
     
-    func fetchCredential(username:String, region: String, pin: String) {
+    func fetchMembers(user: UserModel) {
               
         let parameters: [String: String] = [
-            "username": username,
-            "region": region,
-            "pin": pin
+            "username": user.username,
+            "dc": user.dc,
+            "token": user.token
         ]
         
-        if let url = URL(string: "\(Network.backendURL)/getCredential") {
+        if let url = URL(string: "\(Network.backendURL)/getMembers") {
             
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
@@ -36,27 +36,27 @@ struct CredentialManager {
               // convert parameters to Data and assign dictionary to httpBody of request
               request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
             } catch let error {
-                self.delegate?.handleCredentialManagerError(message: error.localizedDescription)
+                self.delegate?.handleMembersManagerError(message: error.localizedDescription)
                 return
             }
             
             URLSession.shared.dataTask(with: request) { data, response, error in
                 if error != nil {
-                    self.delegate?.handleCredentialManagerError(message: error!.localizedDescription)
+                    self.delegate?.handleMembersManagerError(message: error!.localizedDescription)
                     return
                 }
                 if let httpResponse = response as? HTTPURLResponse {
                     if (httpResponse.statusCode != 200) {
-                        self.delegate?.handleCredentialManagerError(message: "Failed to get token")
+                        self.delegate?.handleMembersManagerError(message: "Failed to get members")
                         return
                     }
                 }
                 if let safeData = data {
-                    if let user = self.parseJSON(credentialData: safeData) {
-                        self.delegate?.didUpdateUser(user: user)
+                    if let members = self.parseJSON(membersData: safeData) {
+                        self.delegate?.didUpdateMembers(memberList: members)
                     }
                     else {
-                        self.delegate?.handleCredentialManagerError(message: "Failed to parse credential data")
+                        self.delegate?.handleMembersManagerError(message: "Failed to parse members data")
                     }
                 }
             }.resume()
@@ -64,10 +64,10 @@ struct CredentialManager {
     }
 
     
-    func parseJSON(credentialData: Data) -> UserModel?{
+    func parseJSON(membersData: Data) -> MemberModel?{
         let decoder = JSONDecoder()
         do {
-            let decodedData = try decoder.decode(UserModel.self, from: credentialData)
+            let decodedData = try decoder.decode(MemberModel.self, from: membersData)
             return decodedData
         } catch {
             print("parse json error: ", error)

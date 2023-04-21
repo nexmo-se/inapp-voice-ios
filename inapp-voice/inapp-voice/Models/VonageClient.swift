@@ -9,31 +9,34 @@ import Foundation
 import VonageClientSDKVoice
 
 
+protocol VonageClientDelegate {
+    func didConnectionStatusUpdated(status: String)
+    func handleVonageClientError(message: String)
+}
 
 class VonageClient: NSObject {
-    var client:VGVoiceClient
+    var voiceClient:VGVoiceClient
     var connectionStatus = ""
+    var delegate: VonageClientDelegate?
 
-    override init(){
+    init(dc: String){
         let vonageClient = VGVoiceClient()
-        vonageClient.setConfig(.init(region: .US))
+        let config = VGClientConfig()
+        config.apiUrl = dc
+        vonageClient.setConfig(config)
         VGBaseClient.setDefaultLoggingLevel(.debug)
-        self.client  = vonageClient
-        super.init()
+        self.voiceClient  = vonageClient
     }
     
-    func login() {
-        if let token = UserModel.user?.token {
-            self.client.createSession(token) { error, session in
-                if error == nil {
-                    self.connectionStatus = "Connected"
-                } else {
-                    // TODO: show alert here
-                    print("vonage login error", error!.localizedDescription)
-                }
+    func login(user: UserModel) {
+        self.voiceClient.createSession(user.token) { error, session in
+            if error == nil {
+                self.connectionStatus = "Connected"
+                self.delegate?.didConnectionStatusUpdated(status: "Connected")
+            } else {
+                self.delegate?.handleVonageClientError(message: error!.localizedDescription)
             }
         }
         
-
     }
 }
