@@ -12,4 +12,5 @@ struct UserModel: Decodable {
     let token: String
     let region: String
     let dc: String
+    let ws: String
 }

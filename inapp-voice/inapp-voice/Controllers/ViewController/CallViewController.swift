@@ -36,7 +36,7 @@ class CallViewController: UIViewController {
         callButton.isEnabled = false
         
         // vonage client
-        vgclient = VonageClient(dc: user.dc)
+        vgclient = VonageClient(user: user)
         vgclient.delegate = self
         vgclient.login(user: user)
         
@@ -65,22 +65,45 @@ class CallViewController: UIViewController {
         self.dismiss(animated: true)
     }
     
+    @IBAction func onCallbuttonClicked(_ sender: Any) {
+        if (memberSearchTextField.text == "") {
+            self.showToast(message: "Please select a member", font: .systemFont(ofSize: 12.0))
+            return
+        }
+        let member = memberSearchTextField.text!
+        if (!memberList.members.contains(member)) {
+            self.showToast(message: "Invalid member", font: .systemFont(ofSize: 12.0))
+            return
+        }
+        vgclient.startOutboundCall(member: member)
+    }
 }
 
 //MARK: VonageClientDelegate
 extension CallViewController: VonageClientDelegate {
+    func didCallStatusUpdate(call: CallStatus) {
+        print("did call Status update", call)
+    }
+    
     func didConnectionStatusUpdated(status: String) {
         DispatchQueue.main.async {
             self.showToast(message: "connected", font: .systemFont(ofSize: 12.0))
         }
     }
     
-    func handleVonageClientError(message: String) {
+    func handleVonageClientError(message: String, forceDismiss: Bool) {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: message, message: nil , preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            var alertAction = UIAlertAction(title: "OK", style: .default)
+            if forceDismiss {
+                alertAction = UIAlertAction(title: "OK", style: .default) { action in
+                    self.dismiss(animated: true)
+                }
+            }
+            
+            alert.addAction(alertAction)
             self.present(alert, animated: true, completion: nil)
-            self.dismiss(animated: true)
+            
         }
     }
 }
@@ -113,13 +136,11 @@ extension CallViewController: MembersManagerDelegate {
 extension CallViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         memberTableView.isHidden = false
+        loadMembers()
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
         memberTableView.isHidden = true
-        
-        if (memberList.members.contains(memberSearchTextField.text!)) {
-            callButton.isEnabled = true
-        }
+        callButton.isEnabled = true
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         memberSearchResult = filterMembers(input: memberSearchTextField.text!)

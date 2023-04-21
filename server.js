@@ -2,7 +2,7 @@ require('dotenv').config();
 const axios = require('axios');
 const cors = require('cors');
 
-const port = process.env.PORT || 3002; 
+const port = process.env.PORT || 3003; 
 const express = require('express')
 const app = express();
 app.use(express.json());
@@ -30,6 +30,15 @@ const DATA_CENTER = {
   sydney:	"https://api-ap-4.vonage.com"
 }
 
+const WEBSOCKET = {
+  virginia:	"wss://ws-us-3.vonage.com",
+  oregon:	"wss://ws-us-4.vonage.com",
+  dublin: "wss://ws-eu-3.vonage.com",
+  frankfurt:	"wss://ws-eu-4.vonage.com",  
+  singapore:	"wss://ws-ap-3.vonage.com",
+  sydney:	"wss://ws-ap-4.vonage.com"
+}
+
 const aclPaths = {
     "paths": {
       "/*/users/**": {},
@@ -54,13 +63,13 @@ app.post('/getCredential', (req, res) => {
 
   const selectedRegion = region.toLowerCase()
   const restAPI = `${DATA_CENTER[selectedRegion]}/v0.3`
-
+  const websocket = WEBSOCKET[selectedRegion]
+  console.log("rest api", restAPI)
   axios.get(`${restAPI}/users?name=${username}`, { headers: {"Authorization" : `Bearer ${generateJwt()}`} })
   .then(async (result) => {
       console.log("user exist")
       const jwt = generateJwt(username) 
-      console.log("token ", jwt)
-      return res.status(200).json({ username, region, dc: DATA_CENTER[selectedRegion], token: jwt});
+      return res.status(200).json({ username, region, dc: DATA_CENTER[selectedRegion], ws: websocket, token: jwt});
   })
   .catch(error => {
     axios.post(`${restAPI}/users`, {
@@ -71,8 +80,7 @@ app.post('/getCredential', (req, res) => {
       console.log("user not exist")
       const jwt = generateJwt(username)
 
-      console.log("token ", jwt)
-      return res.status(200).json({username, region, dc: DATA_CENTER[selectedRegion], token: jwt});
+      return res.status(200).json({username, region, dc: DATA_CENTER[selectedRegion], ws: websocket, token: jwt});
     }).catch(error => {
       console.log("register error", error)
         res.status(501).send()
