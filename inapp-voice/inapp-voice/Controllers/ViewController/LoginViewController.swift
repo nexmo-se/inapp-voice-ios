@@ -19,13 +19,26 @@ class LoginViewController: UIViewController {
     
     @IBOutlet weak var submitButton: UIButton!
     
+    let usernameTag = 1
+    let regionTag = 2
+    let pinTag = 3
+    
     var regionSearchResult = Region.countries
     var credentialManager = CredentialManager()
     var user: UserModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        usernameTextField.tag = usernameTag
+        usernameTextField.delegate = self
+        
+        regionTextField.tag = regionTag
         regionTextField.delegate = self
+        
+        pinTextField.tag = pinTag
+        pinTextField.delegate = self
+        
         regionTableView.dataSource = self
         regionTableView.delegate = self
         credentialManager.delegate = self
@@ -50,19 +63,29 @@ class LoginViewController: UIViewController {
 //MARK: UITextFieldDelegate
 extension LoginViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        regionTableView.isHidden = false
+        if (textField.tag == regionTag) {
+            regionTableView.isHidden = false
+        }
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
-        regionTableView.isHidden = true
+        if (textField.tag == regionTag) {
+            regionTableView.isHidden = true
+        }
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        regionSearchResult = filterCountries(input: regionTextField.text!)
-        regionTableView.reloadData()
+        print("ui taxfile", textField.tag)
+        if (textField.tag == regionTag) {
+            regionSearchResult = filterCountries(input: regionTextField.text!)
+            regionTableView.reloadData()
+        }
+        textField.endEditing(true)
         return true
     }
     func textFieldDidChangeSelection(_ textField: UITextField) {
-        regionSearchResult = filterCountries(input: regionTextField.text!)
-        regionTableView.reloadData()
+        if (textField.tag == regionTag) {
+            regionSearchResult = filterCountries(input: regionTextField.text!)
+            regionTableView.reloadData()
+        }
     }
     
     func filterCountries(input: String) -> Array<String> {

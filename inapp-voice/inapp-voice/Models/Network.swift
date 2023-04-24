@@ -8,5 +8,5 @@
 import Foundation
 
 struct Network {
-    static let backendURL = "https://e9f9-2001-e68-5432-24d3-edc1-4631-4930-6108.ngrok-free.app"
+    static let backendURL = "https://faf8-2001-e68-5432-24d3-743d-5704-2937-2e86.ngrok-free.app"
 }

@@ -8,30 +8,48 @@
 import Foundation
 import VonageClientSDKVoice
 import CallKit
+import PushKit
+import UserNotifications
+import UIKit
 
+enum VonageClientState {
+    case connected
+    case disconnected
+}
 
-enum CallStatus {
-    case ringing(member: String)
+enum CallState {
+    case ringing
     case answered
-    case completed(remote:Bool, reason: CXCallEndedReason?)
+    case completed
 }
 
-struct CallUpdate {
-    let callId: String
-    let legId: String
-    let status: CallStatus
+enum CallType {
+    case inbound
+    case outbound
 }
 
-protocol VonageClientDelegate {
-    func didConnectionStatusUpdated(status: String)
-    func handleVonageClientError(message: String, forceDismiss: Bool)
-    func didCallStatusUpdate(call: CallStatus)
+struct VonageClientStatus {
+    let state: VonageClientState
+    let message: String?
+}
+
+struct CallStatus {
+    let state: CallState
+    let type: CallType?
+    let member: String?
+    let message: String?
+
+}
+
+struct PushInfo: Codable {
+    let voip: Data
+    let user: Data
 }
 
 class VonageClient: NSObject {
-    var voiceClient:VGVoiceClient
-    var delegate: VonageClientDelegate?
-
+    let voiceClient:VGVoiceClient
+    var callId: String?
+    
     init(user: UserModel){
         let vonageClient = VGVoiceClient()
         let config = VGClientConfig()
@@ -40,83 +58,212 @@ class VonageClient: NSObject {
         vonageClient.setConfig(config)
         VGBaseClient.setDefaultLoggingLevel(.debug)
         self.voiceClient  = vonageClient
-        
         super.init()
         self.voiceClient.delegate = self
-    }
+            }
     
     func login(user: UserModel) {
-        print("user token", user.token)
         self.voiceClient.createSession(user.token) { error, session in
             if error == nil {
-                self.delegate?.didConnectionStatusUpdated(status: "Connected")
+                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatus(state: .connected, message: nil))
+                
+                print("register push token here voip", PushToken.voip)
+                print("register push token here user", PushToken.user)
+
+                if (PushToken.voip != nil && PushToken.user != nil) {
+                    self.registerPushTokens()
+                }
+
             } else {
-                print("error here")
-                self.delegate?.handleVonageClientError(message: error!.localizedDescription, forceDismiss: true)
+                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatus(state: .disconnected, message: error!.localizedDescription))
             }
         }
     }
     
+    func logout() {
+        self.voiceClient.deleteSession { error in
+            if error != nil {
+                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatus(state: .disconnected, message: error!.localizedDescription))
+            }
+            else {
+                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatus(state: .disconnected, message: nil))
+            }
+        }
+    }
+    
+    
     func startOutboundCall(member: String) {
-        print("member ", member)
         voiceClient.serverCall(["to": member]) { error, callId in
             if error != nil {
-                self.delegate?.handleVonageClientError(message: error!.localizedDescription, forceDismiss: false)
+                NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error!.localizedDescription))
             } else {
-                self.delegate?.didCallStatusUpdate(call: CallStatus.ringing(member: member))
+                self.callId = callId
+                print("callid iujie", callId)
+                NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .ringing, type: .outbound, member: member, message: nil))
                
             }
+        }
+    }
+    
+    func invalidatePushToken() {
+        UserDefaults.standard.removeObject(forKey: UserDefaultKeys.vonagePushKey)
+    }
+    
+    func registerPushTokens() {
+        if shouldRegisterToken() {
+            self.voiceClient.registerDevicePushToken(PushToken.voip, userNotificationToken: PushToken.user, isSandbox: true) { error, device in
+                if (error != nil) {
+                    print("register push token error: ", error!.localizedDescription)
+                }
+                print("register token successfully")
+                
+                let pushInfo = PushInfo(voip: PushToken.voip!, user: PushToken.user!)
+                do {
+                    // Create JSON Encoder
+                    let encoder = JSONEncoder()
+
+                    // Encode Note
+                    let data = try encoder.encode(pushInfo)
+
+                    // Write/Set Data
+                    UserDefaults.standard.set(data, forKey:  UserDefaultKeys.vonagePushKey)
+
+                } catch {
+                    // TODO: alert
+                    print("Unable to Encode Note (\(error))")
+                }
+            }
+        }
+    }
+    
+    private func shouldRegisterToken() -> Bool {
+        // Read/Get Data
+        if let data = UserDefaults.standard.data(forKey: UserDefaultKeys.vonagePushKey) {
+            do {
+                // Create JSON Decoder
+                let decoder = JSONDecoder()
+                
+                // Decode Note
+                let pushInfo = try decoder.decode(PushInfo.self, from: data)
+                
+                if pushInfo.voip == PushToken.voip && pushInfo.user == PushToken.user {
+                    print("dont register")
+                    return false
+                }
+                else {
+                    invalidatePushToken()
+                    print("dont register")
+                    return true
+                }
+                
+            } catch {
+                print("Unable to Decode PushInfo (\(error))")
+                invalidatePushToken()
+                print("register")
+                return true
+            }
+        }
+        else {
+            invalidatePushToken()
+            print("register")
+            return true
+        }
+    }
+    
+    func hangUpCall() {
+        if (callId == nil) {
+            return
+        }
+        voiceClient.hangup(callId!) { error in
+            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error?.localizedDescription))
+        }
+    }
+    
+    func rejectCall() {
+        if (callId == nil) {
+            return
+        }
+        voiceClient.reject(callId!) { error in
+            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error?.localizedDescription))
+        }
+    }
+    func answercall() {
+        if (callId == nil) {
+            return
+        }
+        voiceClient.answer(callId!) { error in
+            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error?.localizedDescription))
         }
     }
 }
 
 extension VonageClient: VGVoiceClientDelegate {
     func voiceClient(_ client: VGVoiceClient, didReceiveInviteForCall callId: String, from caller: String, withChannelType type: String) {
-        self.delegate?.didCallStatusUpdate(call: CallStatus.ringing(member: caller))
+        self.callId = callId
+        print("here1 receive call")
+        NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .ringing, type:.inbound, member: caller, message: nil))
     }
     
     func voiceClient(_ client: VGVoiceClient, didReceiveHangupForCall callId: String, withQuality callQuality: VGRTCQuality, isRemote: Bool) {
+        self.callId = nil
+        print("here1 hangup call")
         if (isRemote) {
-            self.delegate?.didCallStatusUpdate(call: CallStatus.completed(remote: true, reason: .remoteEnded))
+            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: "User ends the call"))
         }
-        else {
-            self.delegate?.didCallStatusUpdate(call: CallStatus.completed(remote: false, reason: nil))
-
-        }
-       
     }
     
     func voiceClient(_ client: VGVoiceClient, didReceiveInviteCancelForCall callId: String, with reason: VGVoiceInviteCancelReasonType) {
-        var cxreason: CXCallEndedReason = .failed
+        
+        print("here1 invitecancel call")
+        
+        self.callId = nil
+        
+        var callEndReason = "Incoming call failed"
         
         switch (reason){
-        case .remoteTimeout: cxreason = .unanswered
-        case .remoteReject: cxreason = .declinedElsewhere
-        case .remoteAnswer: cxreason = .answeredElsewhere
-        case .remoteCancel: cxreason = .remoteEnded
+        case .remoteTimeout: callEndReason = "Incoming call unanswered"
+        case .remoteReject: callEndReason = "Incoming call declined elsewhere"
+        case .remoteAnswer: callEndReason = "Incoming call answered elsewhere"
+        case .remoteCancel: callEndReason = "Incoming call remote cancelled"
         @unknown default:
-            self.delegate?.handleVonageClientError(message: "Call Unknown Error", forceDismiss: false)
+            callEndReason = "Incoming call unknown error"
         }
-        self.delegate?.didCallStatusUpdate(call: CallStatus.completed(remote: true, reason: cxreason))
+        
+        NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: callEndReason))
     }
     
     func voiceClient(_ client: VGVoiceClient, didReceiveLegStatusUpdateForCall callId: String, withLegId legId: String, andStatus status: String) {
         // For our one to one calls, we are only really interested in answered legs
+        print("here1 status call", status)
         if (status == "answered") {
-            self.delegate?.didCallStatusUpdate(call: CallStatus.answered)
-        }
-      }
-    
-    func client(_ client: VGBaseClient, didReceiveSessionErrorWith reason: VGSessionErrorReason) {
-        switch reason {
-            case .EXPIRED_TOKEN:
-                self.delegate?.handleVonageClientError(message: "Client Token Expired", forceDismiss: true)
-            case .PING_TIMEOUT, .TRANSPORT_CLOSED:
-                self.delegate?.handleVonageClientError(message: "Client Network Error", forceDismiss: true)
-            @unknown default:
-                self.delegate?.handleVonageClientError(message: "Client Unknown Error", forceDismiss: true)
+            self.callId = callId
+            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .answered, type: .inbound, member: nil, message: nil))
         }
     }
     
+    func voiceClient(_ client: VGVoiceClient, didReceiveCallTransferForCall callId: String, withConversationId conversationId: String) {
+        
+        print("here1 transfer call")
+    }
     
+    func client(_ client: VGBaseClient, didReceiveSessionErrorWith reason: VGSessionErrorReason) {
+        let statusText: String
+        switch reason {
+            case .EXPIRED_TOKEN:
+                statusText = "Session Token Expired"
+            case .PING_TIMEOUT, .TRANSPORT_CLOSED:
+                statusText = "Session Network Error"
+            @unknown default:
+                statusText = "Session Unknown Error"
+        }
+        NotificationCenter.default.post(name: .clientStatus, object: statusText)
+    }
+}
+
+extension Notification.Name {
+    static let clientStatus = Notification.Name("Status")
+    static let callStatus = Notification.Name("Call")
+    static let handledCallCallKit = Notification.Name("CallHandledCallKit")
+    static let handledCallApp = Notification.Name("CallHandledApp")
+    static let handledPush = Notification.Name("CallPush")
 }

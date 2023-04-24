@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		A66DBBED35310C4EFB8D653B /* Pods_inapp_voice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C1FE7CC88207812554976A2 /* Pods_inapp_voice.framework */; };
-		EA3A438929F272C000C4620B /* PushController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3A438829F272C000C4620B /* PushController.swift */; };
 		EA3C6B9129F001B30049D4BA /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C6B9029F001B30049D4BA /* UI.swift */; };
 		EA3C6B9429F003FA0049D4BA /* CredentialManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C6B9329F003FA0049D4BA /* CredentialManager.swift */; };
 		EA3C6B9729F004D00049D4BA /* CallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C6B9629F004D00049D4BA /* CallViewController.swift */; };
@@ -17,6 +16,10 @@
 		EA4FCC0229F2356900F07478 /* MemberModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4FCC0129F2356900F07478 /* MemberModel.swift */; };
 		EA5DEAC329F0CD3200373430 /* Region.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DEAC229F0CD3200373430 /* Region.swift */; };
 		EA5DEAC529F0F18000373430 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DEAC429F0F18000373430 /* UserModel.swift */; };
+		EA84A8C429F69766003E187C /* UserDefaultKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84A8C329F69766003E187C /* UserDefaultKeys.swift */; };
+		EA84A8C829F69EEC003E187C /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA84A8C729F69EEC003E187C /* CallKit.framework */; };
+		EA8AF70B29F6266D00A897BD /* PushToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8AF70A29F6266D00A897BD /* PushToken.swift */; };
+		EA8AF70E29F6348000A897BD /* ProviderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8AF70D29F6348000A897BD /* ProviderDelegate.swift */; };
 		EA8CDA1D29EF7CBD00BFDDF5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA1C29EF7CBD00BFDDF5 /* AppDelegate.swift */; };
 		EA8CDA1F29EF7CBD00BFDDF5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA1E29EF7CBD00BFDDF5 /* SceneDelegate.swift */; };
 		EA8CDA2129EF7CBD00BFDDF5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA2029EF7CBD00BFDDF5 /* LoginViewController.swift */; };
@@ -32,7 +35,6 @@
 		02172B473E26F68BCA04D4E7 /* Pods-inapp-voice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-inapp-voice.release.xcconfig"; path = "Target Support Files/Pods-inapp-voice/Pods-inapp-voice.release.xcconfig"; sourceTree = "<group>"; };
 		6C1FE7CC88207812554976A2 /* Pods_inapp_voice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_inapp_voice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9547B70E74C9D42B48EA1D34 /* Pods-inapp-voice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-inapp-voice.debug.xcconfig"; path = "Target Support Files/Pods-inapp-voice/Pods-inapp-voice.debug.xcconfig"; sourceTree = "<group>"; };
-		EA3A438829F272C000C4620B /* PushController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushController.swift; sourceTree = "<group>"; };
 		EA3C6B9029F001B30049D4BA /* UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
 		EA3C6B9329F003FA0049D4BA /* CredentialManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialManager.swift; sourceTree = "<group>"; };
 		EA3C6B9629F004D00049D4BA /* CallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallViewController.swift; sourceTree = "<group>"; };
@@ -41,6 +43,10 @@
 		EA4FCC0129F2356900F07478 /* MemberModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberModel.swift; sourceTree = "<group>"; };
 		EA5DEAC229F0CD3200373430 /* Region.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Region.swift; sourceTree = "<group>"; };
 		EA5DEAC429F0F18000373430 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
+		EA84A8C329F69766003E187C /* UserDefaultKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultKeys.swift; sourceTree = "<group>"; };
+		EA84A8C729F69EEC003E187C /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = System/Library/Frameworks/CallKit.framework; sourceTree = SDKROOT; };
+		EA8AF70A29F6266D00A897BD /* PushToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToken.swift; sourceTree = "<group>"; };
+		EA8AF70D29F6348000A897BD /* ProviderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderDelegate.swift; sourceTree = "<group>"; };
 		EA8CDA1929EF7CBD00BFDDF5 /* inapp-voice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "inapp-voice.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA8CDA1C29EF7CBD00BFDDF5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EA8CDA1E29EF7CBD00BFDDF5 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -49,6 +55,7 @@
 		EA8CDA2529EF7CBF00BFDDF5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EA8CDA2829EF7CBF00BFDDF5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EA8CDA2A29EF7CBF00BFDDF5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAA277FA29F38CA400ADA812 /* inapp-voice.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "inapp-voice.entitlements"; sourceTree = "<group>"; };
 		EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONstringify.swift; sourceTree = "<group>"; };
 		EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataChildViewController.swift; sourceTree = "<group>"; };
 		EAC0147029F1426900723BC4 /* VonageClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VonageClient.swift; sourceTree = "<group>"; };
@@ -60,6 +67,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A66DBBED35310C4EFB8D653B /* Pods_inapp_voice.framework in Frameworks */,
+				EA84A8C829F69EEC003E187C /* CallKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,6 +77,7 @@
 		9D2147B9D4AAD44EEB59C7EE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EA84A8C729F69EEC003E187C /* CallKit.framework */,
 				6C1FE7CC88207812554976A2 /* Pods_inapp_voice.framework */,
 			);
 			name = Frameworks;
@@ -93,14 +102,6 @@
 			path = ViewController;
 			sourceTree = "<group>";
 		};
-		EA3A438729F2723A00C4620B /* Push */ = {
-			isa = PBXGroup;
-			children = (
-				EA3A438829F272C000C4620B /* PushController.swift */,
-			);
-			path = Push;
-			sourceTree = "<group>";
-		};
 		EA3C6B8F29F001A30049D4BA /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -122,7 +123,7 @@
 		EA3C6B9529F004BA0049D4BA /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				EA3A438729F2723A00C4620B /* Push */,
+				EA8AF70C29F6345600A897BD /* CXProvider */,
 				EA3A438629F2722600C4620B /* ViewController */,
 			);
 			path = Controllers;
@@ -136,8 +137,18 @@
 				EAC0147029F1426900723BC4 /* VonageClient.swift */,
 				EA4FCBFF29F2342E00F07478 /* Network.swift */,
 				EA4FCC0129F2356900F07478 /* MemberModel.swift */,
+				EA8AF70A29F6266D00A897BD /* PushToken.swift */,
+				EA84A8C329F69766003E187C /* UserDefaultKeys.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		EA8AF70C29F6345600A897BD /* CXProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EA8AF70D29F6348000A897BD /* ProviderDelegate.swift */,
+			);
+			path = CXProvider;
 			sourceTree = "<group>";
 		};
 		EA8CDA1029EF7CBD00BFDDF5 = {
@@ -161,6 +172,7 @@
 		EA8CDA1B29EF7CBD00BFDDF5 /* inapp-voice */ = {
 			isa = PBXGroup;
 			children = (
+				EAA277FA29F38CA400ADA812 /* inapp-voice.entitlements */,
 				EAC0146F29F140E200723BC4 /* Views */,
 				EA5DEAC129F0CD1100373430 /* Models */,
 				EA3C6B9529F004BA0049D4BA /* Controllers */,
@@ -307,8 +319,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA4FCC0029F2342E00F07478 /* Network.swift in Sources */,
+				EA84A8C429F69766003E187C /* UserDefaultKeys.swift in Sources */,
 				EA8CDA2129EF7CBD00BFDDF5 /* LoginViewController.swift in Sources */,
-				EA3A438929F272C000C4620B /* PushController.swift in Sources */,
 				EA4FCBFE29F2340C00F07478 /* MembersManager.swift in Sources */,
 				EAC0146B29F10DBB00723BC4 /* JSONstringify.swift in Sources */,
 				EA8CDA1D29EF7CBD00BFDDF5 /* AppDelegate.swift in Sources */,
@@ -317,8 +329,10 @@
 				EA3C6B9429F003FA0049D4BA /* CredentialManager.swift in Sources */,
 				EA5DEAC529F0F18000373430 /* UserModel.swift in Sources */,
 				EA3C6B9729F004D00049D4BA /* CallViewController.swift in Sources */,
+				EA8AF70B29F6266D00A897BD /* PushToken.swift in Sources */,
 				EA8CDA1F29EF7CBD00BFDDF5 /* SceneDelegate.swift in Sources */,
 				EAC0147129F1426900723BC4 /* VonageClient.swift in Sources */,
+				EA8AF70E29F6348000A897BD /* ProviderDelegate.swift in Sources */,
 				EAC0146E29F13BF200723BC4 /* DataChildViewController.swift in Sources */,
 				EA3C6B9129F001B30049D4BA /* UI.swift in Sources */,
 			);
@@ -466,24 +480,24 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "inapp-voice/inapp-voice.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = QRAG25QHP4;
+				DEVELOPMENT_TEAM = PR6C39UQ38;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "inapp-voice/Info.plist";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone access required in order to make and receive audio calls.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.vonage.inapp-voice";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vonage.inapp-voice-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -497,24 +511,24 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "inapp-voice/inapp-voice.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = QRAG25QHP4;
+				DEVELOPMENT_TEAM = PR6C39UQ38;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "inapp-voice/Info.plist";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone access required in order to make and receive audio calls.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.vonage.inapp-voice";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vonage.inapp-voice-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

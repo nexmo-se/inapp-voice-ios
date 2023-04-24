@@ -17,6 +17,17 @@ class CallViewController: UIViewController {
     
     @IBOutlet weak var memberTableView: UITableView!
     
+    @IBOutlet weak var idleCallStackView: UIStackView!
+    
+    @IBOutlet weak var activeCallStackView: UIStackView!
+    
+    @IBOutlet weak var callMemberLabel: UILabel!
+    
+    @IBOutlet weak var callStatusLabel: UILabel!
+    
+    @IBOutlet weak var ringingStackView: UIStackView!
+    
+    @IBOutlet weak var hangupButton: UIButton!
     
     var user: UserModel!
     var memberList: MemberModel!
@@ -37,7 +48,6 @@ class CallViewController: UIViewController {
         
         // vonage client
         vgclient = VonageClient(user: user)
-        vgclient.delegate = self
         vgclient.login(user: user)
         
         // diplay title
@@ -52,16 +62,131 @@ class CallViewController: UIViewController {
         memberTableView.dataSource = self
         memberTableView.delegate = self
         
+        // notification
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionStatusReceived(_:)), name: .clientStatus, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(callReceived(_:)), name: .callStatus, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(callHandled), name: .handledCallCallKit, object: nil)
         
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     func loadMembers() {
         membersManager.fetchMembers(user: user)
     }
     
+    @objc func connectionStatusReceived(_ notification: NSNotification) {
+        if let clientStatus = notification.object as? VonageClientStatus {
+            DispatchQueue.main.async { [weak self] in
+   
+                if (clientStatus.state == .connected) {
+                    self!.showToast(message: "Connected", font: .systemFont(ofSize: 12.0))
+                }
+                else if (clientStatus.state == .disconnected) {
+                    if clientStatus.message != nil {
+                        let alert = UIAlertController(title: clientStatus.message, message: nil , preferredStyle: .alert)
+                        let alertAction = UIAlertAction(title: "OK", style: .default) { action in
+                            self!.dismiss(animated: true)
+                        }
+                        
+                        alert.addAction(alertAction)
+                        self!.present(alert, animated: true, completion: nil)
+                    }
+                    else {
+                        self!.showToast(message: "Disconnected", font: .systemFont(ofSize: 12.0))
+                        self!.dismiss(animated: true)
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func callReceived(_ notification: NSNotification) {
+        DispatchQueue.main.async { [weak self] in
+            if let callStatus = notification.object as? CallStatus {
+                switch callStatus.state {
+                case .answered, .ringing:
+                    self!.displayActiveCall(state: callStatus.state, type: callStatus.type, member: callStatus.member)
+                case .completed:
+                    self!.displayIdleCall(message: callStatus.message)
+                }
+            }
+        }
+        
+    }
+    
+    @objc func callHandled() {
+        DispatchQueue.main.async { [weak self] in
+            if self?.presentedViewController != nil {
+                self?.dismiss(animated: true, completion: nil)
+            }
+        }
+    }
+    
+    @IBAction func answerCallClicked(_ sender: Any) {
+        vgclient.answercall()
+    }
+    
+    @IBAction func rejectCallClicked(_ sender: Any) {
+        vgclient.rejectCall()
+    }
+    
+    @IBAction func hangupCallClicked(_ sender: Any) {
+        vgclient.hangUpCall()
+    }
+    
+    
+    
+    func displayActiveCall(state: CallState, type: CallType?, member: String?) {
+        DispatchQueue.main.async {
+            self.idleCallStackView.isHidden = true
+            self.activeCallStackView.isHidden = false
+            if (member != nil) {
+                self.callMemberLabel.text = member
+            }
+            
+            if (state == .ringing) {
+                self.callStatusLabel.text = "Ringing"
+            }
+            if (state == .answered) {
+                self.callStatusLabel.text = "Answered"
+            }
+            
+            if (state == .ringing && type == .inbound) {
+                self.ringingStackView.isHidden = false
+                self.hangupButton.isHidden = true
+            }
+            else {
+                self.ringingStackView.isHidden = true
+                self.hangupButton.isHidden = false
+            }
+        }
+    }
+    
+    func displayIdleCall(message: String?) {
+        DispatchQueue.main.async {
+            if (message != nil) {
+                let alert = UIAlertController(title: message, message: nil , preferredStyle: .alert)
+                let alertAction = UIAlertAction(title: "OK", style: .default) { action in
+                    self.idleCallStackView.isHidden = false
+                    self.activeCallStackView.isHidden = true
+                }
+                
+                alert.addAction(alertAction)
+                self.present(alert, animated: true, completion: nil)
+            }
+            else {
+                self.idleCallStackView.isHidden = false
+                self.activeCallStackView.isHidden = true
+            }
+        }
+    }
     
     @IBAction func onLogoutButtonClicked(_ sender: Any) {
         // TODO: logout, delete user
+        vgclient.logout()
         self.dismiss(animated: true)
     }
     
@@ -79,34 +204,6 @@ class CallViewController: UIViewController {
     }
 }
 
-//MARK: VonageClientDelegate
-extension CallViewController: VonageClientDelegate {
-    func didCallStatusUpdate(call: CallStatus) {
-        print("did call Status update", call)
-    }
-    
-    func didConnectionStatusUpdated(status: String) {
-        DispatchQueue.main.async {
-            self.showToast(message: "connected", font: .systemFont(ofSize: 12.0))
-        }
-    }
-    
-    func handleVonageClientError(message: String, forceDismiss: Bool) {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(title: message, message: nil , preferredStyle: .alert)
-            var alertAction = UIAlertAction(title: "OK", style: .default)
-            if forceDismiss {
-                alertAction = UIAlertAction(title: "OK", style: .default) { action in
-                    self.dismiss(animated: true)
-                }
-            }
-            
-            alert.addAction(alertAction)
-            self.present(alert, animated: true, completion: nil)
-            
-        }
-    }
-}
 
 //MARK: CallViewControllerDelegate
 extension CallViewController: MembersManagerDelegate {
@@ -145,6 +242,7 @@ extension CallViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         memberSearchResult = filterMembers(input: memberSearchTextField.text!)
         memberTableView.reloadData()
+        textField.endEditing(true)
         return true
     }
     func textFieldDidChangeSelection(_ textField: UITextField) {

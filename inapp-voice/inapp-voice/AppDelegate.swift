@@ -7,15 +7,39 @@
 
 import UIKit
 import AVFoundation
+import PushKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+//    private let providerDelegate = ProviderDelegate()
+    
+    private let voipRegistry = PKPushRegistry(queue: nil)
+
+    // Delegate Subjects
+    var voipPush:PKPushPayload?
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        AVAudioSession.sharedInstance().requestRecordPermission { granted in
-            print("Allow microphone use. Response: ", granted)
+        
+        UIApplication.shared.delegate = self
+        self.initialisePushTokens()
+        
+        
+        // Application onboarding
+        let mediaType = AVMediaType.audio
+        let authorizationStatus = AVCaptureDevice.authorizationStatus(for: mediaType)
+        switch authorizationStatus {
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: mediaType) { granted in
+                print("🎤 access \(granted ? "granted" : "denied")")
+            }
+        case .authorized, .denied, .restricted:
+            print("auth")
+        @unknown default:
+            print("error avcapture")
         }
+
         return true
     }
 
@@ -34,19 +58,68 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     // MARK: Notifications
     
-//    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-//        NotificationCenter.default.post(name: NSNotification.didRegisterForRemoteNotificationNotification, object: nil, userInfo: ["data":deviceToken])
-//    }
-//
-//    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-//        NotificationCenter.default.post(name: NSNotification.didFailToRegisterForRemoteNotification, object: nil, userInfo: ["error":error])
-//    }
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        
+        print("set user token")
+        PushToken.user = deviceToken
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        // TODO: show alert
+        print("error noti here")
+        NotificationCenter.default.post(name: NSNotification.didFailToRegisterForRemoteNotification, object: error.localizedDescription)
+    }
+}
+
+extension AppDelegate: PKPushRegistryDelegate {
+    func initialisePushTokens() {
+        print("receive abc")
+       
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            if granted {
+                DispatchQueue.main.async {
+                    //
+                    UIApplication.shared.registerForRemoteNotifications()
+                    //
+                    print("is granted!")
+                    self.voipRegistry.delegate = self
+                    self.voipRegistry.desiredPushTypes = [PKPushType.voIP]
+                    
+                    print("old token", self.voipRegistry.pushToken(for: .voIP))
+                }
+            }
+        }
+    }
+    
+    func pushRegistry(_ registry: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for type: PKPushType) {
+        print("receive voip token1 ", type)
+        if (type == PKPushType.voIP) {
+            PushToken.voip = pushCredentials.token
+            print("receive voip token")
+        }
+    }
+    
+    func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
+        print("receive iujie1", payload)
+        switch (type){
+        case .voIP:
+            self.voipPush = payload
+        default:
+            return
+        }
+        completion()
+    }
+    
+    func pushRegistry(_: PKPushRegistry, didInvalidatePushTokenFor: PKPushType) {
+        print("iujie 1")
+    }
+    
+}
+
+extension NSNotification {
+    public static let didRegisterForRemoteNotificationNotification = NSNotification.Name("didRegisterForRemoteNotificationWithDeviceTokenNotification")
+    public static let didFailToRegisterForRemoteNotification = NSNotification.Name("didFailToRegisterForRemoteNotificationsWithErrorNotification")
 
 }
-//extension NSNotification {
-//    public static let didRegisterForRemoteNotificationNotification = NSNotification.Name("didRegisterForRemoteNotificationWithDeviceTokenNotification")
-//    public static let didFailToRegisterForRemoteNotification = NSNotification.Name("didFailToRegisterForRemoteNotificationsWithErrorNotification")
-//
-//}
 
 

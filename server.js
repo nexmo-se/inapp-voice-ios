@@ -64,7 +64,7 @@ app.post('/getCredential', (req, res) => {
   const selectedRegion = region.toLowerCase()
   const restAPI = `${DATA_CENTER[selectedRegion]}/v0.3`
   const websocket = WEBSOCKET[selectedRegion]
-  console.log("rest api", restAPI)
+
   axios.get(`${restAPI}/users?name=${username}`, { headers: {"Authorization" : `Bearer ${generateJwt()}`} })
   .then(async (result) => {
       console.log("user exist")
@@ -138,7 +138,40 @@ function generateJwt(username) {
   return jwt
 }
 
+app.get('/voice/answer', (req, res) => {
+  console.log('NCCO request:');
+  console.log(`  - caller: ${req.query.from}`);
+  console.log(`  - callee: ${req.query.to}`);
+  console.log('---');
+  var ncco = [{"action": "talk", "text": "No destination user - hanging up"}];
+  var username = req.query.to;
+  if (username) {
+    ncco = [
+      {
+        "action": "talk",
+        "text": "Connecting you to " + username
+      },
+      {
+        "action": "connect",
+        "endpoint": [
+          {
+            "type": "app",
+            "user": username
+          }
+        ]
+      }
+    ]
+  }
+  console.log("json ", ncco)
+  res.json(ncco);
+});
 
+app.all('/voice/event', (req, res) => {
+  console.log('EVENT:');
+  console.dir(req.body);
+  console.log('---');
+  res.sendStatus(200);
+});
 
 // TODO: clean up user
 
