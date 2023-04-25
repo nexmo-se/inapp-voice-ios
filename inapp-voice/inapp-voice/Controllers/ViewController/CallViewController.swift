@@ -108,6 +108,8 @@ class CallViewController: UIViewController {
     @objc func callReceived(_ notification: NSNotification) {
         DispatchQueue.main.async { [weak self] in
             if let callStatus = notification.object as? CallStatus {
+                if (self ==  nil) {return}
+                
                 switch callStatus.state {
                 case .answered, .ringing:
                     self!.displayActiveCall(state: callStatus.state, type: callStatus.type, member: callStatus.member)
@@ -128,15 +130,17 @@ class CallViewController: UIViewController {
     }
     
     @IBAction func answerCallClicked(_ sender: Any) {
-        vgclient.answercall()
+        vgclient.answercall(callId: vgclient.currentCallStatus?.uuid?.toVGCallID()) { isSucess in
+            print("answercall state: ", isSucess)
+        }
     }
     
     @IBAction func rejectCallClicked(_ sender: Any) {
-        vgclient.rejectCall()
+        vgclient.rejectCall(callId: vgclient.currentCallStatus?.uuid?.toVGCallID())
     }
     
     @IBAction func hangupCallClicked(_ sender: Any) {
-        vgclient.hangUpCall()
+        vgclient.hangUpCall(callId: vgclient.currentCallStatus?.uuid?.toVGCallID())
     }
     
     

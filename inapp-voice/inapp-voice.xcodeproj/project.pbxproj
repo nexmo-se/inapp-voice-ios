@@ -25,8 +25,9 @@
 		EA8CDA2429EF7CBD00BFDDF5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2229EF7CBD00BFDDF5 /* Main.storyboard */; };
 		EA8CDA2629EF7CBF00BFDDF5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2529EF7CBF00BFDDF5 /* Assets.xcassets */; };
 		EA8CDA2929EF7CBF00BFDDF5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2729EF7CBF00BFDDF5 /* LaunchScreen.storyboard */; };
-		EAA33DE829F77393007BA8A1 /* ProviderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA33DE729F77393007BA8A1 /* ProviderDelegate.swift */; };
 		EAA33DEA29F78A2E007BA8A1 /* CallData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA33DE929F78A2E007BA8A1 /* CallData.swift */; };
+		EAA33DEC29F7B4E2007BA8A1 /* VonageClient+ProviderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA33DEB29F7B4E2007BA8A1 /* VonageClient+ProviderDelegate.swift */; };
+		EAA33DEE29F7B5AC007BA8A1 /* UUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA33DED29F7B5AC007BA8A1 /* UUID.swift */; };
 		EAC0146B29F10DBB00723BC4 /* JSONstringify.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */; };
 		EAC0146E29F13BF200723BC4 /* DataChildViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */; };
 		EAC0147129F1426900723BC4 /* VonageClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0147029F1426900723BC4 /* VonageClient.swift */; };
@@ -56,8 +57,9 @@
 		EA8CDA2829EF7CBF00BFDDF5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EA8CDA2A29EF7CBF00BFDDF5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EAA277FA29F38CA400ADA812 /* inapp-voice.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "inapp-voice.entitlements"; sourceTree = "<group>"; };
-		EAA33DE729F77393007BA8A1 /* ProviderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderDelegate.swift; sourceTree = "<group>"; };
 		EAA33DE929F78A2E007BA8A1 /* CallData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallData.swift; sourceTree = "<group>"; };
+		EAA33DEB29F7B4E2007BA8A1 /* VonageClient+ProviderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VonageClient+ProviderDelegate.swift"; sourceTree = "<group>"; };
+		EAA33DED29F7B5AC007BA8A1 /* UUID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UUID.swift; sourceTree = "<group>"; };
 		EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONstringify.swift; sourceTree = "<group>"; };
 		EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataChildViewController.swift; sourceTree = "<group>"; };
 		EAC0147029F1426900723BC4 /* VonageClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VonageClient.swift; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 			children = (
 				EA3C6B9029F001B30049D4BA /* UI.swift */,
 				EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */,
+				EAA33DED29F7B5AC007BA8A1 /* UUID.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -118,7 +121,6 @@
 			children = (
 				EA3C6B9329F003FA0049D4BA /* CredentialManager.swift */,
 				EA4FCBFD29F2340C00F07478 /* MembersManager.swift */,
-				EAA33DE729F77393007BA8A1 /* ProviderDelegate.swift */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -137,6 +139,7 @@
 				EA5DEAC229F0CD3200373430 /* Region.swift */,
 				EA5DEAC429F0F18000373430 /* UserModel.swift */,
 				EAC0147029F1426900723BC4 /* VonageClient.swift */,
+				EAA33DEB29F7B4E2007BA8A1 /* VonageClient+ProviderDelegate.swift */,
 				EA4FCBFF29F2342E00F07478 /* Network.swift */,
 				EA4FCC0129F2356900F07478 /* MemberModel.swift */,
 				EA8AF70A29F6266D00A897BD /* PushToken.swift */,
@@ -314,7 +317,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA4FCC0029F2342E00F07478 /* Network.swift in Sources */,
+				EAA33DEE29F7B5AC007BA8A1 /* UUID.swift in Sources */,
 				EA84A8C429F69766003E187C /* UserDefaultKeys.swift in Sources */,
+				EAA33DEC29F7B4E2007BA8A1 /* VonageClient+ProviderDelegate.swift in Sources */,
 				EA8CDA2129EF7CBD00BFDDF5 /* LoginViewController.swift in Sources */,
 				EA4FCBFE29F2340C00F07478 /* MembersManager.swift in Sources */,
 				EAC0146B29F10DBB00723BC4 /* JSONstringify.swift in Sources */,
@@ -322,7 +327,6 @@
 				EA4FCC0229F2356900F07478 /* MemberModel.swift in Sources */,
 				EA5DEAC329F0CD3200373430 /* Region.swift in Sources */,
 				EA3C6B9429F003FA0049D4BA /* CredentialManager.swift in Sources */,
-				EAA33DE829F77393007BA8A1 /* ProviderDelegate.swift in Sources */,
 				EA5DEAC529F0F18000373430 /* UserModel.swift in Sources */,
 				EA3C6B9729F004D00049D4BA /* CallViewController.swift in Sources */,
 				EA8AF70B29F6266D00A897BD /* PushToken.swift in Sources */,
@@ -487,7 +491,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -518,7 +522,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

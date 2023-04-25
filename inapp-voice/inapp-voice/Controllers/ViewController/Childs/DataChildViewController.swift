@@ -31,7 +31,10 @@ class DataChildViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(callDataReceived(_:)), name: .callData, object: nil)
         
     }
-
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
 
     @objc func callDataReceived(_ notification: NSNotification) {
         if let callData = notification.object as? CallData {

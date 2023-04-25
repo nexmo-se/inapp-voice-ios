@@ -20,8 +20,9 @@ enum VonageClientState {
 enum CallState {
     case ringing
     case answered
-    case completed
+    case completed(remote:Bool, reason:CXCallEndedReason?)
 }
+extension CallState: Equatable {}
 
 enum CallType {
     case inbound
@@ -34,8 +35,9 @@ struct VonageClientStatus {
 }
 
 struct CallStatus {
+    let uuid: UUID?
     let state: CallState
-    let type: CallType?
+    let type: CallType
     let member: String?
     let message: String?
 
@@ -49,9 +51,28 @@ struct PushInfo: Codable {
 
 class VonageClient: NSObject {
     let voiceClient:VGVoiceClient
-    var callId: String?
     var user: UserModel
     var memberName: String?
+    var currentCallStatus: CallStatus? {
+        didSet {
+            if (currentCallStatus != nil) {
+                print("trigger object change", currentCallStatus?.state)
+                NotificationCenter.default.post(name:.callStatus, object: currentCallStatus)
+                updateCallKit(call: currentCallStatus!)
+            }
+        }
+    }
+    
+    // Callkit
+    lazy var callProvider = { () -> CXProvider in
+        var config = CXProviderConfiguration()
+        config.supportsVideo = false
+        let provider = CXProvider(configuration: config)
+        provider.setDelegate(self, queue: nil)
+        return provider
+    }()
+    
+    lazy var cxController = CXCallController()
     
     init(user: UserModel){
         self.user = user
@@ -96,11 +117,13 @@ class VonageClient: NSObject {
     func startOutboundCall(member: String) {
         voiceClient.serverCall(["to": member]) { error, callId in
             if error != nil {
-                NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error!.localizedDescription))
+                self.currentCallStatus = CallStatus(uuid: nil, state: .completed(remote: false, reason: .failed), type: .outbound, member: nil, message: error!.localizedDescription)
             } else {
-                self.memberName = member
-                self.callId = callId
-                NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .ringing, type: .outbound, member: member, message: nil))
+                
+                if let callId = callId {
+                    self.memberName = member
+                    self.currentCallStatus = CallStatus(uuid: UUID(uuidString: callId)!, state: .ringing, type: .outbound, member: member, message: nil)
+                }
             }
         }
     }
@@ -139,6 +162,10 @@ class VonageClient: NSObject {
         NotificationCenter.default.addObserver(self, selector: #selector(reportVoipPush(_:)), name: .handledPush, object: nil)
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     private func shouldRegisterToken() -> Bool {
         // Read/Get Data
         if let data = UserDefaults.standard.data(forKey: UserDefaultKeys.vonagePushKey) {
@@ -173,42 +200,108 @@ class VonageClient: NSObject {
         }
     }
     
-    func hangUpCall() {
-        if (callId == nil) {
-            return
-        }
-        voiceClient.hangup(callId!) { error in
-            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error?.localizedDescription))
+    func hangUpCall(callId: String?) {
+        print("hang up called", self.currentCallStatus!.type)
+        if let callId = callId {
+            voiceClient.hangup(callId) { error in
+                self.currentCallStatus = CallStatus(uuid: UUID(uuidString: callId)!, state: .completed(remote: false, reason: nil), type: self.currentCallStatus!.type, member: nil, message: error?.localizedDescription)
+            }
         }
     }
     
-    func rejectCall() {
-        if (callId == nil) {
-            return
-        }
-        voiceClient.reject(callId!) { error in
-            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error?.localizedDescription))
+    func rejectCall(callId: String?) {
+        if let callId = callId {
+            voiceClient.reject(callId) { error in
+                self.currentCallStatus = CallStatus(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: .inbound, member: nil, message: error?.localizedDescription)
+            }
         }
     }
-    func answercall() {
-        if (callId == nil) {
-            return
-        }
-        voiceClient.answer(callId!) { error in
-            if (error != nil) {
-                NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error?.localizedDescription))
+    func answercall(callId:String?, completion:@escaping (_ isSucess: Bool) -> ()) {
+        if let callId = callId {
+            voiceClient.answer(callId) { error in
+                if (error != nil) {
+                    self.currentCallStatus = CallStatus(uuid: nil, state: .completed(remote: true, reason: .failed), type: .inbound, member: nil, message: error?.localizedDescription)
+                    completion(false)
+                }
+                else {
+                    
+                    if let memberName = self.memberName {
+                        NotificationCenter.default.post(name: .callData, object: CallData(username: self.user.username, memberName: memberName, myLegId: callId, memberLegId: nil, region: self.user.region))
+                    }
+                    self.currentCallStatus = CallStatus(uuid: UUID(uuidString: callId)!, state: .answered, type: .inbound, member: nil, message: nil)
+                    completion(true)
+                }
             }
-            else {
-                
-                if let memberName = self.memberName {
-                    NotificationCenter.default.post(name: .callData, object: CallData(username: self.user.username, memberName: memberName, myLegId: self.callId!, memberLegId: nil, region: self.user.region))
+        }
+    }
+    
+    func updateCallKit(call: CallStatus) {
+        if (call.uuid == nil) {return}
+        
+        print("trigger update callkit state ", call.state)
+        print("trigger update callkit type ", call.type)
+        
+        if (call.type == .outbound) {
+            switch(call.state) {
+                case .ringing:
+                    // Outbound calls need reporting to callkit
+                    if let to = call.member {
+                        self.cxController.requestTransaction(
+                            with: CXStartCallAction(call: call.uuid!, handle: CXHandle(type: .generic, value: to)),
+                            completion: { err in
+                                guard err == nil else {
+                                    self.hangUpCall(callId: call.uuid?.toVGCallID())
+                                    return
+                                }
+                                
+                                self.callProvider.reportOutgoingCall(with: call.uuid!, startedConnectingAt: Date.now)
+                                print("report outgoing call started")
+                            }
+                        )
+                    }
+                case .answered:
+                    // Answers are remote by definition, so report them
+                    print("report outgoing call connected")
+                    self.callProvider.reportOutgoingCall(with: call.uuid!, connectedAt: Date.now)
+                    
+                case .completed:
+                    // Report Remote Hangups + Cancels
+                    print("call provider end outbound")
+                    self.callProvider.reportCall(with: call.uuid!, endedAt: Date.now, reason: .remoteEnded)
+            }
+            
+        }
+        
+        else if (call.type == .inbound) {
+            switch (call.state) {
+            case .ringing:
+                // Report new Inbound calls so we follow PushKit and Callkit Rules
+                let update = CXCallUpdate()
+                update.localizedCallerName = call.member ?? "Vonage Call"
+                update.supportsDTMF = false
+                update.supportsHolding = false
+                update.supportsGrouping = false
+                update.hasVideo = false
+                print("report new call here")
+                self.callProvider.reportNewIncomingCall(with: call.uuid!, update: update) { err in
+                    if err != nil {
+                        self.rejectCall(callId: call.uuid?.toVGCallID())
+                    }
                 }
                 
-                NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .answered, type: nil, member: nil, message: nil))
+            case .completed:
+                // Report Remote Hangups + Cancels
+                print("call provider end inbound")
+                self.callProvider.reportCall(with: call.uuid!, endedAt: Date.now, reason: .remoteEnded)
+                
+            default:
+                // Nothing needed to report since answering requires local CXAction
+                // Same for local hangups
+                return
             }
         }
+        
     }
-    
     
     @objc private func reportVoipPush(_ notification: NSNotification) {
         print("report voip")
@@ -221,53 +314,45 @@ class VonageClient: NSObject {
 
 extension VonageClient: VGVoiceClientDelegate {
     func voiceClient(_ client: VGVoiceClient, didReceiveInviteForCall callId: String, from caller: String, withChannelType type: String) {
-        self.callId = callId
         self.memberName = caller
         print("here1 receive call")
 
-        NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .ringing, type:.inbound, member: caller, message: nil))
+        self.currentCallStatus = CallStatus(uuid: UUID(uuidString: callId)!, state: .ringing, type:.inbound, member: caller, message: nil)
     }
     
     func voiceClient(_ client: VGVoiceClient, didReceiveHangupForCall callId: String, withQuality callQuality: VGRTCQuality, isRemote: Bool) {
-        self.callId = nil
         print("here1 hangup call")
         if (isRemote) {
-            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: "User ends the call"))
+            self.currentCallStatus = CallStatus(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: .outbound, member: nil, message: "User ends the call")
         }
     }
     
     func voiceClient(_ client: VGVoiceClient, didReceiveInviteCancelForCall callId: String, with reason: VGVoiceInviteCancelReasonType) {
-        
-        if (callId == self.callId) {
-            return
-        }
-        self.callId = nil
-        
         var callEndReason = "Incoming call failed"
+        var cxreason: CXCallEndedReason = .failed
         
         switch (reason){
-        case .remoteTimeout: callEndReason = "Incoming call unanswered"
-        case .remoteReject: callEndReason = "Incoming call declined elsewhere"
-        case .remoteAnswer: callEndReason = "Incoming call answered elsewhere"
-        case .remoteCancel: callEndReason = "Incoming call remote cancelled"
+        case .remoteTimeout: callEndReason = "Incoming call unanswered"; cxreason = .unanswered
+        case .remoteReject: callEndReason = "Incoming call declined elsewhere"; cxreason = .declinedElsewhere
+        case .remoteAnswer: callEndReason = "Incoming call answered elsewhere"; cxreason = .answeredElsewhere
+        case .remoteCancel: callEndReason = "Incoming call remote cancelled"; cxreason = .remoteEnded
         @unknown default:
             callEndReason = "Incoming call unknown error"
+            fatalError()
         }
         
-        NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: callEndReason))
+        let type = self.currentCallStatus == nil ? .inbound : self.currentCallStatus!.type
+        self.currentCallStatus = CallStatus(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: cxreason), type:  type, member: nil, message: callEndReason)
     }
     
     func voiceClient(_ client: VGVoiceClient, didReceiveLegStatusUpdateForCall callId: String, withLegId legId: String, andStatus status: String) {
         // For our one to one calls, we are only really interested in answered legs
-        print("here1 status call", status)
         if (status == "answered") {
-            self.callId = callId
-            
             if let memberName = memberName {
                 NotificationCenter.default.post(name: .callData, object: CallData(username: user.username, memberName: memberName, myLegId: callId, memberLegId: legId, region: user.region))
             }
-
-            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .answered, type: .inbound, member: nil, message: nil))
+             
+            self.currentCallStatus = CallStatus(uuid: UUID(uuidString: callId)!, state: .answered, type: .outbound, member: nil, message: nil)
         }
     }
     
