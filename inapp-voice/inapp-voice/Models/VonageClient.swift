@@ -56,7 +56,6 @@ class VonageClient: NSObject {
     var currentCallStatus: CallStatus? {
         didSet {
             if (currentCallStatus != nil) {
-                print("trigger object change", currentCallStatus?.state)
                 NotificationCenter.default.post(name:.callStatus, object: currentCallStatus)
                 updateCallKit(call: currentCallStatus!)
             }
@@ -209,6 +208,19 @@ class VonageClient: NSObject {
         }
     }
     
+    func rejectByCallkit(calluuid: UUID?) {
+        if let calluuid = calluuid {
+            let endCallAction = CXEndCallAction(call: calluuid)
+            self.cxController.requestTransaction(with: endCallAction) { err in
+                guard err == nil else {
+                    self.hangUpCall(callId: calluuid.toVGCallID())
+                    return
+                }
+            }
+        }
+    }
+    
+    
     func rejectCall(callId: String?) {
         if let callId = callId {
             voiceClient.reject(callId) { error in
@@ -216,7 +228,23 @@ class VonageClient: NSObject {
             }
         }
     }
+    
+    func answerByCallkit(calluuid: UUID?) {
+        if let calluuid = calluuid {
+            
+            let connectCallAction = CXAnswerCallAction(call: calluuid)
+            print("transfer call")
+            self.cxController.requestTransaction(with: connectCallAction) { err in
+                guard err == nil else {
+                    self.hangUpCall(callId: calluuid.toVGCallID())
+                    return
+                }
+            }
+        }
+    }
+    
     func answercall(callId:String?, completion:@escaping (_ isSucess: Bool) -> ()) {
+ 
         if let callId = callId {
             voiceClient.answer(callId) { error in
                 if (error != nil) {
@@ -224,16 +252,18 @@ class VonageClient: NSObject {
                     completion(false)
                 }
                 else {
-                    
                     if let memberName = self.memberName {
                         NotificationCenter.default.post(name: .callData, object: CallData(username: self.user.username, memberName: memberName, myLegId: callId, memberLegId: nil, region: self.user.region))
                     }
                     self.currentCallStatus = CallStatus(uuid: UUID(uuidString: callId)!, state: .answered, type: .inbound, member: nil, message: nil)
+
                     completion(true)
                 }
             }
         }
+        
     }
+    
     
     func updateCallKit(call: CallStatus) {
         if (call.uuid == nil) {return}
@@ -288,7 +318,6 @@ class VonageClient: NSObject {
                         self.rejectCall(callId: call.uuid?.toVGCallID())
                     }
                 }
-                
             case .completed:
                 // Report Remote Hangups + Cancels
                 print("call provider end inbound")

@@ -16,10 +16,6 @@ extension VonageClient: CXProviderDelegate {
     }
     
     func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
-        // We cheat a little bit with Outbound call starts -
-        // 1. we create our vgcall first, so we can have the correct UUID
-        // 2. We report to the cxcontroller afterwards
-        // 3. here in the provider, we just call fulfill action right away
         action.fulfill()
     }
 

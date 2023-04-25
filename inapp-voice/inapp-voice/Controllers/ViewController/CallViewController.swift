@@ -130,13 +130,11 @@ class CallViewController: UIViewController {
     }
     
     @IBAction func answerCallClicked(_ sender: Any) {
-        vgclient.answercall(callId: vgclient.currentCallStatus?.uuid?.toVGCallID()) { isSucess in
-            print("answercall state: ", isSucess)
-        }
+        vgclient.answerByCallkit(calluuid: vgclient.currentCallStatus?.uuid)
     }
     
     @IBAction func rejectCallClicked(_ sender: Any) {
-        vgclient.rejectCall(callId: vgclient.currentCallStatus?.uuid?.toVGCallID())
+        vgclient.rejectByCallkit(calluuid: vgclient.currentCallStatus?.uuid)
     }
     
     @IBAction func hangupCallClicked(_ sender: Any) {
