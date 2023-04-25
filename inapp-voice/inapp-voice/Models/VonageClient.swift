@@ -46,11 +46,15 @@ struct PushInfo: Codable {
     let user: Data
 }
 
+
 class VonageClient: NSObject {
     let voiceClient:VGVoiceClient
     var callId: String?
+    var user: UserModel
+    var memberName: String?
     
     init(user: UserModel){
+        self.user = user
         let vonageClient = VGVoiceClient()
         let config = VGClientConfig()
         config.apiUrl = user.dc
@@ -60,15 +64,12 @@ class VonageClient: NSObject {
         self.voiceClient  = vonageClient
         super.init()
         self.voiceClient.delegate = self
-            }
+    }
     
     func login(user: UserModel) {
         self.voiceClient.createSession(user.token) { error, session in
             if error == nil {
                 NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatus(state: .connected, message: nil))
-                
-                print("register push token here voip", PushToken.voip)
-                print("register push token here user", PushToken.user)
 
                 if (PushToken.voip != nil && PushToken.user != nil) {
                     self.registerPushTokens()
@@ -97,10 +98,9 @@ class VonageClient: NSObject {
             if error != nil {
                 NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error!.localizedDescription))
             } else {
+                self.memberName = member
                 self.callId = callId
-                print("callid iujie", callId)
                 NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .ringing, type: .outbound, member: member, message: nil))
-               
             }
         }
     }
@@ -134,6 +134,9 @@ class VonageClient: NSObject {
                 }
             }
         }
+        
+        // Add Observer
+        NotificationCenter.default.addObserver(self, selector: #selector(reportVoipPush(_:)), name: .handledPush, object: nil)
     }
     
     private func shouldRegisterToken() -> Bool {
@@ -192,7 +195,26 @@ class VonageClient: NSObject {
             return
         }
         voiceClient.answer(callId!) { error in
-            NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error?.localizedDescription))
+            if (error != nil) {
+                NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .completed, type: nil, member: nil, message: error?.localizedDescription))
+            }
+            else {
+                
+                if let memberName = self.memberName {
+                    NotificationCenter.default.post(name: .callData, object: CallData(username: self.user.username, memberName: memberName, myLegId: self.callId!, memberLegId: nil, region: self.user.region))
+                }
+                
+                NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .answered, type: nil, member: nil, message: nil))
+            }
+        }
+    }
+    
+    
+    @objc private func reportVoipPush(_ notification: NSNotification) {
+        print("report voip")
+        if let payload = notification.object as? PKPushPayload {
+            self.voiceClient.processCallInvitePushData(payload.dictionaryPayload)
+
         }
     }
 }
@@ -200,7 +222,9 @@ class VonageClient: NSObject {
 extension VonageClient: VGVoiceClientDelegate {
     func voiceClient(_ client: VGVoiceClient, didReceiveInviteForCall callId: String, from caller: String, withChannelType type: String) {
         self.callId = callId
+        self.memberName = caller
         print("here1 receive call")
+
         NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .ringing, type:.inbound, member: caller, message: nil))
     }
     
@@ -214,8 +238,9 @@ extension VonageClient: VGVoiceClientDelegate {
     
     func voiceClient(_ client: VGVoiceClient, didReceiveInviteCancelForCall callId: String, with reason: VGVoiceInviteCancelReasonType) {
         
-        print("here1 invitecancel call")
-        
+        if (callId == self.callId) {
+            return
+        }
         self.callId = nil
         
         var callEndReason = "Incoming call failed"
@@ -237,13 +262,13 @@ extension VonageClient: VGVoiceClientDelegate {
         print("here1 status call", status)
         if (status == "answered") {
             self.callId = callId
+            
+            if let memberName = memberName {
+                NotificationCenter.default.post(name: .callData, object: CallData(username: user.username, memberName: memberName, myLegId: callId, memberLegId: legId, region: user.region))
+            }
+
             NotificationCenter.default.post(name:.callStatus, object: CallStatus(state: .answered, type: .inbound, member: nil, message: nil))
         }
-    }
-    
-    func voiceClient(_ client: VGVoiceClient, didReceiveCallTransferForCall callId: String, withConversationId conversationId: String) {
-        
-        print("here1 transfer call")
     }
     
     func client(_ client: VGBaseClient, didReceiveSessionErrorWith reason: VGSessionErrorReason) {
@@ -258,12 +283,4 @@ extension VonageClient: VGVoiceClientDelegate {
         }
         NotificationCenter.default.post(name: .clientStatus, object: statusText)
     }
-}
-
-extension Notification.Name {
-    static let clientStatus = Notification.Name("Status")
-    static let callStatus = Notification.Name("Call")
-    static let handledCallCallKit = Notification.Name("CallHandledCallKit")
-    static let handledCallApp = Notification.Name("CallHandledApp")
-    static let handledPush = Notification.Name("CallPush")
 }

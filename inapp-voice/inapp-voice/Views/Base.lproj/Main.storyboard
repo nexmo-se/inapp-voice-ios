@@ -448,6 +448,7 @@
                     <connections>
                         <outlet property="activeCallStackView" destination="jeW-Gr-Txu" id="q0u-bY-bsk"/>
                         <outlet property="callButton" destination="ZEz-KN-LOX" id="sal-dJ-AIL"/>
+                        <outlet property="callDataView" destination="ePn-Ac-JYg" id="9xD-bK-0k9"/>
                         <outlet property="callMemberLabel" destination="d8v-rh-gE5" id="1SS-xT-YNo"/>
                         <outlet property="callStatusLabel" destination="nU9-sk-1ir" id="Gne-YG-cTy"/>
                         <outlet property="hangupButton" destination="84R-qq-4Yh" id="oB9-wa-Dtn"/>
@@ -470,7 +471,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="347" height="340"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="22" translatesAutoresizingMaskIntoConstraints="NO" id="T6i-7o-ZTO" userLabel="DataStackView">
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="top" spacing="22" translatesAutoresizingMaskIntoConstraints="NO" id="T6i-7o-ZTO" userLabel="DataStackView">
                                 <rect key="frame" x="12" y="12" width="323" height="316"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DATA" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cYp-3A-8t0">
@@ -478,20 +479,20 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="15" id="1JK-vz-sIv"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" placeholderIntrinsicWidth="323" placeholderIntrinsicHeight="56.333333333333343" axis="vertical" alignment="top" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="ASb-dv-tS1" userLabel="MyLegIdStackView">
                                         <rect key="frame" x="0.0" y="37" width="323" height="56.333333333333343"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Leg Id - Me" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FMo-Ww-ujI">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Leg Id - Me" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FMo-Ww-ujI" userLabel="MyLegIdTitle">
                                                 <rect key="frame" x="0.0" y="0.0" width="86.666666666666671" height="20.333333333333332"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="xxxxxxxxxxxxxx" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p2R-bi-7Zk">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="xxxxxxxxxxxxxx" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p2R-bi-7Zk" userLabel="myLegId">
                                                 <rect key="frame" x="0.0" y="28.333333333333329" width="323" height="28"/>
                                                 <color key="backgroundColor" systemColor="systemGray4Color"/>
                                                 <constraints>
@@ -510,13 +511,13 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="GLp-Z4-gCl" userLabel="MemberLegIdStackView">
                                         <rect key="frame" x="0.0" y="115.33333333333333" width="323" height="56.333333333333329"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Leg Id - User5" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oM1-dW-AK9">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Leg Id - User5" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oM1-dW-AK9" userLabel="MemberLegIdTitle">
                                                 <rect key="frame" x="0.0" y="0.0" width="323" height="20.333333333333332"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="xxxxxxxxxxxxxx" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UFc-o4-Ddu">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="xxxxxxxxxxxxxx" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UFc-o4-Ddu" userLabel="memberLegId">
                                                 <rect key="frame" x="0.0" y="28.333333333333329" width="323" height="28"/>
                                                 <color key="backgroundColor" systemColor="systemGray4Color"/>
                                                 <constraints>
@@ -532,16 +533,16 @@
                                             <constraint firstItem="UFc-o4-Ddu" firstAttribute="leading" secondItem="GLp-Z4-gCl" secondAttribute="leading" id="cVa-LA-mqh"/>
                                         </constraints>
                                     </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="5SP-ox-CcC" userLabel="MyLegIdStackView">
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="5SP-ox-CcC" userLabel="RegionStackView">
                                         <rect key="frame" x="0.0" y="193.66666666666666" width="323" height="56.333333333333343"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Region" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VxL-Kt-fIn">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Region" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VxL-Kt-fIn" userLabel="RegionTitle">
                                                 <rect key="frame" x="0.0" y="0.0" width="52.666666666666664" height="20.333333333333332"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="US" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xbt-uH-D18">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="US" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xbt-uH-D18" userLabel="Region">
                                                 <rect key="frame" x="0.0" y="28.333333333333343" width="323" height="28"/>
                                                 <color key="backgroundColor" systemColor="systemGray4Color"/>
                                                 <constraints>
@@ -571,6 +572,9 @@
                                             <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </buttonConfiguration>
+                                        <connections>
+                                            <action selector="copyButtonClicked:" destination="dGL-w6-Zz3" eventType="touchUpInside" id="GBc-0I-0ek"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <constraints>
@@ -596,6 +600,14 @@
                             <constraint firstAttribute="trailing" secondItem="T6i-7o-ZTO" secondAttribute="trailing" constant="12" id="ifz-Dr-ieh"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="memberLegId" destination="UFc-o4-Ddu" id="au4-vg-nck"/>
+                        <outlet property="memberLegStackView" destination="GLp-Z4-gCl" id="DaW-iA-C6o"/>
+                        <outlet property="memberLegTitle" destination="oM1-dW-AK9" id="f4r-bO-4tD"/>
+                        <outlet property="myLegId" destination="p2R-bi-7Zk" id="HuI-X7-CcA"/>
+                        <outlet property="myLegTitle" destination="FMo-Ww-ujI" id="gki-YN-TY3"/>
+                        <outlet property="region" destination="xbt-uH-D18" id="Vtr-2k-EwT"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YAy-pB-hFP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

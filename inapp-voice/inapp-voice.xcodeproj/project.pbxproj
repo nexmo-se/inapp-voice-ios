@@ -19,13 +19,14 @@
 		EA84A8C429F69766003E187C /* UserDefaultKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84A8C329F69766003E187C /* UserDefaultKeys.swift */; };
 		EA84A8C829F69EEC003E187C /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA84A8C729F69EEC003E187C /* CallKit.framework */; };
 		EA8AF70B29F6266D00A897BD /* PushToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8AF70A29F6266D00A897BD /* PushToken.swift */; };
-		EA8AF70E29F6348000A897BD /* ProviderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8AF70D29F6348000A897BD /* ProviderDelegate.swift */; };
 		EA8CDA1D29EF7CBD00BFDDF5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA1C29EF7CBD00BFDDF5 /* AppDelegate.swift */; };
 		EA8CDA1F29EF7CBD00BFDDF5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA1E29EF7CBD00BFDDF5 /* SceneDelegate.swift */; };
 		EA8CDA2129EF7CBD00BFDDF5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CDA2029EF7CBD00BFDDF5 /* LoginViewController.swift */; };
 		EA8CDA2429EF7CBD00BFDDF5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2229EF7CBD00BFDDF5 /* Main.storyboard */; };
 		EA8CDA2629EF7CBF00BFDDF5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2529EF7CBF00BFDDF5 /* Assets.xcassets */; };
 		EA8CDA2929EF7CBF00BFDDF5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA8CDA2729EF7CBF00BFDDF5 /* LaunchScreen.storyboard */; };
+		EAA33DE829F77393007BA8A1 /* ProviderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA33DE729F77393007BA8A1 /* ProviderDelegate.swift */; };
+		EAA33DEA29F78A2E007BA8A1 /* CallData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA33DE929F78A2E007BA8A1 /* CallData.swift */; };
 		EAC0146B29F10DBB00723BC4 /* JSONstringify.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */; };
 		EAC0146E29F13BF200723BC4 /* DataChildViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */; };
 		EAC0147129F1426900723BC4 /* VonageClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0147029F1426900723BC4 /* VonageClient.swift */; };
@@ -46,7 +47,6 @@
 		EA84A8C329F69766003E187C /* UserDefaultKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultKeys.swift; sourceTree = "<group>"; };
 		EA84A8C729F69EEC003E187C /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = System/Library/Frameworks/CallKit.framework; sourceTree = SDKROOT; };
 		EA8AF70A29F6266D00A897BD /* PushToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToken.swift; sourceTree = "<group>"; };
-		EA8AF70D29F6348000A897BD /* ProviderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderDelegate.swift; sourceTree = "<group>"; };
 		EA8CDA1929EF7CBD00BFDDF5 /* inapp-voice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "inapp-voice.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA8CDA1C29EF7CBD00BFDDF5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EA8CDA1E29EF7CBD00BFDDF5 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -56,6 +56,8 @@
 		EA8CDA2829EF7CBF00BFDDF5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EA8CDA2A29EF7CBF00BFDDF5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EAA277FA29F38CA400ADA812 /* inapp-voice.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "inapp-voice.entitlements"; sourceTree = "<group>"; };
+		EAA33DE729F77393007BA8A1 /* ProviderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderDelegate.swift; sourceTree = "<group>"; };
+		EAA33DE929F78A2E007BA8A1 /* CallData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallData.swift; sourceTree = "<group>"; };
 		EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONstringify.swift; sourceTree = "<group>"; };
 		EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataChildViewController.swift; sourceTree = "<group>"; };
 		EAC0147029F1426900723BC4 /* VonageClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VonageClient.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 			children = (
 				EA3C6B9329F003FA0049D4BA /* CredentialManager.swift */,
 				EA4FCBFD29F2340C00F07478 /* MembersManager.swift */,
+				EAA33DE729F77393007BA8A1 /* ProviderDelegate.swift */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -123,7 +126,6 @@
 		EA3C6B9529F004BA0049D4BA /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				EA8AF70C29F6345600A897BD /* CXProvider */,
 				EA3A438629F2722600C4620B /* ViewController */,
 			);
 			path = Controllers;
@@ -139,16 +141,9 @@
 				EA4FCC0129F2356900F07478 /* MemberModel.swift */,
 				EA8AF70A29F6266D00A897BD /* PushToken.swift */,
 				EA84A8C329F69766003E187C /* UserDefaultKeys.swift */,
+				EAA33DE929F78A2E007BA8A1 /* CallData.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		EA8AF70C29F6345600A897BD /* CXProvider */ = {
-			isa = PBXGroup;
-			children = (
-				EA8AF70D29F6348000A897BD /* ProviderDelegate.swift */,
-			);
-			path = CXProvider;
 			sourceTree = "<group>";
 		};
 		EA8CDA1029EF7CBD00BFDDF5 = {
@@ -327,14 +322,15 @@
 				EA4FCC0229F2356900F07478 /* MemberModel.swift in Sources */,
 				EA5DEAC329F0CD3200373430 /* Region.swift in Sources */,
 				EA3C6B9429F003FA0049D4BA /* CredentialManager.swift in Sources */,
+				EAA33DE829F77393007BA8A1 /* ProviderDelegate.swift in Sources */,
 				EA5DEAC529F0F18000373430 /* UserModel.swift in Sources */,
 				EA3C6B9729F004D00049D4BA /* CallViewController.swift in Sources */,
 				EA8AF70B29F6266D00A897BD /* PushToken.swift in Sources */,
 				EA8CDA1F29EF7CBD00BFDDF5 /* SceneDelegate.swift in Sources */,
 				EAC0147129F1426900723BC4 /* VonageClient.swift in Sources */,
-				EA8AF70E29F6348000A897BD /* ProviderDelegate.swift in Sources */,
 				EAC0146E29F13BF200723BC4 /* DataChildViewController.swift in Sources */,
 				EA3C6B9129F001B30049D4BA /* UI.swift in Sources */,
+				EAA33DEA29F78A2E007BA8A1 /* CallData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

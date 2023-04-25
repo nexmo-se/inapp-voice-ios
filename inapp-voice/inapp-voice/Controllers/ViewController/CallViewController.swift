@@ -29,6 +29,8 @@ class CallViewController: UIViewController {
     
     @IBOutlet weak var hangupButton: UIButton!
     
+    @IBOutlet weak var callDataView: UIView!
+    
     var user: UserModel!
     var memberList: MemberModel!
     var vgclient: VonageClient!
@@ -143,15 +145,19 @@ class CallViewController: UIViewController {
         DispatchQueue.main.async {
             self.idleCallStackView.isHidden = true
             self.activeCallStackView.isHidden = false
+            self.callDataView.isHidden = true
+            
             if (member != nil) {
                 self.callMemberLabel.text = member
             }
             
             if (state == .ringing) {
                 self.callStatusLabel.text = "Ringing"
+                
             }
             if (state == .answered) {
                 self.callStatusLabel.text = "Answered"
+                self.callDataView.isHidden = false
             }
             
             if (state == .ringing && type == .inbound) {

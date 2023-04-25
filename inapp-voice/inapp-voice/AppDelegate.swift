@@ -15,9 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //    private let providerDelegate = ProviderDelegate()
     
     private let voipRegistry = PKPushRegistry(queue: nil)
-
-    // Delegate Subjects
-    var voipPush:PKPushPayload?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -27,19 +24,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         
         // Application onboarding
-        let mediaType = AVMediaType.audio
-        let authorizationStatus = AVCaptureDevice.authorizationStatus(for: mediaType)
-        switch authorizationStatus {
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: mediaType) { granted in
-                print("🎤 access \(granted ? "granted" : "denied")")
-            }
-        case .authorized, .denied, .restricted:
-            print("auth")
-        @unknown default:
-            print("error avcapture")
+        AVAudioSession.sharedInstance().requestRecordPermission { (granted:Bool) in
+            print("Allow microphone use. Response: \(granted)")
         }
-
+        
         return true
     }
 
@@ -67,7 +55,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         // TODO: show alert
         print("error noti here")
-        NotificationCenter.default.post(name: NSNotification.didFailToRegisterForRemoteNotification, object: error.localizedDescription)
     }
 }
 
@@ -84,15 +71,12 @@ extension AppDelegate: PKPushRegistryDelegate {
                     print("is granted!")
                     self.voipRegistry.delegate = self
                     self.voipRegistry.desiredPushTypes = [PKPushType.voIP]
-                    
-                    print("old token", self.voipRegistry.pushToken(for: .voIP))
                 }
             }
         }
     }
     
     func pushRegistry(_ registry: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for type: PKPushType) {
-        print("receive voip token1 ", type)
         if (type == PKPushType.voIP) {
             PushToken.voip = pushCredentials.token
             print("receive voip token")
@@ -103,7 +87,7 @@ extension AppDelegate: PKPushRegistryDelegate {
         print("receive iujie1", payload)
         switch (type){
         case .voIP:
-            self.voipPush = payload
+            NotificationCenter.default.post(name: .handledPush, object: payload)
         default:
             return
         }
@@ -113,13 +97,15 @@ extension AppDelegate: PKPushRegistryDelegate {
     func pushRegistry(_: PKPushRegistry, didInvalidatePushTokenFor: PKPushType) {
         print("iujie 1")
     }
-    
 }
 
-extension NSNotification {
-    public static let didRegisterForRemoteNotificationNotification = NSNotification.Name("didRegisterForRemoteNotificationWithDeviceTokenNotification")
-    public static let didFailToRegisterForRemoteNotification = NSNotification.Name("didFailToRegisterForRemoteNotificationsWithErrorNotification")
-
+extension Notification.Name {
+    static let clientStatus = Notification.Name("ClientStatus")
+    static let callStatus = Notification.Name("CallStatus")
+    static let callData = Notification.Name("CallData")
+    static let handledCallCallKit = Notification.Name("CallHandledCallKit")
+    static let handledCallApp = Notification.Name("CallHandledApp")
+    static let handledPush = Notification.Name("CallPush")
 }
 
 
