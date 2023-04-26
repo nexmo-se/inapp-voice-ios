@@ -7,21 +7,27 @@
 
 import Foundation
 
-protocol CredentialManagerDelegate {
+protocol UserManagerDelegate {
     func didUpdateUser(user: UserModel)
-    func handleCredentialManagerError(message: String)
+    func handleUserManagerError(message: String)
 }
 
-struct CredentialManager {    
-    var delegate: CredentialManagerDelegate?
+struct UserManager {
+    var delegate: UserManagerDelegate?
     
-    func fetchCredential(username:String, region: String, pin: String) {
-              
-        let parameters: [String: String] = [
+    func fetchCredential(username:String, region: String, pin: String?, token: String?) {
+        
+        var parameters: [String: String] = [
             "username": username,
-            "region": region,
-            "pin": pin
+            "region": region
         ]
+        
+        if (pin != nil) {
+            parameters["pin"] = pin!
+        }
+        else if (token != nil) {
+            parameters["token"] = token!
+        }
         
         if let url = URL(string: "\(Network.backendURL)/getCredential") {
             
@@ -36,18 +42,18 @@ struct CredentialManager {
               // convert parameters to Data and assign dictionary to httpBody of request
               request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
             } catch let error {
-                self.delegate?.handleCredentialManagerError(message: error.localizedDescription)
+                self.delegate?.handleUserManagerError(message: error.localizedDescription)
                 return
             }
             
             URLSession.shared.dataTask(with: request) { data, response, error in
                 if error != nil {
-                    self.delegate?.handleCredentialManagerError(message: error!.localizedDescription)
+                    self.delegate?.handleUserManagerError(message: error!.localizedDescription)
                     return
                 }
                 if let httpResponse = response as? HTTPURLResponse {
                     if (httpResponse.statusCode != 200) {
-                        self.delegate?.handleCredentialManagerError(message: "Failed to get token")
+                        self.delegate?.handleUserManagerError(message: "Failed to get token")
                         return
                     }
                 }
@@ -56,13 +62,51 @@ struct CredentialManager {
                         self.delegate?.didUpdateUser(user: user)
                     }
                     else {
-                        self.delegate?.handleCredentialManagerError(message: "Failed to parse credential data")
+                        self.delegate?.handleUserManagerError(message: "Failed to parse credential data")
                     }
                 }
             }.resume()
         }
     }
 
+    func deleteUser(user: UserModel) {
+        var parameters: [String: String] = [
+            "userId": user.userId,
+            "dc": user.dc,
+            "token": user.token
+        ]
+        
+        if let url = URL(string: "\(Network.backendURL)/deleteUser") {
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "DELETE"
+
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type") // change as per server requirements
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+            
+  
+            do {
+              // convert parameters to Data and assign dictionary to httpBody of request
+              request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
+            } catch let error {
+                self.delegate?.handleUserManagerError(message: error.localizedDescription)
+                return
+            }
+            
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if error != nil {
+                    self.delegate?.handleUserManagerError(message: error!.localizedDescription)
+                    return
+                }
+                if let httpResponse = response as? HTTPURLResponse {
+                    if (httpResponse.statusCode != 200) {
+                        self.delegate?.handleUserManagerError(message: "Failed to get token")
+                        return
+                    }
+                }
+            }.resume()
+        }
+    }
     
     func parseJSON(credentialData: Data) -> UserModel?{
         let decoder = JSONDecoder()

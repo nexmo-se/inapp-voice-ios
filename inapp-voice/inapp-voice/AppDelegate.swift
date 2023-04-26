@@ -48,7 +48,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         
-        print("set user token")
         PushToken.user = deviceToken
     }
 
@@ -60,8 +59,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate: PKPushRegistryDelegate {
     func initialisePushTokens() {
-        print("receive abc")
-       
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             if granted {
                 DispatchQueue.main.async {
@@ -79,12 +76,10 @@ extension AppDelegate: PKPushRegistryDelegate {
     func pushRegistry(_ registry: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for type: PKPushType) {
         if (type == PKPushType.voIP) {
             PushToken.voip = pushCredentials.token
-            print("receive voip token")
         }
     }
     
     func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
-        print("receive iujie1", payload)
         switch (type){
         case .voIP:
             NotificationCenter.default.post(name: .handledPush, object: payload)
@@ -92,10 +87,6 @@ extension AppDelegate: PKPushRegistryDelegate {
             return
         }
         completion()
-    }
-    
-    func pushRegistry(_: PKPushRegistry, didInvalidatePushTokenFor: PKPushType) {
-        print("iujie 1")
     }
 }
 

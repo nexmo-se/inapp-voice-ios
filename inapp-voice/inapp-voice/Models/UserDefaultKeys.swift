@@ -9,4 +9,5 @@ import Foundation
 
 struct UserDefaultKeys {
     static let vonagePushKey = "vonagePush"
+    static let userKey = "appUser"
 }

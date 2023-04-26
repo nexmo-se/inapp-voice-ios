@@ -7,8 +7,9 @@
 
 import Foundation
 
-struct UserModel: Decodable {
+struct UserModel: Codable {
     let username: String
+    let userId: String
     let token: String
     let region: String
     let dc: String

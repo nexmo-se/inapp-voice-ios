@@ -46,7 +46,6 @@ extension VonageClient: CXProviderDelegate {
             rejectCall(callId: self.currentCallStatus?.uuid?.toVGCallID())
         }
         else {
-            print("hang up here 2")
             hangUpCall(callId: self.currentCallStatus?.uuid?.toVGCallID())
         }
                            

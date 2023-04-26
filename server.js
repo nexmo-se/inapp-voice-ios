@@ -39,6 +39,8 @@ const WEBSOCKET = {
   sydney:	"wss://ws-ap-4.vonage.com"
 }
 
+const API_VERSION = 'v0.3'
+
 const aclPaths = {
     "paths": {
       "/*/users/**": {},
@@ -54,22 +56,38 @@ const aclPaths = {
     }
 }
 
+app.use(express.static('public'))
+
 app.post('/getCredential', (req, res) => {
-  const {username, region, pin} = req.body;
-  if (!username || !region || !pin || pin !== process.env.LOGIN_PIN || !REGIONS.includes(region.toLowerCase())) {
+  const {username, region, pin , token} = req.body;
+  if (!username || !region || !(pin || token )|| !REGIONS.includes(region.toLowerCase())) {
     console.log("getCredential missing information error")
     return res.status(501).end()
   }
 
+  if (pin && pin != process.env.LOGIN_PIN) {
+    console.log("getCredential wrong pin")
+    return res.status(501).end()
+  }
+
+  if (token) {
+    let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+  
+    if (tokenDecode.application_id !== process.env.APPLICATION_ID) {
+      console.log("getCredential wrong token: ", tokenDecode)
+      return res.status(501).end()
+    }
+  }
+
   const selectedRegion = region.toLowerCase()
-  const restAPI = `${DATA_CENTER[selectedRegion]}/v0.3`
+  const restAPI = `${DATA_CENTER[selectedRegion]}/${API_VERSION}`
   const websocket = WEBSOCKET[selectedRegion]
 
   axios.get(`${restAPI}/users?name=${username}`, { headers: {"Authorization" : `Bearer ${generateJwt()}`} })
   .then(async (result) => {
-      console.log("user exist")
+      console.log("user exist", result.data._embedded.users[0].name)
       const jwt = generateJwt(username) 
-      return res.status(200).json({ username, region, dc: DATA_CENTER[selectedRegion], ws: websocket, token: jwt});
+      return res.status(200).json({ username, userId: result.data._embedded.users[0].id, region, dc: DATA_CENTER[selectedRegion], ws: websocket, token: jwt});
   })
   .catch(error => {
     axios.post(`${restAPI}/users`, {
@@ -77,10 +95,10 @@ app.post('/getCredential', (req, res) => {
       "display_name": username
     } , { headers: {"Authorization" : `Bearer ${generateJwt()}`} })
     .then(async (result) => {
-      console.log("user not exist")
+      console.log("user not exist",result.data.name)
       const jwt = generateJwt(username)
 
-      return res.status(200).json({username, region, dc: DATA_CENTER[selectedRegion], ws: websocket, token: jwt});
+      return res.status(200).json({username, userId: result.data.id, region, dc: DATA_CENTER[selectedRegion], ws: websocket, token: jwt});
     }).catch(error => {
       console.log("register error", error)
         res.status(501).send()
@@ -101,7 +119,7 @@ app.post('/getMembers', (req, res) => {
     return res.status(501).end()
   }
 
-  const restAPI = `${dc}/v0.3`
+  const restAPI = `${dc}/${API_VERSION}`
 
   axios.get(`${restAPI}/users?page_size=100`, { headers: {"Authorization" : `Bearer ${generateJwt()}`} })
   .then(async (result) => {
@@ -117,6 +135,66 @@ app.post('/getMembers', (req, res) => {
   })
 });
 
+app.delete('/deleteUser', async (req, res) => {
+  const {dc, userId, token} = req.body;
+  if (!dc || !userId || !token) {
+    console.log("deleteUser missing information error")
+    return res.status(501).end()
+  }
+  let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+
+  if (tokenDecode.application_id !== process.env.APPLICATION_ID) {
+    console.log("deleteUser wrong token: ", tokenDecode)
+    return res.status(501).end()
+  }
+
+  const restAPI = `${dc}/${API_VERSION}`
+
+  try {
+    await deleteUser(restAPI, userId)
+    return res.status(200).end()
+  } catch (error) {
+    console.log("deleteuser error:", error)
+    return res.status(501).end()
+  }
+})
+
+app.delete('/deleteAllUsers', (req, res) => {
+  const {dc, token} = req.body;
+  if (!dc || !token) {
+    console.log("deleteAllUsers missing information error")
+    return res.status(501).end()
+  }
+  let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+
+  if (tokenDecode.application_id !== process.env.APPLICATION_ID) {
+    console.log("deleteAllUsers wrong token: ", tokenDecode)
+    return res.status(501).end()
+  }
+
+  const restAPI = `${dc}/${API_VERSION}`
+
+  axios.get(`${restAPI}/users?page_size=100`, { headers: {"Authorization" : `Bearer ${generateJwt()}`} })
+  .then(async (result) => {
+      const memberIds = result.data._embedded.users
+        .map((member) => member.id)
+      
+      memberIds.forEach(async (userId) => {
+        try {
+          await deleteUser(restAPI, userId)
+        } catch (error) {
+          console.log("deleteuser error:", error)
+        }
+      });
+
+      console.log("im here")
+      return res.status(200).send();
+  })
+  .catch(error => {
+    console.log("get members error: ", error)
+    res.status(501).send()
+  })
+})
 
 function generateJwt(username) {
   if (!username) {
@@ -136,6 +214,20 @@ function generateJwt(username) {
     });
 
   return jwt
+}
+
+function deleteUser(restAPI, userId) {
+  return new Promise((resolve, reject) => {
+    axios.delete(`${restAPI}/users/${userId}`, { headers: {"Authorization" : `Bearer ${generateJwt()}`} })
+    .then(async (result) => {
+        console.log("user deleted")
+        resolve()
+    })
+    .catch(error => {
+        console.log("delete user error: ", error)
+        reject(error)
+    })
+  })
 }
 
 app.get('/voice/answer', (req, res) => {
@@ -158,7 +250,8 @@ app.get('/voice/answer', (req, res) => {
             "type": "app",
             "user": username
           }
-        ]
+        ],
+        "ringbackTone": process.env.CALLER_RINGTONE_URL
       }
     ]
   }

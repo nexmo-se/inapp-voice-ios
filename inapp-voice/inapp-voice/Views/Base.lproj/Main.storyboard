@@ -188,6 +188,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="formStackView" destination="Lup-bs-Neo" id="lLK-Vh-6Tv"/>
                         <outlet property="pinTextField" destination="zS2-R3-nEI" id="ydF-c0-qVX"/>
                         <outlet property="regionTableView" destination="h94-fH-ZpN" id="2lt-sd-mSW"/>
                         <outlet property="regionTextField" destination="nMq-lB-Ye9" id="gmk-i1-tpL"/>
@@ -416,7 +417,7 @@
                                     <constraint firstAttribute="trailing" secondItem="jeW-Gr-Txu" secondAttribute="trailing" id="vAv-1L-i9v"/>
                                 </constraints>
                             </stackView>
-                            <containerView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ePn-Ac-JYg">
+                            <containerView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ePn-Ac-JYg" userLabel="CallDataView">
                                 <rect key="frame" x="14" y="425" width="347" height="340"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="340" id="Fo0-kL-ytg"/>
@@ -447,14 +448,17 @@
                     </view>
                     <connections>
                         <outlet property="activeCallStackView" destination="jeW-Gr-Txu" id="q0u-bY-bsk"/>
+                        <outlet property="answerButton" destination="38N-ec-HmS" id="1c8-mt-Ijp"/>
                         <outlet property="callButton" destination="ZEz-KN-LOX" id="sal-dJ-AIL"/>
                         <outlet property="callDataView" destination="ePn-Ac-JYg" id="9xD-bK-0k9"/>
                         <outlet property="callMemberLabel" destination="d8v-rh-gE5" id="1SS-xT-YNo"/>
                         <outlet property="callStatusLabel" destination="nU9-sk-1ir" id="Gne-YG-cTy"/>
                         <outlet property="hangupButton" destination="84R-qq-4Yh" id="oB9-wa-Dtn"/>
                         <outlet property="idleCallStackView" destination="bLU-pB-ThV" id="o3X-Eb-zSB"/>
+                        <outlet property="logoutButton" destination="L4Y-3g-ite" id="CZQ-bS-AHd"/>
                         <outlet property="memberSearchTextField" destination="21T-VN-6fR" id="Hqc-RT-TJe"/>
                         <outlet property="memberTableView" destination="ySi-6E-8rW" id="OBY-BW-kX6"/>
+                        <outlet property="rejectButton" destination="wHO-ZQ-73O" id="ahm-OZ-WJd"/>
                         <outlet property="ringingStackView" destination="n4a-5K-m7y" id="Xur-Ui-aCI"/>
                         <outlet property="usernameLabel" destination="ojc-g5-hHy" id="1zi-SW-ThA"/>
                     </connections>

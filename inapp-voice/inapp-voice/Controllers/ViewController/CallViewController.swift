@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVFAudio
 
 class CallViewController: UIViewController {
     
@@ -31,11 +32,18 @@ class CallViewController: UIViewController {
     
     @IBOutlet weak var callDataView: UIView!
     
+    @IBOutlet weak var logoutButton: UIButton!
+    
+    @IBOutlet weak var answerButton: UIButton!
+    
+    @IBOutlet weak var rejectButton: UIButton!
+    
     var user: UserModel!
     var memberList: MemberModel!
     var vgclient: VonageClient!
     var membersManager = MembersManager()
     var memberSearchResult = [String]()
+    var userManager = UserManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,8 +55,9 @@ class CallViewController: UIViewController {
         }
         
         callButton.isEnabled = false
-        
-        // vonage client
+        callDataView.layer.borderWidth = 2
+        callDataView.layer.borderColor = .init(red: 196/255, green: 53/255, blue: 152/255, alpha: 1)
+          
         vgclient = VonageClient(user: user)
         vgclient.login(user: user)
         
@@ -82,9 +91,23 @@ class CallViewController: UIViewController {
     @objc func connectionStatusReceived(_ notification: NSNotification) {
         if let clientStatus = notification.object as? VonageClientStatus {
             DispatchQueue.main.async { [weak self] in
+                
+                if (self == nil) {return}
    
                 if (clientStatus.state == .connected) {
                     self!.showToast(message: "Connected", font: .systemFont(ofSize: 12.0))
+                    
+                    // store user to userdefault
+                    do {
+                        let encoder = JSONEncoder()
+
+                        let data = try encoder.encode(self!.user)
+
+                        UserDefaults.standard.set(data, forKey: UserDefaultKeys.userKey)
+
+                    } catch {
+                        print("Unable to Encode USer (\(error))")
+                    }
                 }
                 else if (clientStatus.state == .disconnected) {
                     if clientStatus.message != nil {
@@ -109,6 +132,7 @@ class CallViewController: UIViewController {
         DispatchQueue.main.async { [weak self] in
             if let callStatus = notification.object as? CallStatus {
                 if (self ==  nil) {return}
+                self!.enableActionButton()
                 
                 switch callStatus.state {
                 case .answered, .ringing:
@@ -130,14 +154,17 @@ class CallViewController: UIViewController {
     }
     
     @IBAction func answerCallClicked(_ sender: Any) {
+        disableActionButtons()
         vgclient.answerByCallkit(calluuid: vgclient.currentCallStatus?.uuid)
     }
     
     @IBAction func rejectCallClicked(_ sender: Any) {
+        disableActionButtons()
         vgclient.rejectByCallkit(calluuid: vgclient.currentCallStatus?.uuid)
     }
     
     @IBAction func hangupCallClicked(_ sender: Any) {
+        disableActionButtons()
         vgclient.hangUpCall(callId: vgclient.currentCallStatus?.uuid?.toVGCallID())
     }
     
@@ -145,9 +172,9 @@ class CallViewController: UIViewController {
     
     func displayActiveCall(state: CallState, type: CallType?, member: String?) {
         DispatchQueue.main.async {
+            self.logoutButton.isHidden = true
             self.idleCallStackView.isHidden = true
             self.activeCallStackView.isHidden = false
-            self.callDataView.isHidden = true
             
             if (member != nil) {
                 self.callMemberLabel.text = member
@@ -155,6 +182,7 @@ class CallViewController: UIViewController {
             
             if (state == .ringing) {
                 self.callStatusLabel.text = "Ringing"
+                self.callDataView.isHidden = true
                 
             }
             if (state == .answered) {
@@ -175,6 +203,7 @@ class CallViewController: UIViewController {
     
     func displayIdleCall(message: String?) {
         DispatchQueue.main.async {
+            self.logoutButton.isHidden = false
             if (message != nil) {
                 let alert = UIAlertController(title: message, message: nil , preferredStyle: .alert)
                 let alertAction = UIAlertAction(title: "OK", style: .default) { action in
@@ -192,13 +221,31 @@ class CallViewController: UIViewController {
         }
     }
     
+    func disableActionButtons() {
+        hangupButton.isEnabled = false
+        answerButton.isEnabled = false
+        rejectButton.isEnabled = false
+        callButton.isEnabled = false
+    }
+    
+    func enableActionButton() {
+        hangupButton.isEnabled = true
+        answerButton.isEnabled = true
+        rejectButton.isEnabled = true
+        callButton.isEnabled = true
+    }
+    
     @IBAction func onLogoutButtonClicked(_ sender: Any) {
         // TODO: logout, delete user
         vgclient.logout()
+        userManager.deleteUser(user: user)
+        
+        UserDefaults.standard.removeObject(forKey: UserDefaultKeys.userKey)
         self.dismiss(animated: true)
     }
     
     @IBAction func onCallbuttonClicked(_ sender: Any) {
+        disableActionButtons()
         if (memberSearchTextField.text == "") {
             self.showToast(message: "Please select a member", font: .systemFont(ofSize: 12.0))
             return
