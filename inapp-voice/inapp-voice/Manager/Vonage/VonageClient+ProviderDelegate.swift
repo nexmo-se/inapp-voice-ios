@@ -59,12 +59,12 @@ extension VonageClient: CXProviderDelegate {
         }
         
         if (action.isMuted == true) {
-            self.voiceClient.mute(action.callUUID.toVGCallID()) { err in
+            self.voiceClient.mute(action.callUUID.toVGCallID()) { error in
                 print("mute error")
             }
         }
         else {
-            self.voiceClient.unmute(action.callUUID.toVGCallID()) { err in
+            self.voiceClient.unmute(action.callUUID.toVGCallID()) { error in
                 print("unmute error")
             }
         }

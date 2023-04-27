@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PushToken {
+struct PushToken: Codable {
     static var user:Data? = nil
     static var voip:Data? = nil
 }

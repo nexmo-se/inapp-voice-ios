@@ -8,38 +8,33 @@
 import UIKit
 
 class DataChildViewController: UIViewController {
-
-  
-    @IBOutlet weak var myLegTitle: UILabel!
     
+    @IBOutlet weak var memberLegStackView: UIStackView!
+    
+    @IBOutlet weak var myLegTitle: UILabel!
     @IBOutlet weak var memberLegTitle: UILabel!
     
     @IBOutlet weak var myLegId: UILabel!
-    
     @IBOutlet weak var memberLegId: UILabel!
     
     @IBOutlet weak var region: UILabel!
     
-    @IBOutlet weak var memberLegStackView: UIStackView!
-    
-    var callData: CallData?
+    var callData: CallDataModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // notification
-        NotificationCenter.default.addObserver(self, selector: #selector(callDataReceived(_:)), name: .callData, object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(callDataReceived(_:)), name: .handledCallData, object: nil)
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-
+    
     @objc func callDataReceived(_ notification: NSNotification) {
-        if let callData = notification.object as? CallData {
+        if let callData = notification.object as? CallDataModel {
             DispatchQueue.main.async { [weak self] in
-                if self == nil {return}
+                if (self == nil) {return}
                 
                 self!.callData = callData
                 
@@ -58,10 +53,11 @@ class DataChildViewController: UIViewController {
             }
         }
     }
-
+    
     @IBAction func copyButtonClicked(_ sender: Any) {
         if let callData = callData {
-            let copiedString = " myLegId - \(callData.username) : \(callData.myLegId), memberLegId - \(callData.memberName) : \(String(describing: callData.memberLegId)), region: \( callData.region)"
+            let memberLegId = callData.memberLegId == nil ? "nil" : callData.memberLegId!
+            let copiedString = " myLegId - \(callData.username) : \(callData.myLegId), memberLegId - \(callData.memberName) : \(memberLegId), region: \( callData.region)"
             UIPasteboard.general.string = copiedString
             
             // show toast

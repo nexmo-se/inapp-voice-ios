@@ -27,3 +27,42 @@ func showToast(message : String, font: UIFont) {
         toastLabel.removeFromSuperview()
     })
 } }
+
+func createAlert(message : String, completion: ((_ isActionSubmitted: Bool) -> ())? = nil) -> UIAlertController{
+    let alert = UIAlertController(title: message, message: nil , preferredStyle: .alert)
+    let alertAction = UIAlertAction(title: "OK", style: .default) { action in
+        if let completion = completion {
+            completion(true)
+        }
+    }
+    alert.addAction(alertAction)
+    
+    return alert
+}
+
+func createLoadingActivityIndicator() -> UIActivityIndicatorView {
+        let indicator = UIActivityIndicatorView()
+        
+        indicator.style = .large
+        indicator.color = .darkGray
+            
+        // The indicator should be animating when
+        // the view appears.
+        indicator.startAnimating()
+            
+        // Setting the autoresizing mask to flexible for all
+        // directions will keep the indicator in the center
+        // of the view and properly handle rotation.
+        indicator.autoresizingMask = [
+            .flexibleLeftMargin, .flexibleRightMargin,
+            .flexibleTopMargin, .flexibleBottomMargin
+        ]
+            
+        return indicator
+}
+
+extension UIViewController {
+    var appDelegate: AppDelegate {
+    return UIApplication.shared.delegate as! AppDelegate
+   }
+}

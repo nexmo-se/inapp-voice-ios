@@ -8,85 +8,69 @@
 import UIKit
 
 class LoginViewController: UIViewController {
-
+    
+    // Form
+    @IBOutlet weak var formStackView: UIStackView!
     @IBOutlet weak var usernameTextField: UITextField!
-    
     @IBOutlet weak var regionTextField: UITextField!
-    
     @IBOutlet weak var pinTextField: UITextField!
-    
-    @IBOutlet weak var regionTableView: UITableView!
-    
     @IBOutlet weak var submitButton: UIButton!
     
-    @IBOutlet weak var formStackView: UIStackView!
+    // Table
+    @IBOutlet weak var regionTableView: UITableView!
     
-    let usernameTag = 1
-    let regionTag = 2
-    let pinTag = 3
+    var regionSearchResult = Constants.countries
     
-    var regionSearchResult = Region.countries
-    var userManager = UserManager()
     var user: UserModel?
+    var userManager = UserManager()
     
-    var loadingActivityIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView()
-        
-        indicator.style = .large
-        indicator.color = .darkGray
-            
-        // The indicator should be animating when
-        // the view appears.
-        indicator.startAnimating()
-            
-        // Setting the autoresizing mask to flexible for all
-        // directions will keep the indicator in the center
-        // of the view and properly handle rotation.
-        indicator.autoresizingMask = [
-            .flexibleLeftMargin, .flexibleRightMargin,
-            .flexibleTopMargin, .flexibleBottomMargin
-        ]
-            
-        return indicator
-    }()
+    let inputTag: [String: Int] = [
+        "username": 1,
+        "region": 2,
+        "pin": 3
+    ]
+    
+    let loadingActivityIndicator = createLoadingActivityIndicator()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        usernameTextField.tag = usernameTag
+        userManager.delegate = self
+        
+        usernameTextField.tag = inputTag["username"]!
         usernameTextField.delegate = self
         
-        regionTextField.tag = regionTag
+        regionTextField.tag = inputTag["region"]!
         regionTextField.delegate = self
         
-        pinTextField.tag = pinTag
+        pinTextField.tag = inputTag["pin"]!
         pinTextField.delegate = self
         
         regionTableView.dataSource = self
         regionTableView.delegate = self
-        userManager.delegate = self
         
         
-        // Read/Get Data
-        if let data = UserDefaults.standard.data(forKey: UserDefaultKeys.userKey) {
+        // If user logged in
+        if let data = UserDefaults.standard.data(forKey: Constants.userKey) {
             do {
-                // Create JSON Decoder
                 let decoder = JSONDecoder()
-
                 let user = try decoder.decode(UserModel.self, from: data)
+                
                 // Refresh token
                 userManager.fetchCredential(username: user.username, region: user.region, pin: nil, token: user.token)
                 
                 formStackView.isHidden = true
                 
-                // center of view
+                // Add loading spinner
                 loadingActivityIndicator.center = CGPoint(
                     x: view.bounds.midX,
                     y: view.bounds.midY
                 )
                 view.addSubview(loadingActivityIndicator)
             } catch {
-                print("Unable to Decode user (\(error))")
+                self.present(createAlert(message: "Unable to Decode user: \(error)", completion: { isActionSubmitted in
+                    self.formStackView.isHidden = false
+                }), animated: true)
             }
         }
     }
@@ -95,14 +79,14 @@ class LoginViewController: UIViewController {
         formStackView.isHidden = false
         loadingActivityIndicator.removeFromSuperview()
     }
-
-
+    
+    
     @IBAction func submitButtonClicked(_ sender: Any) {
         if ((usernameTextField.text == "") || (regionTextField.text == "") || (pinTextField.text == "")) {
             self.showToast(message: "Missing Sign-In information", font: .systemFont(ofSize: 12.0))
             return
         }
-        if !Region.countries.contains(regionTextField.text!) {
+        if !Constants.countries.contains(regionTextField.text!) {
             self.showToast(message: "Invalid region", font: .systemFont(ofSize: 12.0))
             return
         }
@@ -122,17 +106,17 @@ class LoginViewController: UIViewController {
 //MARK: UITextFieldDelegate
 extension LoginViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        if (textField.tag == regionTag) {
+        if (textField.tag == inputTag["region"]) {
             regionTableView.isHidden = false
         }
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if (textField.tag == regionTag) {
+        if (textField.tag == inputTag["region"]) {
             regionTableView.isHidden = true
         }
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if (textField.tag == regionTag) {
+        if (textField.tag == inputTag["region"]) {
             regionSearchResult = filterCountries(input: regionTextField.text!)
             regionTableView.reloadData()
         }
@@ -140,20 +124,20 @@ extension LoginViewController: UITextFieldDelegate {
         return true
     }
     func textFieldDidChangeSelection(_ textField: UITextField) {
-        if (textField.tag == regionTag) {
+        if (textField.tag == inputTag["region"]) {
             regionSearchResult = filterCountries(input: regionTextField.text!)
             regionTableView.reloadData()
         }
     }
     
     func filterCountries(input: String) -> Array<String> {
-        if input != "" && !Region.countries.contains(input){
-            return Region.countries.filter({ country in
+        if input != "" && !Constants.countries.contains(input){
+            return Constants.countries.filter({ country in
                 country.lowercased().contains(input.lowercased())
             })
         }
         else {
-            return Region.countries
+            return Constants.countries
         }
     }
 }
@@ -191,17 +175,21 @@ extension LoginViewController: UITableViewDelegate {
 extension LoginViewController: UserManagerDelegate {
     func didUpdateUser(user: UserModel) {
         self.user = user
-        DispatchQueue.main.async {
-            self.submitButton.isEnabled = true
-            self.performSegue(withIdentifier: "goToCallVC", sender: self)
+        DispatchQueue.main.async { [weak self] in
+            if (self == nil) {return}
+            
+            self!.submitButton.isEnabled = true
+            self!.performSegue(withIdentifier: "goToCallVC", sender: self)
         }
     }
     func handleUserManagerError(message: String) {
-        DispatchQueue.main.async {
-            self.submitButton.isEnabled = true
-            let alert = UIAlertController(title: message, message: nil , preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async { [weak self] in
+            if (self == nil) {return}
+            
+            self!.formStackView.isHidden = false
+            self!.loadingActivityIndicator.removeFromSuperview()
+            self!.submitButton.isEnabled = true
+            self!.present(createAlert(message: message, completion: nil), animated: true, completion: nil)
         }
     }
 }

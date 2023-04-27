@@ -9,14 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 const  { Vonage }  = require('@vonage/server-sdk');
-const vonage = new Vonage({
-    apiKey: process.env.API_KEY,
-    apiSecret: process.env.API_SECRET,
-    applicationId: process.env.APPLICATION_ID,
-    privateKey: process.env.PRIVATE_KEY
-})
 const { tokenGenerate } = require('@vonage/jwt');
-
 
 const fs = require('fs')
 var privateKey = fs.readFileSync(process.env.PRIVATE_KEY);
@@ -255,7 +248,6 @@ app.get('/voice/answer', (req, res) => {
       }
     ]
   }
-  console.log("json ", ncco)
   res.json(ncco);
 });
 

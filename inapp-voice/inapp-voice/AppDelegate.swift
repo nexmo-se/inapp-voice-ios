@@ -9,11 +9,10 @@ import UIKit
 import AVFoundation
 import PushKit
 
+var window:UIWindow?
+
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-//    private let providerDelegate = ProviderDelegate()
-    
     private let voipRegistry = PKPushRegistry(queue: nil)
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -21,7 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         UIApplication.shared.delegate = self
         self.initialisePushTokens()
-        
         
         // Application onboarding
         AVAudioSession.sharedInstance().requestRecordPermission { (granted:Bool) in
@@ -45,15 +43,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
     // MARK: Notifications
-    
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        
         PushToken.user = deviceToken
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        // TODO: show alert
-        print("error noti here")
+        let alert = createAlert(message: "Register notification error: \(error.localizedDescription)", completion: nil)
+        
+        print("register notification error")
+        // show the alert
+        UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true, completion: nil)
     }
 }
 
@@ -61,13 +60,13 @@ extension AppDelegate: PKPushRegistryDelegate {
     func initialisePushTokens() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             if granted {
-                DispatchQueue.main.async {
-                    //
+                DispatchQueue.main.async {[weak self] in
+                    if (self == nil) {return}
+                    
                     UIApplication.shared.registerForRemoteNotifications()
-                    //
                     print("is granted!")
-                    self.voipRegistry.delegate = self
-                    self.voipRegistry.desiredPushTypes = [PKPushType.voIP]
+                    self!.voipRegistry.delegate = self
+                    self!.voipRegistry.desiredPushTypes = [PKPushType.voIP]
                 }
             }
         }
@@ -93,9 +92,7 @@ extension AppDelegate: PKPushRegistryDelegate {
 extension Notification.Name {
     static let clientStatus = Notification.Name("ClientStatus")
     static let callStatus = Notification.Name("CallStatus")
-    static let callData = Notification.Name("CallData")
-    static let handledCallCallKit = Notification.Name("CallHandledCallKit")
-    static let handledCallApp = Notification.Name("CallHandledApp")
+    static let handledCallData = Notification.Name("CallData")
     static let handledPush = Notification.Name("CallPush")
 }
 

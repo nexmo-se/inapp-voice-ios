@@ -23,7 +23,7 @@ struct MembersManager {
             "token": user.token
         ]
         
-        if let url = URL(string: "\(Network.backendURL)/getMembers") {
+        if let url = URL(string: "\(Constants.backendURL)/getMembers") {
             
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
@@ -36,18 +36,18 @@ struct MembersManager {
               // convert parameters to Data and assign dictionary to httpBody of request
               request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
             } catch let error {
-                self.delegate?.handleMembersManagerError(message: error.localizedDescription)
+                self.delegate?.handleMembersManagerError(message: "Fetch Member JsonSerialization Error: \(error.localizedDescription)")
                 return
             }
             
             URLSession.shared.dataTask(with: request) { data, response, error in
                 if error != nil {
-                    self.delegate?.handleMembersManagerError(message: error!.localizedDescription)
+                    self.delegate?.handleMembersManagerError(message: "Fetch Member API Error: \(error!.localizedDescription)")
                     return
                 }
                 if let httpResponse = response as? HTTPURLResponse {
                     if (httpResponse.statusCode != 200) {
-                        self.delegate?.handleMembersManagerError(message: "Failed to get members")
+                        self.delegate?.handleMembersManagerError(message: "Failed to get members, status code: \(httpResponse.statusCode)")
                         return
                     }
                 }
@@ -56,7 +56,7 @@ struct MembersManager {
                         self.delegate?.didUpdateMembers(memberList: members)
                     }
                     else {
-                        self.delegate?.handleMembersManagerError(message: "Failed to parse members data")
+                        self.delegate?.handleMembersManagerError(message: "Failed to parse members data \(safeData)")
                     }
                 }
             }.resume()
