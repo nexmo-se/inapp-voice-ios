@@ -9,3 +9,4 @@ inapp-voice/.build/
 node_modules/
 key/
 .env
+neru.yml

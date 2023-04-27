@@ -1,18 +1,17 @@
-require('dotenv').config();
-const axios = require('axios');
-const cors = require('cors');
+import { neru } from 'neru-alpha';
+import express from 'express';
+import * as dotenv from 'dotenv';
+import axios from 'axios';
+import cors from 'cors';
+import {tokenGenerate} from '@vonage/jwt';
+import fs from 'fs';
+dotenv.config()
 
-const port = process.env.PORT || 3003; 
-const express = require('express')
+const port = process.env.NERU_APP_PORT || process.env.PORT || 3003; 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-const  { Vonage }  = require('@vonage/server-sdk');
-const { tokenGenerate } = require('@vonage/jwt');
-
-const fs = require('fs')
-var privateKey = fs.readFileSync(process.env.PRIVATE_KEY);
 const REGIONS = ["virginia", "oregon", "dublin", "frankfurt", "singapore", "sydney"]
 const DATA_CENTER = {
   virginia:	"https://api-us-3.vonage.com",
@@ -34,6 +33,9 @@ const WEBSOCKET = {
 
 const API_VERSION = 'v0.3'
 
+const applicationId = neru.config.apiApplicationId || process.env.APPLICATION_ID
+const privateKey = neru.config.privateKey || fs.readFileSync(process.env.PRIVATE_KEY);
+
 const aclPaths = {
     "paths": {
       "/*/users/**": {},
@@ -51,6 +53,14 @@ const aclPaths = {
 
 app.use(express.static('public'))
 
+app.get('/_/health', async (req, res) => {
+    res.sendStatus(200);
+});
+
+app.get('/', async (req, res, next) => {
+    res.send('hello world').status(200);
+});
+
 app.post('/getCredential', (req, res) => {
   const {username, region, pin , token} = req.body;
   if (!username || !region || !(pin || token )|| !REGIONS.includes(region.toLowerCase())) {
@@ -66,7 +76,7 @@ app.post('/getCredential', (req, res) => {
   if (token) {
     let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
   
-    if (tokenDecode.application_id !== process.env.APPLICATION_ID) {
+    if (tokenDecode.application_id !== applicationId) {
       console.log("getCredential wrong token: ", tokenDecode)
       return res.status(501).end()
     }
@@ -107,7 +117,7 @@ app.post('/getMembers', (req, res) => {
   }
   let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
 
-  if (tokenDecode.application_id !== process.env.APPLICATION_ID) {
+  if (tokenDecode.application_id !== applicationId) {
     console.log("getMembers wrong token: ", tokenDecode)
     return res.status(501).end()
   }
@@ -136,7 +146,7 @@ app.delete('/deleteUser', async (req, res) => {
   }
   let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
 
-  if (tokenDecode.application_id !== process.env.APPLICATION_ID) {
+  if (tokenDecode.application_id !== applicationId) {
     console.log("deleteUser wrong token: ", tokenDecode)
     return res.status(501).end()
   }
@@ -160,7 +170,7 @@ app.delete('/deleteAllUsers', (req, res) => {
   }
   let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
 
-  if (tokenDecode.application_id !== process.env.APPLICATION_ID) {
+  if (tokenDecode.application_id !== applicationId) {
     console.log("deleteAllUsers wrong token: ", tokenDecode)
     return res.status(501).end()
   }
@@ -191,7 +201,7 @@ app.delete('/deleteAllUsers', (req, res) => {
 
 function generateJwt(username) {
   if (!username) {
-    const adminJwt = tokenGenerate(process.env.APPLICATION_ID, privateKey, {
+    const adminJwt = tokenGenerate(applicationId, privateKey, {
       //expire in 24 hours
       exp: Math.round(new Date().getTime()/1000)+86400,
       acl: aclPaths
@@ -199,7 +209,7 @@ function generateJwt(username) {
     return adminJwt
   }
   
-  const jwt = tokenGenerate(process.env.APPLICATION_ID, privateKey, {
+  const jwt = tokenGenerate(applicationId, privateKey, {
     sub: username,
     //expire in 3 days
     exp: Math.round(new Date().getTime()/1000)+259200,
