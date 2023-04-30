@@ -1,10 +1,16 @@
 inapp-voice/Pods/
 inapp-voice/Dependencies/
-inapp-voice/xcuserdata/
 inapp-voice/*.ipa
 inapp-voice/*.hmap
 inapp-voice/.build/
+inapp-voice/fastlane
 .DS_Store
+
+AppStore_com.vonage.inapp-voice-ios.mobileprovision
+Gemfile
+Gemfile.lock
+inapp-voice.app.dSYM.zip
+Z4CN899F27.cer
 
 node_modules/
 key/
