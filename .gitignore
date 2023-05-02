@@ -1,3 +1,4 @@
+#ios
 inapp-voice/Pods/
 inapp-voice/Dependencies/
 inapp-voice/*.ipa
@@ -12,6 +13,11 @@ Gemfile.lock
 inapp-voice.app.dSYM.zip
 Z4CN899F27.cer
 
+#android
+inapp-voice-android/.gradle/
+inapp-voice-android/build/
+
+#server
 node_modules/
 key/
 .env

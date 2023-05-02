@@ -190,7 +190,6 @@ app.delete('/deleteAllUsers', (req, res) => {
         }
       });
 
-      console.log("im here")
       return res.status(200).send();
   })
   .catch(error => {

@@ -24,4 +24,7 @@
     <string name="reject">Reject</string>
     <string name="data">DATA</string>
     <string name="copy">Copy</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="choose_a_region">Choose a region</string>
+    <string name="enter_pin">Enter pin</string>
 </resources>

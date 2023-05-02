@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity">
+    android:id="@+id/clLogin"
+    tools:context=".views.LoginActivity">
 
     <TextView
         android:id="@+id/tvLoginTitle"
@@ -52,7 +53,6 @@
             android:text="@string/username"
             android:textSize="18sp"
             android:textColor="@color/black"
-            android:layout_marginStart="8dp"
             app:layout_constraintTop_toBottomOf="@+id/tvSignIn"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -64,8 +64,6 @@
             android:layout_height="48dp"
             android:background="@drawable/rounded_background"
             android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
             android:paddingLeft="8sp"
             android:paddingRight="8sp"
             app:layout_constraintTop_toBottomOf="@+id/tvUsername"
@@ -73,7 +71,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/tvRegion"
             android:inputType="text"
-            android:hint="@string/username"
+            android:hint="@string/enter_your_name"
             android:autofillHints="name"
             />
         <TextView
@@ -83,36 +81,50 @@
             android:text="@string/region"
             android:textSize="18sp"
             android:textColor="@color/black"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@+id/etUsername"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/svRegion"
+            app:layout_constraintBottom_toTopOf="@+id/etRegion"
             />
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/svRegion"
+<!--        <androidx.appcompat.widget.SearchView-->
+<!--            android:id="@+id/svRegion"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="48dp"-->
+<!--            app:iconifiedByDefault="false"-->
+<!--            app:searchIcon="@null"-->
+<!--            app:queryBackground="@drawable/rounded_background"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvRegion"-->
+<!--            app:layout_constraintBottom_toTopOf="@+id/rvRegion"-->
+<!--            app:queryHint="@string/choose_a_region"-->
+<!--            />-->
+        <EditText
+            android:id="@+id/etRegion"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            app:iconifiedByDefault="false"
-            app:searchIcon="@null"
-            app:queryBackground="@drawable/rounded_background"
+            android:paddingLeft="8sp"
+            android:paddingRight="8sp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/rounded_background"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvRegion"
             app:layout_constraintBottom_toTopOf="@+id/rvRegion"
-            app:queryHint="@string/region"
+            android:hint="@string/choose_a_region"
             />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRegion"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/svRegion"
+            app:layout_constraintTop_toBottomOf="@+id/etRegion"
             app:layout_constraintBottom_toTopOf="@+id/tvPin"
+            android:visibility="gone"
             />
         <TextView
             android:id="@+id/tvPin"
@@ -121,7 +133,6 @@
             android:text="@string/pin"
             android:textSize="18sp"
             android:textColor="@color/black"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@+id/rvRegion"
             app:layout_constraintStart_toStartOf="parent"
@@ -134,17 +145,14 @@
             android:layout_height="48dp"
             android:background="@drawable/rounded_background"
             android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
             android:paddingLeft="8sp"
             android:paddingRight="8sp"
             app:layout_constraintTop_toBottomOf="@+id/tvPin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/btLogin"
-            android:hint="@string/pin"
+            android:hint="@string/enter_pin"
             android:inputType="numberPassword"
-            android:autofillHints="password"
             />
         <Button
             android:id="@+id/btLogin"
@@ -152,8 +160,6 @@
             android:layout_height="52dp"
             android:text="@string/login"
             android:textSize="18sp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
             android:layout_marginTop="48dp"
             android:textAllCaps="false"
             android:backgroundTint="@android:color/black"

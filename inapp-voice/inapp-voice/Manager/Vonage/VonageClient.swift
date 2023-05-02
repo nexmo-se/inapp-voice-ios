@@ -97,7 +97,7 @@ class VonageClient: NSObject {
     func registerPushTokens() {
         if (PushToken.voip == nil || PushToken.user == nil) { return }
         
-        self.voiceClient.registerDevicePushToken(PushToken.voip!, userNotificationToken: PushToken.user!, isSandbox: true) { error, device in
+        self.voiceClient.registerDevicePushToken(PushToken.voip!, userNotificationToken: PushToken.user!, isSandbox: false) { error, device in
             if (error != nil) {
                 self.logout()
             }
