@@ -1,5 +1,6 @@
 package com.vonage.inapp_voice_android.api
 
+import com.vonage.inapp_voice_android.models.Members
 import com.vonage.inapp_voice_android.models.User
 import retrofit2.Call
 import retrofit2.http.Body
@@ -17,4 +18,9 @@ interface APIService {
     fun deleteUser(
         @Body deleteInformation: DeleteInformation
     ): Call<Void>
+
+    @POST("getMembers")
+    fun getMembers(
+        @Body memberInformation: MemberInformation
+    ): Call<Members>
 }

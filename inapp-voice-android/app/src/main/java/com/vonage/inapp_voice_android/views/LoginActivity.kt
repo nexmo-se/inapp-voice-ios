@@ -1,10 +1,8 @@
 package com.vonage.inapp_voice_android.views
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import retrofit2.Callback
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
@@ -83,7 +81,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        binding.etRegion.doOnTextChanged { text, start, before, count ->
+        binding.etRegion.doOnTextChanged { text, _, _, _ ->
             //filter text
             filteredRegions.clear()
 
