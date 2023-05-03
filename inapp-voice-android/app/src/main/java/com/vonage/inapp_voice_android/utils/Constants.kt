@@ -10,4 +10,5 @@ object Constants {
     const val CONTEXT_KEY_RECIPIENT = "to"
     const val CONTEXT_KEY_TYPE = "type"
     const val APP_TYPE = "app"
+    const val DEFAULT_DIALED_NUMBER = "SERVER-CALL"
 }

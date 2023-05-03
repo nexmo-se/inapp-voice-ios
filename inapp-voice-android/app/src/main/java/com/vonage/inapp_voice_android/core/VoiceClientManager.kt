@@ -11,6 +11,9 @@ import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.telecom.CallConnection
 import com.vonage.inapp_voice_android.App
+import com.vonage.inapp_voice_android.utils.Constants
+import com.vonage.inapp_voice_android.utils.notifyCallDisconnectedToCallActivity
+import com.vonage.inapp_voice_android.utils.notifyIsMutedToCallActivity
 import com.vonage.inapp_voice_android.utils.showToast
 import com.vonage.voice.api.VoiceClient
 
@@ -21,9 +24,6 @@ import com.vonage.voice.api.VoiceClient
 class VoiceClientManager(private val context: Context) {
     private lateinit var client : VoiceClient
     private val coreContext = App.coreContext
-    init {
-        SharedPrefManager.init(context)
-    }
 
     fun initClient(user: User){
         setDefaultLoggingLevel(LoggingLevel.Info)
@@ -58,8 +58,8 @@ class VoiceClientManager(private val context: Context) {
         client.setCallInviteListener { callId, from, type ->
             // Temp Push notification bug:
             // reject incoming calls when there is an active one
-//            coreContext.activeCall?.let { return@setCallInviteListener }
-//            coreContext.telecomHelper.startIncomingCall(callId, from, type)
+            coreContext.activeCall?.let { return@setCallInviteListener }
+            coreContext.telecomHelper.startIncomingCall(callId, from, type)
         }
 
         client.setOnLegStatusUpdate { callId, legId, status ->
@@ -72,14 +72,16 @@ class VoiceClientManager(private val context: Context) {
             }
         }
 
-        client.setOnCallHangupListener { callId, callQuality, isRemote ->
+        client.setOnCallHangupListener { callId, callQuality, reason ->
 //            println("Call $callId has been ${if(isRemote) "remotely" else "locally"} hung up with quality: $callQuality")
             takeIfActive(callId)?.apply {
-//                val cause = if(isRemote) DisconnectCause(DisconnectCause.REMOTE) else DisconnectCause(
-//                    DisconnectCause.LOCAL)
-//                setDisconnected(cause)
-//                clearActiveCall()
-//                notifyCallDisconnectedToCallActivity(context, isRemote)
+
+                val cause = if(reason == HangupReason.localHangup) DisconnectCause(DisconnectCause.LOCAL) else DisconnectCause(
+                    DisconnectCause.REMOTE)
+                setDisconnected(cause)
+                clearActiveCall()
+                val isRemote = reason != HangupReason.localHangup
+                notifyCallDisconnectedToCallActivity(context, isRemote)
             }
         }
 
@@ -93,9 +95,9 @@ class VoiceClientManager(private val context: Context) {
                     VoiceInviteCancelReason.RemoteTimeout -> DisconnectCause(DisconnectCause.MISSED)
 
                 }
-//                setDisconnected(cause)
-//                clearActiveCall()
-//                notifyCallDisconnectedToCallActivity(context, true)
+                setDisconnected(cause)
+                clearActiveCall()
+                notifyCallDisconnectedToCallActivity(context, true)
             }
         }
 
@@ -107,9 +109,9 @@ class VoiceClientManager(private val context: Context) {
             println("LegId $legId for Call $callId has been ${if(isMuted) "muted" else "unmuted"}")
             takeIf { callId == legId } ?: return@setOnMutedListener
             // Update Active Call Mute State
-//            takeIfActive(callId)?.isMuted = isMuted
+            takeIfActive(callId)?.isMuted = isMuted
             // Notify Call Activity
-//            notifyIsMutedToCallActivity(context, isMuted)
+            notifyIsMutedToCallActivity(context, isMuted)
         }
 
         client.setOnDTMFListener { callId, legId, digits ->
@@ -148,8 +150,8 @@ class VoiceClientManager(private val context: Context) {
             } ?: callId?.let {
                 println("Outbound Call successfully started with Call ID: $it")
 
-//                val to = callContext?.get(Constants.CONTEXT_KEY_RECIPIENT) ?: Constants.DEFAULT_DIALED_NUMBER
-//                coreContext.telecomHelper.startOutgoingCall(it, to)
+                val to = callContext?.get(Constants.CONTEXT_KEY_RECIPIENT) ?: Constants.DEFAULT_DIALED_NUMBER
+                coreContext.telecomHelper.startOutgoingCall(it, to)
             }
         }
     }

@@ -3,12 +3,14 @@ package com.vonage.inapp_voice_android.core
 import android.content.Context
 import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.telecom.CallConnection
+import com.vonage.inapp_voice_android.telecom.TelecomHelper
 
 /**
  * A singleton class for storing and accessing Core Application Data
  */
 class CoreContext private constructor(context: Context) {
     private val applicationContext: Context = context.applicationContext
+    val telecomHelper: TelecomHelper by lazy { TelecomHelper(applicationContext) }
     val clientManager: VoiceClientManager by lazy { VoiceClientManager(applicationContext) }
     var activeCall: CallConnection? = null
 

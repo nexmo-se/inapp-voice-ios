@@ -16,6 +16,7 @@ import com.vonage.inapp_voice_android.adaptors.RegionRecyclerAdaptor
 import com.vonage.inapp_voice_android.api.APIRetrofit
 import com.vonage.inapp_voice_android.api.LoginInformation
 import com.vonage.inapp_voice_android.databinding.ActivityLoginBinding
+import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.utils.*
 import com.vonage.inapp_voice_android.utils.navigateToCallActivity
@@ -133,7 +134,14 @@ class LoginActivity : AppCompatActivity() {
       }
     }
 
-  private fun checkPermissions() {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(arePermissionsGranted){
+            App.coreContext.telecomHelper
+        }
+    }
+
+    private fun checkPermissions() {
       if (!arePermissionsGranted) {
           // Request permissions
           ActivityCompat.requestPermissions(this, permissions, PERMISSIONS_REQUEST_CODE)

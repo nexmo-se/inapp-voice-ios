@@ -16,9 +16,10 @@ Z4CN899F27.cer
 #android
 inapp-voice-android/.gradle/
 inapp-voice-android/build/
+inapp-voice-android/app/google-services.json
 
 #server
-node_modules/
-key/
-.env
-neru.yml
+backend/node_modules/
+backend/key/
+backend/.env
+backend/neru.yml

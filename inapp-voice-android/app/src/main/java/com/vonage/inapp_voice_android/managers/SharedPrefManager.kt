@@ -2,6 +2,7 @@ package com.vonage.inapp_voice_android.managers
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 
 import com.vonage.inapp_voice_android.models.User
 
@@ -47,7 +48,7 @@ object SharedPrefManager {
     }
 
     fun setPushToken(token: String) {
-        sharedPreference.edit().putString(PUSH_TOKEN, token)
+        sharedPreference.edit().putString(PUSH_TOKEN, token).apply()
     }
 
     fun getPushToken(): String? {
@@ -55,7 +56,7 @@ object SharedPrefManager {
     }
 
     fun setDeviceId(deviceId: String) {
-        sharedPreference.edit().putString(DEVICE_ID, deviceId)
+        sharedPreference.edit().putString(DEVICE_ID, deviceId).apply()
     }
 
     fun getDeviceId(): String? {

@@ -63,6 +63,6 @@ class CallConnection(val callId: CallId) : Connection() {
 
     fun clearActiveCall(){
         // Reset active call only if it was the current one
-//        coreContext.activeCall?.takeIf { it == this }?.let { coreContext.activeCall = null }
+        coreContext.activeCall?.takeIf { it == this }?.let { coreContext.activeCall = null }
     }
 }

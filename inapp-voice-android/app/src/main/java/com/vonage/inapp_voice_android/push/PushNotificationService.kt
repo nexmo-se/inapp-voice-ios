@@ -1,5 +1,6 @@
 package com.vonage.inapp_voice_android.push
 
+import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.vonage.inapp_voice_android.App
