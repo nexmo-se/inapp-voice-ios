@@ -55,6 +55,6 @@ internal fun notifyCallDisconnectedToCallActivity(context: Context, isRemote:Boo
 
 internal fun notifyCallStartedToCallActivity(context: Context) {
     val extras = Bundle()
-    extras.putString(CallActivity.CALL_STATE, CallActivity.CALL_ANSWERED)
+    extras.putString(CallActivity.CALL_STATE, CallActivity.CALL_STARTED)
     sendMessageToCallActivity(context, extras)
 }

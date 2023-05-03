@@ -11,7 +11,7 @@ import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.telecom.CallConnection
 import com.vonage.inapp_voice_android.App
-import com.vonage.inapp_voice_android.utils.Constants
+import com.vonage.inapp_voice_android.utils.*
 import com.vonage.inapp_voice_android.utils.notifyCallDisconnectedToCallActivity
 import com.vonage.inapp_voice_android.utils.notifyIsMutedToCallActivity
 import com.vonage.inapp_voice_android.utils.showToast
@@ -60,14 +60,15 @@ class VoiceClientManager(private val context: Context) {
             // reject incoming calls when there is an active one
             coreContext.activeCall?.let { return@setCallInviteListener }
             coreContext.telecomHelper.startIncomingCall(callId, from, type)
+            notifyCallStartedToCallActivity(context)
         }
 
         client.setOnLegStatusUpdate { callId, legId, status ->
             println("Call $callId has received status update $status for leg $legId")
             takeIfActive(callId)?.apply {
                 if(status == LegStatus.answered){
-//                    setActive()
-//                    notifyCallAnsweredToCallActivity(context)
+                    setActive()
+                    notifyCallAnsweredToCallActivity(context)
                 }
             }
         }
