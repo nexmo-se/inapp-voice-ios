@@ -11,6 +11,7 @@ import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.telecom.CallConnection
 import com.vonage.inapp_voice_android.App
+import com.vonage.inapp_voice_android.models.CallData
 import com.vonage.inapp_voice_android.utils.*
 import com.vonage.inapp_voice_android.utils.notifyCallDisconnectedToCallActivity
 import com.vonage.inapp_voice_android.utils.notifyIsMutedToCallActivity
@@ -60,6 +61,11 @@ class VoiceClientManager(private val context: Context) {
             // reject incoming calls when there is an active one
             coreContext.activeCall?.let { return@setCallInviteListener }
             coreContext.telecomHelper.startIncomingCall(callId, from, type)
+
+            CallData.callId = callId
+            CallData.memberName = from
+            CallData.memberLegId = null
+
             notifyCallStartedToCallActivity(context)
         }
 
@@ -68,6 +74,8 @@ class VoiceClientManager(private val context: Context) {
             takeIfActive(callId)?.apply {
                 if(status == LegStatus.answered){
                     setActive()
+                    CallData.memberLegId = legId
+
                     notifyCallAnsweredToCallActivity(context)
                 }
             }
@@ -125,6 +133,8 @@ class VoiceClientManager(private val context: Context) {
                 showToast(context, "Connected")
                 // save to shared preference
                 SharedPrefManager.saveUser(user)
+                CallData.username = user.username
+                CallData.region = user.region
                 onSuccessCallback?.invoke()
             } ?: error?.let {
                 showToast(context, "Login Failed: ${error.message}")
@@ -150,6 +160,11 @@ class VoiceClientManager(private val context: Context) {
                 // TODO: show alert
             } ?: callId?.let {
                 println("Outbound Call successfully started with Call ID: $it")
+                CallData.callId = it
+                if (callContext != null) {
+                    CallData.memberName = callContext[Constants.CONTEXT_KEY_RECIPIENT]
+                }
+                CallData.memberLegId = null
 
                 val to = callContext?.get(Constants.CONTEXT_KEY_RECIPIENT) ?: Constants.DEFAULT_DIALED_NUMBER
                 coreContext.telecomHelper.startOutgoingCall(it, to)
@@ -199,6 +214,7 @@ class VoiceClientManager(private val context: Context) {
                 } else {
                     println("Answered call with id: $callId")
                     setActive()
+                    notifyCallAnsweredToCallActivity(context)
                 }
             }
         } ?: call.selfDestroy()

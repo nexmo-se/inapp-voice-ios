@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat.startActivity
 import com.vonage.inapp_voice_android.views.LoginActivity
 
 
@@ -15,6 +14,7 @@ fun ArrayList<String>.contains(s: String, ignoreCase: Boolean = false): Boolean 
 
     return any { it.equals(s, ignoreCase) }
 }
+
 
 internal fun showToast(context: Context, text: String, duration: Int = Toast.LENGTH_LONG){
     Handler(Looper.getMainLooper()).post {

@@ -52,7 +52,7 @@ object SharedPrefManager {
     }
 
     fun getPushToken(): String? {
-        return  sharedPreference.getString(PUSH_TOKEN, null)!!
+        return  sharedPreference.getString(PUSH_TOKEN, null)
     }
 
     fun setDeviceId(deviceId: String) {
@@ -60,6 +60,6 @@ object SharedPrefManager {
     }
 
     fun getDeviceId(): String? {
-        return  sharedPreference.getString(DEVICE_ID, null)!!
+        return  sharedPreference.getString(DEVICE_ID, null)
     }
 }

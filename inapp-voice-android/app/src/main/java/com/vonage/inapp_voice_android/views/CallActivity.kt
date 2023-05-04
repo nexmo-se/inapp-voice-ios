@@ -1,12 +1,10 @@
 package com.vonage.inapp_voice_android.views
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.R.attr.label
+import android.content.*
 import android.os.Bundle
 import android.telecom.Connection
-import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.firebase.messaging.FirebaseMessaging
@@ -16,6 +14,7 @@ import com.vonage.inapp_voice_android.api.APIRetrofit
 import com.vonage.inapp_voice_android.api.DeleteInformation
 import com.vonage.inapp_voice_android.databinding.ActivityCallBinding
 import com.vonage.inapp_voice_android.managers.SharedPrefManager
+import com.vonage.inapp_voice_android.models.CallData
 import com.vonage.inapp_voice_android.utils.navigateToLoginActivity
 import com.vonage.inapp_voice_android.utils.showToast
 import com.vonage.inapp_voice_android.views.fragments.FragmentActiveCall
@@ -23,6 +22,7 @@ import com.vonage.inapp_voice_android.views.fragments.FragmentIdleCall
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 class CallActivity : AppCompatActivity() {
     private val coreContext = App.coreContext
@@ -61,6 +61,7 @@ class CallActivity : AppCompatActivity() {
                 }
                 else if (it == CALL_ANSWERED) {
                     replaceFragment(FragmentActiveCall(), true)
+                    updateCallData()
                 }
             }
         }
@@ -96,6 +97,17 @@ class CallActivity : AppCompatActivity() {
 
             })
         }
+
+        binding.btCopyData.setOnClickListener {
+            val clipboard: ClipboardManager =
+                getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+
+            val copyText = "myLegId - ${CallData.username} : ${CallData.callId}, memberLegId - ${CallData.memberName.toString()} : ${CallData.memberLegId.toString()}, region : ${CallData.region}"
+            val clip = ClipData.newPlainText("copyData", copyText)
+            clipboard.setPrimaryClip(clip)
+            showToast(this@CallActivity, "Copied")
+        }
+
         registerReceiver(messageReceiver, IntentFilter(MESSAGE_ACTION))
     }
 
@@ -124,16 +136,40 @@ class CallActivity : AppCompatActivity() {
 
     private fun registerFirebaseTokens() {
         // FCM Device Token
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                task.result?.let { token ->
-                    App.coreContext.pushToken = token
-                    println("FCM Device Token: $token")
+        if (coreContext.pushToken !== null) {
+            clientManager.registerDevicePushToken()
+        }
+        else {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    task.result?.let { token ->
+                        App.coreContext.pushToken = token
+                        println("FCM Device Token: $token")
+                        clientManager.registerDevicePushToken()
+                    }
                 }
             }
         }
-        // Push Token
-        clientManager.registerDevicePushToken()
+    }
+
+    private fun updateCallData() {
+        binding.clCallData.visibility = View.VISIBLE
+        binding.tvMyLegIdTitle.text = "myLegId - ${CallData.username}"
+        binding.tvMyLegIdData.text = CallData.callId
+
+        if (CallData.memberName !== null && CallData.memberLegId !== null ) {
+            binding.tvMemberLegIdTitle.text = "memberLegId - ${CallData.memberName}"
+            binding.tvMemberLegIdData.text = CallData.memberLegId
+            binding.tvMemberLegIdTitle.visibility = View.VISIBLE
+            binding.tvMemberLegIdData.visibility = View.VISIBLE
+        }
+        else {
+            binding.tvMemberLegIdTitle.visibility = View.GONE
+            binding.tvMemberLegIdData.visibility = View.GONE
+        }
+
+        binding.tvCallDataRegionData.text = CallData.region
+
     }
 //    private fun toggleMute() : Boolean{
 //        isMuteToggled = binding.btnMute.toggleButton(isMuteToggled)

@@ -115,9 +115,13 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // Prevent double submit
+            binding.btLogin.isEnabled = false
+
             APIRetrofit.instance.getCredential(LoginInformation(username, region, pin, null)).enqueue(object: Callback<User> {
                 override fun onResponse(call: Call<User>, response: Response<User>) {
                     response.body()?.let { it1 ->
+                        binding.btLogin.isEnabled = true
                         clientManager.initClient(it1)
                         clientManager.login(it1) {
                             navigateToCallActivity()
@@ -126,6 +130,7 @@ class LoginActivity : AppCompatActivity() {
                 }
 
                 override fun onFailure(call: Call<User>, t: Throwable) {
+                    binding.btLogin.isEnabled = true
                     showToast(this@LoginActivity, "Failed to Get Credential")
                 }
 
