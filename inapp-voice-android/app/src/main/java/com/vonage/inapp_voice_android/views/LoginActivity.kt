@@ -1,13 +1,17 @@
 package com.vonage.inapp_voice_android.views
 import android.Manifest
 import android.content.pm.PackageManager
-import retrofit2.Callback
 import android.os.Bundle
+import android.os.Handler
+import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.HandlerCompat.postDelayed
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,10 +23,12 @@ import com.vonage.inapp_voice_android.databinding.ActivityLoginBinding
 import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.utils.*
-import com.vonage.inapp_voice_android.utils.navigateToCallActivity
-import com.vonage.inapp_voice_android.utils.showToast
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
+import kotlin.collections.ArrayList
+
 
 class LoginActivity : AppCompatActivity() {
 
@@ -73,6 +79,17 @@ class LoginActivity : AppCompatActivity() {
 
         checkPermissions()
 
+        binding.etUsername.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                scrollVerticalTo(0, binding.svLogin)
+            }
+        }
+
+        binding.etPin.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                scrollVerticalTo(binding.btLogin.bottom, binding.svLogin)
+            }
+        }
         // Select Regions
         layoutManager = LinearLayoutManager(this)
         binding.rvRegion.layoutManager = layoutManager
@@ -89,6 +106,7 @@ class LoginActivity : AppCompatActivity() {
         binding.etRegion.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 binding.rvRegion.visibility = View.VISIBLE
+                scrollVerticalTo(binding.etUsername.bottom, binding.svLogin)
             }
             else {
                 binding.rvRegion.visibility = View.GONE
@@ -98,7 +116,6 @@ class LoginActivity : AppCompatActivity() {
         binding.etRegion.doOnTextChanged { text, _, _, _ ->
             //filter text
             filteredRegions.clear()
-
 
             if (text !== "" && !Constants.REGIONS.contains(text.toString(), true)) {
                 val newList = ArrayList(Constants.REGIONS.filter { it ->
@@ -134,6 +151,12 @@ class LoginActivity : AppCompatActivity() {
     private fun login(username: String, region: String, pin: String?, token: String?) {
         binding.btLogin.isEnabled = false
 
+        binding.etUsername.clearFocus()
+        binding.etRegion.clearFocus()
+        binding.etPin.clearFocus()
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.etRegion.windowToken, 0)
+
         APIRetrofit.instance.getCredential(LoginInformation(username, region, pin, token)).enqueue(object: Callback<User> {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 response.body()?.let { it1 ->
@@ -161,10 +184,10 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions() {
-      if (!arePermissionsGranted) {
-          // Request permissions
-          ActivityCompat.requestPermissions(this, permissions, PERMISSIONS_REQUEST_CODE)
-      }
-  }
+        if (!arePermissionsGranted) {
+            // Request permissions
+            ActivityCompat.requestPermissions(this, permissions, PERMISSIONS_REQUEST_CODE)
+        }
+    }
 
 }

@@ -27,7 +27,6 @@
             android:name=".views.LoginActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:windowSoftInputMode="adjustResize|stateHidden"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"
             android:theme="@style/Theme.Inappvoiceandroid.NoActionBar">

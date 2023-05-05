@@ -21,8 +21,8 @@ class CallConnection(val callId: CallId) : Connection() {
         val properties = connectionProperties or PROPERTY_SELF_MANAGED
         connectionProperties = properties
 
-        val capabilities = connectionCapabilities or CAPABILITY_MUTE or CAPABILITY_SUPPORT_HOLD or CAPABILITY_HOLD
-        connectionCapabilities = capabilities
+//        val capabilities = connectionCapabilities or CAPABILITY_MUTE or CAPABILITY_SUPPORT_HOLD or CAPABILITY_HOLD
+//        connectionCapabilities = capabilities
 
         audioModeIsVoip = true
     }

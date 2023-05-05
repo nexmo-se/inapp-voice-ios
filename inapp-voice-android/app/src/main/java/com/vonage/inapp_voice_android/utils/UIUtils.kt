@@ -5,9 +5,12 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import android.widget.ScrollView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.vonage.inapp_voice_android.views.LoginActivity
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 fun ArrayList<String>.contains(s: String, ignoreCase: Boolean = false): Boolean {
@@ -19,6 +22,16 @@ fun ArrayList<String>.contains(s: String, ignoreCase: Boolean = false): Boolean 
 internal fun showToast(context: Context, text: String, duration: Int = Toast.LENGTH_LONG){
     Handler(Looper.getMainLooper()).post {
         Toast.makeText(context, text, duration).show()
+    }
+}
+
+internal fun scrollVerticalTo(y: Int, scrollview: ScrollView) {
+    Handler(Looper.getMainLooper()).post {
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                scrollview.smoothScrollTo(0, y)
+            }
+        }, 200)
     }
 }
 

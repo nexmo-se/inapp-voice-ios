@@ -2,7 +2,6 @@ package com.vonage.inapp_voice_android.views.fragments
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,6 +54,10 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
         val user = SharedPrefManager.getUser()
         binding.tvLoggedUsername.text =   "${user!!.username} (${user!!.region})"
 
+        // Focus button at the start
+        binding.btCallAUser.isFocusableInTouchMode = true;
+        binding.btCallAUser.requestFocus()
+
         // Set members adaptors
         val membersRecyclerView = binding.rvCallUser
         membersRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -63,6 +66,8 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
         membersAdaptor.onMemberClick = {
             binding.etCallUser.setText(it)
             binding.etCallUser.clearFocus()
+            binding.btCallAUser.isFocusableInTouchMode = true;
+            binding.btCallAUser.requestFocus()
 
             val imm = activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding.etCallUser.windowToken, 0)
