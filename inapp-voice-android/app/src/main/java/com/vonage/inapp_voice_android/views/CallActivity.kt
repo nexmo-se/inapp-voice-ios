@@ -2,8 +2,10 @@ package com.vonage.inapp_voice_android.views
 
 import android.R.attr.label
 import android.content.*
+import android.opengl.Visibility
 import android.os.Bundle
 import android.telecom.Connection
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -86,9 +88,8 @@ class CallActivity : AppCompatActivity() {
             APIRetrofit.instance.deleteUser(DeleteInformation(user!!.dc, user.userId, user.token)).enqueue(object:
                 Callback<Void> {
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    clientManager.logout {
-                        navigateToLoginActivity()
-                    }
+                    SharedPrefManager.removeUser()
+                    navigateToLoginActivity()
                 }
 
                 override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -122,9 +123,18 @@ class CallActivity : AppCompatActivity() {
         super.onDestroy()
         unregisterReceiver(messageReceiver)
         clientManager.unregisterDevicePushToken()
+        clientManager.logout()
     }
 
     private fun replaceFragment(fragment: Fragment, isEnable: Boolean) {
+
+        if (fragment.tag == "fragmentActiveCall" || !isEnable) {
+            binding.btLogout.visibility = View.GONE
+        }
+        else {
+            binding.btLogout.visibility = View.VISIBLE
+        }
+
         val bundle = Bundle()
         bundle.putBoolean("isEnable", isEnable)
         fragment.arguments = bundle

@@ -147,7 +147,6 @@ class VoiceClientManager(private val context: Context) {
             error?.let {
                 showToast(context, "Error Logging Out: ${error.message}")
             } ?: run {
-                SharedPrefManager.removeUser()
                 onSuccessCallback?.invoke()
             }
         }

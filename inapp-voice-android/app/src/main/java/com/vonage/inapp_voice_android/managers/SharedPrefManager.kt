@@ -30,6 +30,9 @@ object SharedPrefManager {
     }
 
     fun getUser(): User? {
+
+        sharedPreference.getString("username", null) ?: return null
+
         return User(
             sharedPreference.getString("username", null)!!,
             sharedPreference.getString("userId", null)!!,

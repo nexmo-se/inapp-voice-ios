@@ -58,6 +58,19 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Check if user has already logged in
+        val user =  SharedPrefManager.getUser()
+        if (user !== null) {
+            login(user.username, user.region, null, user.token)
+            binding.pbLogin.visibility = View.VISIBLE
+            binding.clSignInForm.visibility = View.GONE
+            return
+        }
+        else  {
+            binding.pbLogin.visibility = View.GONE
+            binding.clSignInForm.visibility = View.VISIBLE
+        }
+
         checkPermissions()
 
         // Select Regions
@@ -114,29 +127,30 @@ class LoginActivity : AppCompatActivity() {
 
                 return@setOnClickListener
             }
+            login(username, region, pin, null)
+      }
+    }
 
-            // Prevent double submit
-            binding.btLogin.isEnabled = false
+    private fun login(username: String, region: String, pin: String?, token: String?) {
+        binding.btLogin.isEnabled = false
 
-            APIRetrofit.instance.getCredential(LoginInformation(username, region, pin, null)).enqueue(object: Callback<User> {
-                override fun onResponse(call: Call<User>, response: Response<User>) {
-                    response.body()?.let { it1 ->
-                        binding.btLogin.isEnabled = true
-                        clientManager.initClient(it1)
-                        clientManager.login(it1) {
-                            navigateToCallActivity()
-                        }
+        APIRetrofit.instance.getCredential(LoginInformation(username, region, pin, token)).enqueue(object: Callback<User> {
+            override fun onResponse(call: Call<User>, response: Response<User>) {
+                response.body()?.let { it1 ->
+                    binding.btLogin.isEnabled = true
+                    clientManager.initClient(it1)
+                    clientManager.login(it1) {
+                        navigateToCallActivity()
                     }
                 }
+            }
 
-                override fun onFailure(call: Call<User>, t: Throwable) {
-                    binding.btLogin.isEnabled = true
-                    showToast(this@LoginActivity, "Failed to Get Credential")
-                }
+            override fun onFailure(call: Call<User>, t: Throwable) {
+                binding.btLogin.isEnabled = true
+                showToast(this@LoginActivity, "Failed to Get Credential")
+            }
 
-            })
-
-      }
+        })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
