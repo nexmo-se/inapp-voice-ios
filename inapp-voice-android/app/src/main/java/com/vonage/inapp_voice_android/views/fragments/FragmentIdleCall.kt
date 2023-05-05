@@ -20,6 +20,7 @@ import com.vonage.inapp_voice_android.models.Members
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.utils.Constants
 import com.vonage.inapp_voice_android.utils.contains
+import com.vonage.inapp_voice_android.utils.showAlert
 import com.vonage.inapp_voice_android.utils.showToast
 import retrofit2.Call
 import retrofit2.Callback
@@ -128,7 +129,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
 
             override fun onFailure(call: Call<Members>, t: Throwable) {
                 if (context !== null) {
-                    showToast(context!!, "Failed to Get Members")
+                    showAlert(context!!, "Failed to Load Members", false)
                 }
             }
 

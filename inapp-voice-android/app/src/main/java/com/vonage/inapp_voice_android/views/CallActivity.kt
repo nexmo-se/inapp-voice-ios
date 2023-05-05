@@ -18,6 +18,7 @@ import com.vonage.inapp_voice_android.databinding.ActivityCallBinding
 import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.models.CallData
 import com.vonage.inapp_voice_android.utils.navigateToLoginActivity
+import com.vonage.inapp_voice_android.utils.showAlert
 import com.vonage.inapp_voice_android.utils.showToast
 import com.vonage.inapp_voice_android.views.fragments.FragmentActiveCall
 import com.vonage.inapp_voice_android.views.fragments.FragmentIdleCall
@@ -44,27 +45,35 @@ class CallActivity : AppCompatActivity() {
 
             // Call Is Muted Update
             intent?.getBooleanExtra(IS_MUTED, false)?.let {
-                if(isMuteToggled != it){
+                if (isMuteToggled != it) {
                     // TODO: mute
 //                    toggleMute()
                 }
             }
             // Call Remotely Disconnected
             intent?.getBooleanExtra(IS_REMOTE_DISCONNECT, false)?.let {
-                fallbackState = if(it) Connection.STATE_DISCONNECTED else null
+                fallbackState = if (it) Connection.STATE_DISCONNECTED else null
             }
             // Call State Updated
             intent?.getStringExtra(CALL_STATE)?.let {
-                if(it == CALL_DISCONNECTED){
+                if (it == CALL_DISCONNECTED) {
                     replaceFragment(FragmentIdleCall(), true)
-                }
-                else if (it == CALL_STARTED) {
+                } else if (it == CALL_STARTED) {
                     replaceFragment(FragmentIdleCall(), false)
-                }
-                else if (it == CALL_ANSWERED) {
+                } else if (it == CALL_ANSWERED) {
                     replaceFragment(FragmentActiveCall(), true)
                     updateCallData()
                 }
+            }
+
+            // Handle Call Error
+            intent?.getStringExtra(CALL_ERROR)?.let {
+                handleCallError(it)
+            }
+
+            // Handle Session Error
+            intent?.getStringExtra(SESSION_ERROR)?.let {
+                handleSessionError(it)
             }
         }
     }
@@ -93,7 +102,7 @@ class CallActivity : AppCompatActivity() {
                 }
 
                 override fun onFailure(call: Call<Void>, t: Throwable) {
-                    showToast(this@CallActivity, "Failed to Get Credential")
+                    showAlert(this@CallActivity, "Failed to Delete User", false)
                 }
 
             })
@@ -181,6 +190,16 @@ class CallActivity : AppCompatActivity() {
         binding.tvCallDataRegionData.text = CallData.region
 
     }
+
+    private fun handleCallError(message: String) {
+        showAlert(this@CallActivity, message, false)
+
+    }
+
+    private fun handleSessionError(message: String) {
+        showAlert(this@CallActivity, message, true)
+
+    }
 //    private fun toggleMute() : Boolean{
 //        isMuteToggled = binding.btnMute.toggleButton(isMuteToggled)
 //        return isMuteToggled
@@ -193,6 +212,8 @@ class CallActivity : AppCompatActivity() {
         const val CALL_ANSWERED = "answered"
         const val CALL_STARTED = "started"
         const val CALL_DISCONNECTED = "disconnected"
+        const val CALL_ERROR = "callError"
+        const val SESSION_ERROR = "sessionError"
         const val IS_REMOTE_DISCONNECT = "isRemoteDisconnect"
     }
 }

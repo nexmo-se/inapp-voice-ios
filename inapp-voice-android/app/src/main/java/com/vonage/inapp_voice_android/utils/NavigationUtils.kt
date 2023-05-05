@@ -58,3 +58,15 @@ internal fun notifyCallStartedToCallActivity(context: Context) {
     extras.putString(CallActivity.CALL_STATE, CallActivity.CALL_STARTED)
     sendMessageToCallActivity(context, extras)
 }
+
+internal fun notifyCallErrorToCallActivity(context: Context, message:String) {
+    val extras = Bundle()
+    extras.putString(CallActivity.CALL_ERROR, message)
+    sendMessageToCallActivity(context, extras)
+}
+
+internal fun notifySessionErrorToCallActivity(context: Context, message:String) {
+    val extras = Bundle()
+    extras.putString(CallActivity.SESSION_ERROR, message)
+    sendMessageToCallActivity(context, extras)
+}

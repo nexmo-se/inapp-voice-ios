@@ -176,7 +176,7 @@ class LoginActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<User>, t: Throwable) {
                 binding.btLogin.isEnabled = true
-                showToast(this@LoginActivity, "Failed to Get Credential")
+                showAlert(this@LoginActivity, "Failed to get Credential", false)
             }
 
         })

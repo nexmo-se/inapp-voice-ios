@@ -50,9 +50,9 @@ class VoiceClientManager(private val context: Context) {
 
         client.setSessionErrorListener { err ->
             when(err){
-                SessionErrorReason.TransportClosed -> TODO()
-                SessionErrorReason.TokenExpired -> TODO()
-                SessionErrorReason.PingTimeout -> TODO()
+                SessionErrorReason.TransportClosed -> notifySessionErrorToCallActivity(context, "Session Error: TransportClosed")
+                SessionErrorReason.TokenExpired -> notifySessionErrorToCallActivity(context, "Session Error: TokenExpired")
+                SessionErrorReason.PingTimeout -> notifySessionErrorToCallActivity(context, "Session Error: PingTimeout")
             }
         }
 
@@ -155,8 +155,8 @@ class VoiceClientManager(private val context: Context) {
     fun startOutboundCall(callContext: Map<String, String>? = null){
         client.serverCall(callContext) { err, callId ->
             err?.let {
+                notifyCallErrorToCallActivity(context, "Error starting outbound call: $it")
                 println("Error starting outbound call: $it")
-                // TODO: show alert
             } ?: callId?.let {
                 println("Outbound Call successfully started with Call ID: $it")
                 CallData.callId = it
@@ -175,6 +175,7 @@ class VoiceClientManager(private val context: Context) {
         coreContext.pushToken?.let {
             client.registerDevicePushToken(it) { err, deviceId ->
                 err?.let {
+                    notifyCallErrorToCallActivity(context, "Error in registering Device Push Token: $err")
                     println("Error in registering Device Push Token: $err")
                 } ?: deviceId?.let {
                     coreContext.deviceId = deviceId
@@ -188,6 +189,7 @@ class VoiceClientManager(private val context: Context) {
         coreContext.deviceId?.let {
             client.unregisterDevicePushToken(it) { err ->
                 err?.let {
+                    notifyCallErrorToCallActivity(context, "Error in unregistering Device Push Token: $err")
                     println("Error in unregistering Device Push Token: $err")
                 }
             }
@@ -207,6 +209,7 @@ class VoiceClientManager(private val context: Context) {
         call.takeIfActive()?.apply {
             client.answer(callId) { err ->
                 if (err != null) {
+                    notifyCallErrorToCallActivity(context, "Error Answering Call: $err")
                     println("Error Answering Call: $err")
                     setDisconnected(DisconnectCause(DisconnectCause.ERROR))
                     clearActiveCall()
@@ -223,6 +226,7 @@ class VoiceClientManager(private val context: Context) {
         call.takeIfActive()?.apply {
             client.reject(callId){ err ->
                 if (err != null) {
+                    notifyCallErrorToCallActivity(context, "Error Rejecting Call: $err")
                     println("Error Rejecting Call: $err")
                     setDisconnected(DisconnectCause(DisconnectCause.ERROR))
                 } else {
@@ -237,6 +241,7 @@ class VoiceClientManager(private val context: Context) {
         call.takeIfActive()?.apply {
             client.hangup(callId) { err ->
                 if (err != null) {
+                    notifyCallErrorToCallActivity(context, "Error Hanging Up Call: $err")
                     println("Error Hanging Up Call: $err")
                 } else {
                     println("Hung up call with id: $callId")
@@ -249,6 +254,7 @@ class VoiceClientManager(private val context: Context) {
         call.takeIfActive()?.apply {
             client.mute(callId) { err ->
                 if (err != null) {
+                    notifyCallErrorToCallActivity(context, "Error Muting Call: $err")
                     println("Error Muting Call: $err")
                 } else {
                     println("Muted call with id: $callId")
@@ -261,6 +267,7 @@ class VoiceClientManager(private val context: Context) {
         call.takeIfActive()?.apply {
             client.unmute(callId) { err ->
                 if (err != null) {
+                    notifyCallErrorToCallActivity(context, "Error Un-muting Call: $err")
                     println("Error Un-muting Call: $err")
                 } else {
                     println("Un-muted call with id: $callId")
@@ -273,6 +280,7 @@ class VoiceClientManager(private val context: Context) {
         call.takeIfActive()?.apply {
             client.sendDTMF(callId, digit){ err ->
                 if (err != null) {
+                    notifyCallErrorToCallActivity(context, "Error in Sending DTMF '$digit': $err")
                     println("Error in Sending DTMF '$digit': $err")
                 } else {
                     println("Sent DTMF '$digit' on call with id: $callId")
