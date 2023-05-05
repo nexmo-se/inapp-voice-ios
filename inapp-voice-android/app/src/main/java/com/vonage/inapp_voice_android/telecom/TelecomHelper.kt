@@ -85,8 +85,8 @@ class TelecomHelper(private val context: Context) {
         val extras = Bundle()
         extras.putString(Constants.EXTRA_KEY_CALL_ID, callId)
         extras.putString(Constants.EXTRA_KEY_FROM, from)
-        val isManageOwnCallsPermitted = ActivityCompat.checkSelfPermission(context, Manifest.permission.MANAGE_OWN_CALLS) == PackageManager.PERMISSION_GRANTED
-        val isCallPermitted = telecomManager.isIncomingCallPermitted(phoneAccountHandle)
+        val isManageOwnCallsPermitted = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)  ActivityCompat.checkSelfPermission(context, Manifest.permission.MANAGE_OWN_CALLS) == PackageManager.PERMISSION_GRANTED else true
+        val isCallPermitted = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) telecomManager.isIncomingCallPermitted(phoneAccountHandle) else true
         if (isManageOwnCallsPermitted && isPhoneAccountEnabled && isCallPermitted){
             telecomManager.addNewIncomingCall(phoneAccountHandle, extras)
         }
@@ -104,9 +104,9 @@ class TelecomHelper(private val context: Context) {
         extras.putString(Constants.EXTRA_KEY_CALL_ID, callId)
         rootExtras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandle)
         rootExtras.putParcelable(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS, extras)
-        val isManageOwnCallsPermitted = ActivityCompat.checkSelfPermission(context, Manifest.permission.MANAGE_OWN_CALLS) == PackageManager.PERMISSION_GRANTED
+        val isManageOwnCallsPermitted = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)  ActivityCompat.checkSelfPermission(context, Manifest.permission.MANAGE_OWN_CALLS) == PackageManager.PERMISSION_GRANTED else true
         val isCallPhonePermitted = ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
-        val isCallPermitted = telecomManager.isOutgoingCallPermitted(phoneAccountHandle)
+        val isCallPermitted = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) telecomManager.isOutgoingCallPermitted(phoneAccountHandle) else  true
 
         if (isManageOwnCallsPermitted && isCallPhonePermitted && isPhoneAccountEnabled && isCallPermitted){
             telecomManager.placeCall(Uri.parse("tel:$to"), rootExtras)

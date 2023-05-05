@@ -18,8 +18,10 @@ class CallConnection(val callId: CallId) : Connection() {
         // Update active call only if current is null
         coreContext.activeCall = coreContext.activeCall ?: this
 
-        val properties = connectionProperties or PROPERTY_SELF_MANAGED
-        connectionProperties = properties
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val properties = connectionProperties or PROPERTY_SELF_MANAGED
+            connectionProperties = properties
+        }
 
 //        val capabilities = connectionCapabilities or CAPABILITY_MUTE or CAPABILITY_SUPPORT_HOLD or CAPABILITY_HOLD
 //        connectionCapabilities = capabilities
