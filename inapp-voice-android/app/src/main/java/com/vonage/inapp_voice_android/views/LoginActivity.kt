@@ -9,6 +9,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.HandlerCompat.postDelayed
@@ -70,6 +71,10 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Set toolbar View
+        val toolbar = binding.tbLogin
+        toolbar.btLogout.visibility = View.GONE
+
         // Check if user has already logged in
         val user =  SharedPrefManager.getUser()
         if (user !== null) {
@@ -105,8 +110,12 @@ class LoginActivity : AppCompatActivity() {
             // Set value
             binding.etRegion.setText(it)
             binding.etRegion.clearFocus()
+
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding.etRegion.windowToken, 0)
+            // focus next
+            binding.btLogin.isFocusableInTouchMode = true;
+            binding.btLogin.requestFocus()
         }
 
         binding.etRegion.setOnFocusChangeListener { _, hasFocus ->

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.telecom.Connection
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.firebase.messaging.FirebaseMessaging
@@ -34,6 +35,7 @@ class CallActivity : AppCompatActivity() {
 
     private var fallbackState: Int? = null
     private var isMuteToggled = false
+    private lateinit var logoutButton: Button
 
     /**
      * This Local BroadcastReceiver will be used
@@ -84,6 +86,11 @@ class CallActivity : AppCompatActivity() {
         binding = ActivityCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Set toolbar View
+        val toolbar = binding.tbCall
+        logoutButton = toolbar.btLogout
+        logoutButton.visibility = View.VISIBLE
+
         val user =  SharedPrefManager.getUser()
         if (user == null) {
             navigateToLoginActivity()
@@ -93,7 +100,7 @@ class CallActivity : AppCompatActivity() {
         registerFirebaseTokens()
         replaceFragment(FragmentIdleCall(), true)
 
-        binding.btLogout.setOnClickListener {
+        logoutButton.setOnClickListener {
             APIRetrofit.instance.deleteUser(DeleteInformation(user!!.dc, user.userId, user.token)).enqueue(object:
                 Callback<Void> {
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -138,10 +145,10 @@ class CallActivity : AppCompatActivity() {
     private fun replaceFragment(fragment: Fragment, isEnable: Boolean) {
 
         if (fragment.tag == "fragmentActiveCall" || !isEnable) {
-            binding.btLogout.visibility = View.GONE
+            logoutButton.visibility = View.GONE
         }
         else {
-            binding.btLogout.visibility = View.VISIBLE
+            logoutButton.visibility = View.VISIBLE
         }
 
         val bundle = Bundle()
@@ -193,12 +200,13 @@ class CallActivity : AppCompatActivity() {
 
     private fun handleCallError(message: String) {
         showAlert(this@CallActivity, message, false)
-
+        // refresh idle call
+        replaceFragment(FragmentIdleCall(), true)
     }
 
     private fun handleSessionError(message: String) {
         showAlert(this@CallActivity, message, true)
-
+        navigateToLoginActivity()
     }
 //    private fun toggleMute() : Boolean{
 //        isMuteToggled = binding.btnMute.toggleButton(isMuteToggled)

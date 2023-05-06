@@ -88,7 +88,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
         binding.etCallUser.doOnTextChanged { text, _, _, _ ->
             filteredMembers.clear()
 
-            if (text !== "" && !members.contains(text.toString(), true)) {
+            if (text !== "") {
                 val newList = ArrayList(members.filter { it ->
                     it.lowercase().contains(text.toString().lowercase())
                 })
@@ -109,6 +109,8 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
                 showToast(context!!, "Invalid Member")
                 return@setOnClickListener
             }
+            // prevent double submit
+            binding.btCallAUser.isEnabled = false
             call(member)
         }
 
@@ -121,6 +123,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
             override fun onResponse(call: Call<Members>, response: Response<Members>) {
                 response.body()?.let { it1 ->
                     filteredMembers.clear()
+                    members.clear()
                     members.addAll(it1.members)
                     filteredMembers.addAll(it1.members)
                     membersAdaptor.notifyDataSetChanged()
