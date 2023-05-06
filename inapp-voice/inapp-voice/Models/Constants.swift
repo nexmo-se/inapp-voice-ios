@@ -12,4 +12,5 @@ struct Constants {
     static let countries = ["Virginia", "Oregon", "Dublin", "Frankfurt", "Singapore", "Sydney"]
     static let userKey = "appUser"
     static let pushToken = "pushToken"
+    static let borderRadius:CGFloat = 8
 }

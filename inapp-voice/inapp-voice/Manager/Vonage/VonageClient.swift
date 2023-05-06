@@ -32,8 +32,15 @@ class VonageClient: NSObject {
     
     // Callkit
     lazy var callProvider = { () -> CXProvider in
-        var config = CXProviderConfiguration()
-        config.supportsVideo = false
+        var config: CXProviderConfiguration
+        if #available(iOS 14.0, *) {
+            config = CXProviderConfiguration()
+            config.supportsVideo = false
+
+        } else {
+            config = CXProviderConfiguration(localizedName: "Vonage Call")
+            config.supportsVideo = false
+        }
         let provider = CXProvider(configuration: config)
         provider.setDelegate(self, queue: nil)
         return provider
@@ -102,6 +109,7 @@ class VonageClient: NSObject {
                 self.logout()
             }
             
+            print("register push token successfully")
             // Reset observer
             NotificationCenter.default.removeObserver(self)
             
@@ -186,15 +194,15 @@ class VonageClient: NSObject {
                                 return
                             }
                             
-                            self.callProvider.reportOutgoingCall(with: call.uuid!, startedConnectingAt: Date.now)
+                            self.callProvider.reportOutgoingCall(with: call.uuid!, startedConnectingAt: Date())
                         }
                     )
                 }
             case .answered:
-                self.callProvider.reportOutgoingCall(with: call.uuid!, connectedAt: Date.now)
+                self.callProvider.reportOutgoingCall(with: call.uuid!, connectedAt: Date())
                 
             case .completed:
-                self.callProvider.reportCall(with: call.uuid!, endedAt: Date.now, reason: .remoteEnded)
+                self.callProvider.reportCall(with: call.uuid!, endedAt: Date(), reason: .remoteEnded)
             }
             
         }
@@ -214,7 +222,7 @@ class VonageClient: NSObject {
                     }
                 }
             case .completed:
-                self.callProvider.reportCall(with: call.uuid!, endedAt: Date.now, reason: .remoteEnded)
+                self.callProvider.reportCall(with: call.uuid!, endedAt: Date(), reason: .remoteEnded)
                 
             default:
                 return

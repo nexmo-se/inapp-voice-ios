@@ -19,10 +19,17 @@ class DataChildViewController: UIViewController {
     
     @IBOutlet weak var region: UILabel!
     
+    @IBOutlet weak var copyButton: UIButton!
+    
     var callData: CallDataModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Initial view
+        copyButton.layer.cornerRadius = Constants.borderRadius
+        copyButton.layer.borderColor = UIColor.black.cgColor
+        copyButton.layer.borderWidth = 1
         
         NotificationCenter.default.addObserver(self, selector: #selector(callDataReceived(_:)), name: .handledCallData, object: nil)
     }

@@ -56,6 +56,11 @@ class CallViewController: UIViewController {
         usernameLabel.text = "\(user.username) (\(user.region))"
         
         // Initial View - Action Button
+        answerButton.layer.cornerRadius = Constants.borderRadius
+        rejectButton.layer.cornerRadius = Constants.borderRadius
+        callButton.layer.cornerRadius = Constants.borderRadius
+        hangupButton.layer.cornerRadius = Constants.borderRadius
+
         callButton.isEnabled = false
         callDataView.layer.borderWidth = 2
         callDataView.layer.borderColor = .init(red: 196/255, green: 53/255, blue: 152/255, alpha: 1)
@@ -309,9 +314,13 @@ extension CallViewController: UITableViewDataSource {
             cell = UITableViewCell(style: .default, reuseIdentifier: "memberTableCell")
         }
         
-        var config = UIListContentConfiguration.cell()
-        config.text = memberSearchResult[indexPath.row]
-        cell?.contentConfiguration = config
+        if #available(iOS 14.0, *) {
+            var config = UIListContentConfiguration.cell()
+            config.text = memberSearchResult[indexPath.row]
+            cell?.contentConfiguration = config
+        } else {
+            cell?.textLabel?.text = memberSearchResult[indexPath.row]
+        }
         
         return cell!
     }

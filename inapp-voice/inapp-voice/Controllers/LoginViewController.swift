@@ -35,6 +35,10 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Initial View
+        submitButton.layer.cornerRadius = Constants.borderRadius
+        
+        // Delegate
         userManager.delegate = self
         
         usernameTextField.tag = inputTag["username"]!
@@ -178,9 +182,14 @@ extension LoginViewController: UITableViewDataSource {
             cell = UITableViewCell(style: .default, reuseIdentifier: "regionTableCell")
         }
         
-        var config = UIListContentConfiguration.cell()
-        config.text = regionSearchResult[indexPath.row]
-        cell?.contentConfiguration = config
+        if #available(iOS 14.0, *) {
+            var config = UIListContentConfiguration.cell()
+            config.text = regionSearchResult[indexPath.row]
+            cell?.contentConfiguration = config
+        } else {
+            cell?.textLabel?.text = regionSearchResult[indexPath.row]
+        }
+     
         
         return cell!
     }

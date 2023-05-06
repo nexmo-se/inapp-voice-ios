@@ -30,7 +30,7 @@ extension VonageClient: CXProviderDelegate {
         
         answercall(callId: self.currentCallStatus?.uuid?.toVGCallID()) { isSucess in
             if (!isSucess) {
-                provider.reportCall(with: action.callUUID, endedAt: Date.now, reason: .failed)
+                provider.reportCall(with: action.callUUID, endedAt: Date(), reason: .failed)
             }
         }
         action.fulfill()
