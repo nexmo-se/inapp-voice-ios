@@ -2,6 +2,7 @@ package com.vonage.inapp_voice_android.views
 
 import android.R.attr.label
 import android.content.*
+import android.graphics.Color
 import android.opengl.Visibility
 import android.os.Bundle
 import android.telecom.Connection
@@ -11,13 +12,15 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.firebase.messaging.FirebaseMessaging
+import com.vonage.clientcore.core.api.models.Username
+import com.vonage.clientcore.core.conversation.VoiceChannelType
 import com.vonage.inapp_voice_android.App
 import com.vonage.inapp_voice_android.R
 import com.vonage.inapp_voice_android.api.APIRetrofit
 import com.vonage.inapp_voice_android.api.DeleteInformation
 import com.vonage.inapp_voice_android.databinding.ActivityCallBinding
-import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.models.CallData
+import com.vonage.inapp_voice_android.utils.*
 import com.vonage.inapp_voice_android.utils.navigateToLoginActivity
 import com.vonage.inapp_voice_android.utils.showAlert
 import com.vonage.inapp_voice_android.utils.showToast
@@ -31,9 +34,19 @@ import retrofit2.Response
 class CallActivity : AppCompatActivity() {
     private val coreContext = App.coreContext
     private val clientManager = coreContext.clientManager
+    private val notificationManager = coreContext.notificationManager
+    private val telecomHelper = coreContext.telecomHelper
     private lateinit var binding: ActivityCallBinding
 
+    /**
+     * When an Active Call gets disconnected
+     * (either remotely or locally) it will be null.
+     * Hence, we use these variables to manually update the UI in that case
+     */
     private var fallbackState: Int? = null
+
+    private var fallbackUsername: Username? = null
+
     private var isMuteToggled = false
     private lateinit var logoutButton: Button
 
@@ -86,29 +99,34 @@ class CallActivity : AppCompatActivity() {
         binding = ActivityCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        handleIntent(intent)
+
         // Set toolbar View
         val toolbar = binding.tbCall
         logoutButton = toolbar.btLogout
         logoutButton.visibility = View.VISIBLE
 
-        val user =  SharedPrefManager.getUser()
-        if (user == null) {
-            navigateToLoginActivity()
-            return
-        }
-
-        registerFirebaseTokens()
         replaceFragment(FragmentIdleCall(), true)
 
         logoutButton.setOnClickListener {
+            logoutButton.isEnabled = false
+            logoutButton.setTextColor(Color.DKGRAY)
+            val user = coreContext.user
+
+            clientManager.logout {
+                navigateToLoginActivity()
+            }
+
             APIRetrofit.instance.deleteUser(DeleteInformation(user!!.dc, user.userId, user.token)).enqueue(object:
                 Callback<Void> {
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    SharedPrefManager.removeUser()
-                    navigateToLoginActivity()
+                    logoutButton.isEnabled = true
+                    logoutButton.setTextColor(0x0100F5)
                 }
 
                 override fun onFailure(call: Call<Void>, t: Throwable) {
+                    logoutButton.isEnabled = true
+                    logoutButton.setTextColor(0x0100F5)
                     showAlert(this@CallActivity, "Failed to Delete User", false)
                 }
 
@@ -133,13 +151,44 @@ class CallActivity : AppCompatActivity() {
         coreContext.activeCall?.let {
             replaceFragment(FragmentActiveCall(), true)
         }
+        if (CallData.callId.isNotEmpty()) {
+            updateCallData()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(messageReceiver)
-        clientManager.unregisterDevicePushToken()
-        clientManager.logout()
+    }
+
+    /**
+     * An Intent with extras will be received if
+     * the App received an incoming call while device was locked.
+     */
+    private fun handleIntent(intent: Intent?){
+        intent ?: return
+        val callId = intent.getStringExtra(Constants.EXTRA_KEY_CALL_ID) ?: return
+        val from = intent.getStringExtra(Constants.EXTRA_KEY_FROM) ?: return
+        val typeString = intent.getStringExtra(Constants.EXTRA_KEY_CHANNEL_TYPE) ?: return
+        val type = VoiceChannelType.valueOf(typeString)
+        fallbackUsername = from
+        fallbackState = Connection.STATE_RINGING
+
+        CallData.callId = callId
+        CallData.memberName = from
+        CallData.region = coreContext.user!!.region
+        CallData.username = coreContext.user!!.username
+        updateCallData()
+
+        turnKeyguardOff {
+            if(notificationManager.isIncomingCallNotificationActive()){
+                notificationManager.dismissIncomingCallNotification(callId)
+                telecomHelper.startIncomingCall(callId, from, type)
+            } else {
+                // If the Notification has been canceled in the meantime
+                this.finish()
+            }
+        }
     }
 
     private fun replaceFragment(fragment: Fragment, isEnable: Boolean) {
@@ -158,24 +207,6 @@ class CallActivity : AppCompatActivity() {
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.fcCallStatus, fragment)
         fragmentTransaction.commitAllowingStateLoss()
-    }
-
-    private fun registerFirebaseTokens() {
-        // FCM Device Token
-        if (coreContext.pushToken !== null) {
-            clientManager.registerDevicePushToken()
-        }
-        else {
-            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    task.result?.let { token ->
-                        App.coreContext.pushToken = token
-                        println("FCM Device Token: $token")
-                        clientManager.registerDevicePushToken()
-                    }
-                }
-            }
-        }
     }
 
     private fun updateCallData() {
@@ -200,7 +231,10 @@ class CallActivity : AppCompatActivity() {
 
     private fun handleCallError(message: String) {
         showAlert(this@CallActivity, message, false)
-        // refresh idle call
+        // Hangup call
+        coreContext.activeCall?.let { call ->
+            clientManager.hangupCall(call)
+        }
         replaceFragment(FragmentIdleCall(), true)
     }
 

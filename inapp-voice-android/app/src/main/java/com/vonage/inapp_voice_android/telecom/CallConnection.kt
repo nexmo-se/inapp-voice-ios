@@ -1,8 +1,11 @@
 package com.vonage.inapp_voice_android.telecom
 
+import android.net.Uri
+import android.os.Bundle
 import android.telecom.CallAudioState
 import android.telecom.Connection
 import android.telecom.DisconnectCause
+import android.util.Log
 import com.vonage.inapp_voice_android.App
 import com.vonage.voice.api.CallId
 
@@ -18,7 +21,7 @@ class CallConnection(val callId: CallId) : Connection() {
         // Update active call only if current is null
         coreContext.activeCall = coreContext.activeCall ?: this
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if  (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val properties = connectionProperties or PROPERTY_SELF_MANAGED
             connectionProperties = properties
         }

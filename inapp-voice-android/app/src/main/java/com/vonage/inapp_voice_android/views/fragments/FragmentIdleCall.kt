@@ -14,8 +14,8 @@ import com.vonage.inapp_voice_android.R
 import com.vonage.inapp_voice_android.adaptors.MembersRecyclerAdaptor
 import com.vonage.inapp_voice_android.api.APIRetrofit
 import com.vonage.inapp_voice_android.api.MemberInformation
+import com.vonage.inapp_voice_android.core.CoreContext
 import com.vonage.inapp_voice_android.databinding.FragmentIdlecallBinding
-import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.models.Members
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.utils.Constants
@@ -31,7 +31,8 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
     private val binding get() = _binding!!
 
     private var isEnable = false
-    private val clientManager = App.coreContext.clientManager
+    private val coreContext = App.coreContext
+    private val clientManager = coreContext.clientManager
     private var members = ArrayList<String>()
     private var filteredMembers = ArrayList<String>()
     private val membersAdaptor = MembersRecyclerAdaptor(filteredMembers);
@@ -52,7 +53,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         isEnable = arguments?.getBoolean("isEnable") ?: true
 
-        val user = SharedPrefManager.getUser()
+        val user = coreContext.user
         binding.tvLoggedUsername.text =   "${user!!.username} (${user!!.region})"
 
         // Focus button at the start
@@ -110,7 +111,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
                 return@setOnClickListener
             }
             // prevent double submit
-            binding.btCallAUser.isEnabled = false
+//            binding.btCallAUser.isEnabled = false
             call(member)
         }
 

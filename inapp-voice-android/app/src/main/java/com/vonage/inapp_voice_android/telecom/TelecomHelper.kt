@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
+import android.telephony.PhoneStateListener
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -97,7 +98,6 @@ class TelecomHelper(private val context: Context) {
      */
     fun startOutgoingCall(callId:CallId, to: String){
         println(("Calling Server with callId: $callId"))
-
         val rootExtras = Bundle()
         val extras = Bundle()
         extras.putString(Constants.EXTRA_KEY_TO, to)
@@ -107,6 +107,7 @@ class TelecomHelper(private val context: Context) {
         val isManageOwnCallsPermitted = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)  ActivityCompat.checkSelfPermission(context, Manifest.permission.MANAGE_OWN_CALLS) == PackageManager.PERMISSION_GRANTED else true
         val isCallPhonePermitted = ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
         val isCallPermitted = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) telecomManager.isOutgoingCallPermitted(phoneAccountHandle) else  true
+
 
         if (isManageOwnCallsPermitted && isCallPhonePermitted && isPhoneAccountEnabled && isCallPermitted){
             telecomManager.placeCall(Uri.parse("tel:$to"), rootExtras)

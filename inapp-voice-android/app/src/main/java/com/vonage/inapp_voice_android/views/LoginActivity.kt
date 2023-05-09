@@ -21,7 +21,6 @@ import com.vonage.inapp_voice_android.adaptors.RegionRecyclerAdaptor
 import com.vonage.inapp_voice_android.api.APIRetrofit
 import com.vonage.inapp_voice_android.api.LoginInformation
 import com.vonage.inapp_voice_android.databinding.ActivityLoginBinding
-import com.vonage.inapp_voice_android.managers.SharedPrefManager
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.utils.*
 import retrofit2.Call
@@ -74,19 +73,6 @@ class LoginActivity : AppCompatActivity() {
         // Set toolbar View
         val toolbar = binding.tbLogin
         toolbar.btLogout.visibility = View.GONE
-
-        // Check if user has already logged in
-        val user =  SharedPrefManager.getUser()
-        if (user !== null) {
-            login(user.username, user.region, null, user.token)
-            binding.pbLogin.visibility = View.VISIBLE
-            binding.clSignInForm.visibility = View.GONE
-            return
-        }
-        else  {
-            binding.pbLogin.visibility = View.GONE
-            binding.clSignInForm.visibility = View.VISIBLE
-        }
 
         checkPermissions()
 
@@ -163,8 +149,21 @@ class LoginActivity : AppCompatActivity() {
       }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (coreContext.sessionId != null) {
+            navigateToCallActivity()
+        }
+        else if (coreContext.user != null) {
+            val user = coreContext.user
+            login(user!!.username, user.region, null, user.token)
+        }
+    }
     private fun login(username: String, region: String, pin: String?, token: String?) {
         binding.btLogin.isEnabled = false
+        // Loading spinner
+        binding.pbLogin.visibility = View.VISIBLE
+        binding.clSignInForm.visibility = View.GONE
 
         binding.etUsername.clearFocus()
         binding.etRegion.clearFocus()
@@ -176,7 +175,8 @@ class LoginActivity : AppCompatActivity() {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 response.body()?.let { it1 ->
                     binding.btLogin.isEnabled = true
-                    clientManager.initClient(it1)
+                    binding.pbLogin.visibility = View.GONE
+                    binding.clSignInForm.visibility = View.VISIBLE
                     clientManager.login(it1) {
                         navigateToCallActivity()
                     }
@@ -185,6 +185,8 @@ class LoginActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<User>, t: Throwable) {
                 binding.btLogin.isEnabled = true
+                binding.pbLogin.visibility = View.GONE
+                binding.clSignInForm.visibility = View.VISIBLE
                 showAlert(this@LoginActivity, "Failed to get Credential", false)
             }
 
