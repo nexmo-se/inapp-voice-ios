@@ -42,7 +42,7 @@ extension VonageClient: CXProviderDelegate {
             return
         }
             
-        if self.currentCallStatus!.type == .inbound {
+        if self.currentCallStatus!.type == .inbound && self.currentCallStatus!.state == .ringing {
             rejectCall(callId: self.currentCallStatus?.uuid?.toVGCallID())
         }
         else {

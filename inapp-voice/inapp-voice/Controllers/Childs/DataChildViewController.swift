@@ -32,31 +32,41 @@ class DataChildViewController: UIViewController {
         copyButton.layer.borderWidth = 1
         
         NotificationCenter.default.addObserver(self, selector: #selector(callDataReceived(_:)), name: .handledCallData, object: nil)
+        
+        // Get current callData
+        let currentCallData = appDelegate.vgclient.currentCallData
+        
+        if let callData = currentCallData {
+            updateData(callData: callData)
+        }
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
+    private func updateData(callData: CallDataModel) {
+        self.callData = callData
+        myLegTitle.text = "my LegId - \(callData.username)"
+        myLegId.text = callData.myLegId
+        region.text = callData.region
+        memberLegTitle.text = "member LegId - \(callData.memberName)"
+        
+        if (callData.memberLegId != nil) {
+            memberLegId.text = callData.memberLegId
+            memberLegStackView.isHidden = false
+        }
+        else {
+            memberLegStackView.isHidden = true
+        }
+    }
+    
     @objc func callDataReceived(_ notification: NSNotification) {
         if let callData = notification.object as? CallDataModel {
             DispatchQueue.main.async { [weak self] in
                 if (self == nil) {return}
+                self!.updateData(callData: callData)
                 
-                self!.callData = callData
-                
-                self!.myLegTitle.text = "my LegId - \(callData.username)"
-                self!.myLegId.text = callData.myLegId
-                self!.region.text = callData.region
-                self!.memberLegTitle.text = "member LegId - \(callData.memberName)"
-                
-                if (callData.memberLegId != nil) {
-                    self!.memberLegId.text = callData.memberLegId
-                    self!.memberLegStackView.isHidden = false
-                }
-                else {
-                    self!.memberLegStackView.isHidden = true
-                }
             }
         }
     }

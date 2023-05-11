@@ -14,13 +14,12 @@ var window:UIWindow?
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private let voipRegistry = PKPushRegistry(queue: nil)
+    var vgclient = VonageClient.shared
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
         UIApplication.shared.delegate = self
         self.initialisePushTokens()
-        
         // Application onboarding
         AVAudioSession.sharedInstance().requestRecordPermission { (granted:Bool) in
             print("Allow microphone use. Response: \(granted)")
@@ -81,11 +80,34 @@ extension AppDelegate: PKPushRegistryDelegate {
     func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
         switch (type){
         case .voIP:
-            NotificationCenter.default.post(name: .handledPush, object: payload)
+            processNotification(payload: payload)
         default:
             return
         }
         completion()
+    }
+    
+    private func processNotification(payload: PKPushPayload) {
+        if (!Session.isLoggedIn) {
+            // Create new vgclient
+            if let data = UserDefaults.standard.data(forKey: Constants.userKey) {
+                do {
+                    let decoder = JSONDecoder()
+                    let user = try decoder.decode(UserModel.self, from: data)
+                    
+                    vgclient.login(user: user)
+                    vgclient.voiceClient.processCallInvitePushData(payload.dictionaryPayload)
+
+                }
+                catch {
+                    // no notification
+                }
+            }
+
+        }
+        else {
+            NotificationCenter.default.post(name: .handledPush, object: payload)
+        }
     }
 }
 

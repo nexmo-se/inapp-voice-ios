@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+struct Session {
+    static var isLoggedIn:Bool = false
+}
+

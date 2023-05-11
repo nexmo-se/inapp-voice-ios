@@ -25,6 +25,7 @@
 		EAA33DEA29F78A2E007BA8A1 /* CallDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA33DE929F78A2E007BA8A1 /* CallDataModel.swift */; };
 		EAA33DEC29F7B4E2007BA8A1 /* VonageClient+ProviderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA33DEB29F7B4E2007BA8A1 /* VonageClient+ProviderDelegate.swift */; };
 		EAA33DEE29F7B5AC007BA8A1 /* UUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA33DED29F7B5AC007BA8A1 /* UUID.swift */; };
+		EAACD8F92A0C075200BDC2BF /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAACD8F82A0C075200BDC2BF /* Session.swift */; };
 		EAC0146B29F10DBB00723BC4 /* JSONstringify.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */; };
 		EAC0146E29F13BF200723BC4 /* DataChildViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */; };
 		EAC0147129F1426900723BC4 /* VonageClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC0147029F1426900723BC4 /* VonageClient.swift */; };
@@ -58,6 +59,7 @@
 		EAA33DE929F78A2E007BA8A1 /* CallDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallDataModel.swift; sourceTree = "<group>"; };
 		EAA33DEB29F7B4E2007BA8A1 /* VonageClient+ProviderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VonageClient+ProviderDelegate.swift"; sourceTree = "<group>"; };
 		EAA33DED29F7B5AC007BA8A1 /* UUID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UUID.swift; sourceTree = "<group>"; };
+		EAACD8F82A0C075200BDC2BF /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		EAC0146A29F10DBB00723BC4 /* JSONstringify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONstringify.swift; sourceTree = "<group>"; };
 		EAC0146D29F13BF200723BC4 /* DataChildViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataChildViewController.swift; sourceTree = "<group>"; };
 		EAC0147029F1426900723BC4 /* VonageClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VonageClient.swift; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 				EAA33DE929F78A2E007BA8A1 /* CallDataModel.swift */,
 				EAC1EA7229FA574F00AA5B0B /* CallStatusModel.swift */,
 				EAC1EA7429FA589A00AA5B0B /* VonageClientStatusModel.swift */,
+				EAACD8F82A0C075200BDC2BF /* Session.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -341,6 +344,7 @@
 				EA8AF70B29F6266D00A897BD /* PushToken.swift in Sources */,
 				EAC1EA7529FA589A00AA5B0B /* VonageClientStatusModel.swift in Sources */,
 				EA8CDA1F29EF7CBD00BFDDF5 /* SceneDelegate.swift in Sources */,
+				EAACD8F92A0C075200BDC2BF /* Session.swift in Sources */,
 				EAC1EA7329FA574F00AA5B0B /* CallStatusModel.swift in Sources */,
 				EAC1EA6D29FA1CD500AA5B0B /* Constants.swift in Sources */,
 				EAC0147129F1426900723BC4 /* VonageClient.swift in Sources */,
@@ -494,7 +498,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "inapp-voice/inapp-voice.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = PR6C39UQ38;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "inapp-voice/Info.plist";
@@ -528,7 +532,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "inapp-voice/inapp-voice.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = PR6C39UQ38;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "inapp-voice/Info.plist";

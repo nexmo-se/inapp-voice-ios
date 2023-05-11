@@ -53,48 +53,47 @@ class LoginViewController: UIViewController {
         regionTableView.dataSource = self
         regionTableView.delegate = self
         
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionStatusReceived(_:)), name: .clientStatus, object: nil)
         
-        // If user logged in
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
         if let data = UserDefaults.standard.data(forKey: Constants.userKey) {
             do {
                 let decoder = JSONDecoder()
                 let user = try decoder.decode(UserModel.self, from: data)
                 
                 // Refresh token
-                userManager.fetchCredential(username: user.username, region: user.region, pin: nil, token: user.token)
+                self.userManager.fetchCredential(username: user.username, region: user.region, pin: nil, token: user.token)
                 
-                formStackView.isHidden = true
+                self.formStackView.isHidden = true
                 
                 // Add loading spinner
-                loadingActivityIndicator.center = CGPoint(
-                    x: view.bounds.midX,
-                    y: view.bounds.midY
+                self.loadingActivityIndicator.center = CGPoint(
+                    x: self.view.bounds.midX,
+                    y: self.view.bounds.midY
                 )
-                view.addSubview(loadingActivityIndicator)
+                self.view.addSubview(self.loadingActivityIndicator)
+                
             } catch {
                 self.present(createAlert(message: "Unable to Decode user: \(error)", completion: { isActionSubmitted in
                     self.formStackView.isHidden = false
                 }), animated: true)
             }
         }
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
-    }
-    
     
     override func viewDidDisappear(_ animated: Bool) {
         formStackView.isHidden = false
         loadingActivityIndicator.removeFromSuperview()
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
     
     @IBAction func submitButtonClicked(_ sender: Any) {
         if ((usernameTextField.text == "") || (regionTextField.text == "") || (pinTextField.text == "")) {
@@ -109,12 +108,15 @@ class LoginViewController: UIViewController {
         userManager.fetchCredential(username: usernameTextField.text!, region: regionTextField.text!, pin: pinTextField.text!, token: nil)
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let vc = segue.destination as? CallViewController {
-            vc.user = user
-        }
-    }
-    
+//        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//            if let vc = segue.destination as? CallViewController {
+//                vc.user = self.user
+//            }
+//        }
+}
+
+//MARK: UITextFieldDelegate
+extension LoginViewController {
     @objc func keyboardWillHide() {
         self.view.frame.origin.y = 0
     }
@@ -131,8 +133,33 @@ class LoginViewController: UIViewController {
         }
     }
     
+    @objc func connectionStatusReceived(_ notification: NSNotification) {
+        if let clientStatus = notification.object as? VonageClientStatusModel {
+            DispatchQueue.main.async { [weak self] in
+                if (self == nil) {return}
+                
+                if (clientStatus.state == .connected) {
+                    self!.showToast(message: "Connected", font: .systemFont(ofSize: 12.0))
+                    if (self!.user == nil) {return}
+                    self!.performSegue(withIdentifier: "goToCallVC", sender: self)
+                }
+                else if (clientStatus.state == .disconnected) {
+                    if let user = self!.user {
+                        self!.userManager.deleteUser(user: user)
+                    }
+                    
+                    if clientStatus.message != nil {
+                    
+                        self!.present(createAlert(message: clientStatus.message!, completion: nil), animated: true, completion: nil)
+                    }
+                    else {
+                        self!.showToast(message: "Disconnected", font: .systemFont(ofSize: 12.0))
+                    }
+                }
+            }
+        }
+    }
 }
-
 
 //MARK: UITextFieldDelegate
 extension LoginViewController: UITextFieldDelegate {
@@ -189,7 +216,6 @@ extension LoginViewController: UITableViewDataSource {
         } else {
             cell?.textLabel?.text = regionSearchResult[indexPath.row]
         }
-     
         
         return cell!
     }
@@ -213,9 +239,10 @@ extension LoginViewController: UserManagerDelegate {
         self.user = user
         DispatchQueue.main.async { [weak self] in
             if (self == nil) {return}
-            
-            self!.submitButton.isEnabled = true
-            self!.performSegue(withIdentifier: "goToCallVC", sender: self)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self!.appDelegate.vgclient.login(user: user)
+                self!.submitButton.isEnabled = true
+            }
         }
     }
     func handleUserManagerError(message: String) {

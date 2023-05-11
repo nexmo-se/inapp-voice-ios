@@ -18,14 +18,25 @@ struct PushInfo {
 }
 
 class VonageClient: NSObject {
-    let voiceClient:VGVoiceClient
-    var user: UserModel
+    static let shared = VonageClient()
+    var voiceClient = VGVoiceClient()
     var memberName: String?
+    var user: UserModel?
+    var isLoggedIn: Bool = false
+
     var currentCallStatus: CallStatusModel? {
         didSet {
             if (currentCallStatus != nil) {
                 NotificationCenter.default.post(name:.callStatus, object: currentCallStatus)
                 updateCallKit(call: currentCallStatus!)
+            }
+        }
+    }
+    
+    var currentCallData: CallDataModel? {
+        didSet {
+            if (currentCallData != nil) {
+                NotificationCenter.default.post(name:.handledCallData, object: currentCallData)
             }
         }
     }
@@ -48,25 +59,40 @@ class VonageClient: NSObject {
     
     lazy var cxController = CXCallController()
     
-    init(user: UserModel){
+    func initClient(user: UserModel){
         self.user = user
-        let vonageClient = VGVoiceClient()
+        let voiceClient = VGVoiceClient()
         let config = VGClientConfig()
         config.apiUrl = user.dc
         config.websocketUrl = user.ws
-        vonageClient.setConfig(config)
-        VGBaseClient.setDefaultLoggingLevel(.error)
-        self.voiceClient  = vonageClient
-        super.init()
+        voiceClient.setConfig(config)
+        VGBaseClient.setDefaultLoggingLevel(.debug)
+        self.voiceClient  = voiceClient
         self.voiceClient.delegate = self
     }
     
     func login(user: UserModel) {
+        if (Session.isLoggedIn) {
+            NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .connected, message: nil))
+            return
+        }
+        self.initClient(user: user)
         self.voiceClient.createSession(user.token) { error, session in
             if error == nil {
-                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .connected, message: nil))
                 self.registerPushTokens()
-                
+                Session.isLoggedIn = true
+                do {
+                    let encoder = JSONEncoder()
+                    
+                    let data = try encoder.encode(user)
+                    
+                    UserDefaults.standard.set(data, forKey: Constants.userKey)
+                    
+                } catch {
+                    print("Fail to encode user")
+                }
+                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .connected, message: nil))
+
             } else {
                 NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: error!.localizedDescription))
             }
@@ -74,15 +100,17 @@ class VonageClient: NSObject {
     }
     
     func logout() {
+        self.unregisterPushTokens()
         self.voiceClient.deleteSession { error in
             if error != nil {
                 NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: error!.localizedDescription))
             }
             else {
+                Session.isLoggedIn = false
+                UserDefaults.standard.removeObject(forKey: Constants.userKey)
                 NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: nil))
             }
         }
-        UserDefaults.standard.removeObject(forKey: Constants.pushToken)
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -103,18 +131,33 @@ class VonageClient: NSObject {
     
     func registerPushTokens() {
         if (PushToken.voip == nil || PushToken.user == nil) { return }
+        UserDefaults.standard.set(PushToken.voip!, forKey: Constants.pushTokenKey)
+        UserDefaults.standard.set(PushToken.user!, forKey: Constants.deviceTokenKey)
         
         self.voiceClient.registerDevicePushToken(PushToken.voip!, userNotificationToken: PushToken.user!, isSandbox: false) { error, device in
             if (error != nil) {
                 self.logout()
             }
-            
+            UserDefaults.standard.set(device, forKey: Constants.deviceIdKey)
             print("register push token successfully")
             // Reset observer
             NotificationCenter.default.removeObserver(self)
-            
+
             // Attached Observer
             NotificationCenter.default.addObserver(self, selector: #selector(self.reportVoipPush(_:)), name: .handledPush, object: nil)
+        }
+    }
+    
+    func unregisterPushTokens() {
+        let deviceId = UserDefaults.standard.string(forKey: Constants.deviceIdKey)
+        if (deviceId == nil) {return}
+        self.voiceClient.unregisterDeviceTokens(byDeviceId: deviceId!) { error in
+            if (error != nil) {
+                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: error!.localizedDescription))
+            }
+            else {
+                UserDefaults.standard.removeObject(forKey: Constants.deviceIdKey)
+            }
         }
     }
     
@@ -168,7 +211,7 @@ class VonageClient: NSObject {
                 }
                 else {
                     if let memberName = self.memberName {
-                        NotificationCenter.default.post(name: .handledCallData, object: CallDataModel(username: self.user.username, memberName: memberName, myLegId: callId, memberLegId: nil, region: self.user.region))
+                        self.currentCallData = CallDataModel(username: self.user!.username, memberName: memberName, myLegId: callId, memberLegId: nil, region: self.user!.region)
                     }
                     self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .answered, type: .inbound, member: nil, message: nil)
                     

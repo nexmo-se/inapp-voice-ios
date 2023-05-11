@@ -31,7 +31,6 @@ class CallViewController: UIViewController {
     
     var user: UserModel!
     var userManager = UserManager()
-    var vgclient: VonageClient!
     
     var memberList: MemberModel!
     var membersManager = MembersManager()
@@ -40,18 +39,26 @@ class CallViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if (user == nil) {
-            self.present(createAlert(message: "Missing user", completion: { isActionSubmitted in
-                self.dismiss(animated: true)
-            }), animated: true, completion: nil)
-            return
+        if let data = UserDefaults.standard.data(forKey: Constants.userKey) {
+            do {
+                let decoder = JSONDecoder()
+                let user = try decoder.decode(UserModel.self, from: data)
+                self.user = user
+                setupInitialView()
+                
+            } catch {
+                self.present(createAlert(message: "Unable to Decode user: \(error)", completion: { isActionSubmitted in
+                    self.dismiss(animated: true)
+                }), animated: true)
+            }
         }
-
-        // VoiceClient login
-        vgclient = VonageClient(user: user)
-        vgclient.login(user: user)
-        
-        
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupInitialView() {
         // Initial View - title
         usernameLabel.text = "\(user.username) (\(user.region))"
         
@@ -60,7 +67,7 @@ class CallViewController: UIViewController {
         rejectButton.layer.cornerRadius = Constants.borderRadius
         callButton.layer.cornerRadius = Constants.borderRadius
         hangupButton.layer.cornerRadius = Constants.borderRadius
-
+        
         callButton.isEnabled = false
         callDataView.layer.borderWidth = 2
         callDataView.layer.borderColor = .init(red: 196/255, green: 53/255, blue: 152/255, alpha: 1)
@@ -72,19 +79,28 @@ class CallViewController: UIViewController {
         membersManager.delegate = self
         loadMembers()
         
+        // get current call state
+        let currentCallStatus = self.appDelegate.vgclient.currentCallStatus
+        if let callStatus = currentCallStatus {
+            self.updateCallStateUI(callStatus: callStatus)
+        }
+        
         // notification
-        NotificationCenter.default.addObserver(self, selector: #selector(connectionStatusReceived(_:)), name: .clientStatus, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(callReceived(_:)), name: .callStatus, object: nil)
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
     
     private func loadMembers() {
         membersManager.fetchMembers(user: user)
     }
     
+    private func updateCallStateUI(callStatus: CallStatusModel) {
+        switch callStatus.state {
+        case .answered, .ringing:
+            displayActiveCall(state: callStatus.state, type: callStatus.type, member: callStatus.member)
+        case .completed:
+            displayIdleCall(message: callStatus.message)
+        }
+    }
     private func displayActiveCall(state: CallState, type: CallType?, member: String?) {
         DispatchQueue.main.async { [weak self] in
             if (self == nil) {return}
@@ -152,58 +168,12 @@ class CallViewController: UIViewController {
 
 //MARK: Notifications
 extension CallViewController {
-    @objc func connectionStatusReceived(_ notification: NSNotification) {
-        if let clientStatus = notification.object as? VonageClientStatusModel {
-            DispatchQueue.main.async { [weak self] in
-                if (self == nil) {return}
-                
-                if (clientStatus.state == .connected) {
-                    self!.showToast(message: "Connected", font: .systemFont(ofSize: 12.0))
-                    
-                    // store user to userdefault
-                    do {
-                        let encoder = JSONEncoder()
-                        
-                        let data = try encoder.encode(self!.user)
-                        
-                        UserDefaults.standard.set(data, forKey: Constants.userKey)
-                        
-                    } catch {
-                        self!.showToast(message: "Unable to encode user", font: .systemFont(ofSize: 12.0))
-                    }
-                }
-                else if (clientStatus.state == .disconnected) {
-                    UserDefaults.standard.removeObject(forKey: Constants.userKey)
-                    
-                    self!.userManager.deleteUser(user: self!.user)
-                   
-                    if clientStatus.message != nil {
-                        self!.present(createAlert(message: clientStatus.message!, completion: { isActionSubmitted in
-                            self!.showToast(message: "Disconnected", font: .systemFont(ofSize: 12.0))
-                            self!.dismiss(animated: true)
-                        }), animated: true, completion: nil)
-                    }
-                    else {
-                        self!.showToast(message: "Disconnected", font: .systemFont(ofSize: 12.0))
-                        self!.dismiss(animated: true)
-                    }
-                }
-            }
-        }
-    }
-    
     @objc func callReceived(_ notification: NSNotification) {
         DispatchQueue.main.async { [weak self] in
             if let callStatus = notification.object as? CallStatusModel {
                 if (self ==  nil) {return}
                 self!.enableActionButton()
-                
-                switch callStatus.state {
-                case .answered, .ringing:
-                    self!.displayActiveCall(state: callStatus.state, type: callStatus.type, member: callStatus.member)
-                case .completed:
-                    self!.displayIdleCall(message: callStatus.message)
-                }
+                self!.updateCallStateUI(callStatus: callStatus)
             }
         }
         
@@ -223,26 +193,27 @@ extension CallViewController {
             self.showToast(message: "Invalid member", font: .systemFont(ofSize: 12.0))
             return
         }
-        vgclient.startOutboundCall(member: member)
+        appDelegate.vgclient.startOutboundCall(member: member)
     }
     
     @IBAction func answerCallClicked(_ sender: Any) {
         disableActionButtons()
-        vgclient.answerByCallkit(calluuid: vgclient.currentCallStatus?.uuid)
+        appDelegate.vgclient.answerByCallkit(calluuid: appDelegate.vgclient.currentCallStatus?.uuid)
     }
     
     @IBAction func rejectCallClicked(_ sender: Any) {
         disableActionButtons()
-        vgclient.rejectByCallkit(calluuid: vgclient.currentCallStatus?.uuid)
+        appDelegate.vgclient.rejectByCallkit(calluuid: appDelegate.vgclient.currentCallStatus?.uuid)
     }
     
     @IBAction func hangupCallClicked(_ sender: Any) {
         disableActionButtons()
-        vgclient.hangUpCall(callId: vgclient.currentCallStatus?.uuid?.toVGCallID())
+        appDelegate.vgclient.hangUpCall(callId: appDelegate.vgclient.currentCallStatus?.uuid?.toVGCallID())
     }
     
     @IBAction func onLogoutButtonClicked(_ sender: Any) {
-        vgclient.logout()
+        appDelegate.vgclient.logout()
+        dismiss(animated: true)
     }
 }
 
