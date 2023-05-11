@@ -9,6 +9,8 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.net.Uri
+import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.vonage.clientcore.core.api.CallId
 import com.vonage.clientcore.core.api.models.Username
@@ -60,8 +62,7 @@ class InternalNotificationManager(private val context: Context) {
      * This method will show an Incoming call Notification if the device is locked
      */
     fun showIncomingCallNotification(callId: CallId, from: Username, type: VoiceChannelType){
-        // Create Notification Channel if it doesn't exist
-        notificationManager.getNotificationChannel(CHANNEL_ID) ?: createNotificationChannel()
+
         // Update state var
         this.callId = callId
         // Create the Intent to launch the main activity with extra data
@@ -73,6 +74,10 @@ class InternalNotificationManager(private val context: Context) {
         }
         val pendingIntent = PendingIntent.getActivity(context, NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
+        // Create Notification Channel if it doesn't exist
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.getNotificationChannel(CHANNEL_ID) ?: createNotificationChannel()
+        }
         // Create the notification builder
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.vonage_logo_svg)

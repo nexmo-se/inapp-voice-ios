@@ -127,17 +127,17 @@ class VoiceClientManager(private val context: Context) {
             println("LegId $legId has sent DTMF digits '$digits' to Call $callId")
         }
     }
-    fun login(user: User, onSuccessCallback: ((String) -> Unit)? = null){
+    fun login(user: User, onSuccessCallback: ((String) -> Unit)? = null, onErrorCallback: (() -> Unit)? = null){
         initClient(user)
         client.createSession(user.token){ error, sessionId ->
             sessionId?.let {
                 showToast(context, "Connected")
-
                 registerDevicePushToken()
                 coreContext.sessionId = it
                 coreContext.user = user
                 onSuccessCallback?.invoke(it)
             } ?: error?.let {
+                onErrorCallback?.invoke()
                 showToast(context, "Login Failed: ${error.message}")
             }
         }

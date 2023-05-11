@@ -3,16 +3,13 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
-import android.util.DisplayMetrics
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.os.HandlerCompat.postDelayed
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,7 +23,6 @@ import com.vonage.inapp_voice_android.utils.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -100,7 +96,7 @@ class LoginActivity : AppCompatActivity() {
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding.etRegion.windowToken, 0)
             // focus next
-            binding.btLogin.isFocusableInTouchMode = true;
+            binding.btLogin.isFocusableInTouchMode = true
             binding.btLogin.requestFocus()
         }
 
@@ -119,7 +115,7 @@ class LoginActivity : AppCompatActivity() {
             filteredRegions.clear()
 
             if (text !== "" && !Constants.REGIONS.contains(text.toString(), true)) {
-                val newList = ArrayList(Constants.REGIONS.filter { it ->
+                val newList = ArrayList(Constants.REGIONS.filter {
                     it.lowercase().contains(text.toString().lowercase())
                 })
                 filteredRegions.addAll(newList)
@@ -174,12 +170,17 @@ class LoginActivity : AppCompatActivity() {
         APIRetrofit.instance.getCredential(LoginInformation(username, region, pin, token)).enqueue(object: Callback<User> {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 response.body()?.let { it1 ->
-                    binding.btLogin.isEnabled = true
-                    binding.pbLogin.visibility = View.GONE
-                    binding.clSignInForm.visibility = View.VISIBLE
-                    clientManager.login(it1) {
+                    clientManager.login(it1 , onSuccessCallback = {
                         navigateToCallActivity()
-                    }
+                    }, onErrorCallback = {
+                        Handler(Looper.getMainLooper()).post {
+                            binding.btLogin.isEnabled = true
+                            binding.pbLogin.visibility = View.GONE
+                            binding.clSignInForm.visibility = View.VISIBLE
+                        }
+                    } )
+
+
                 }
             }
 

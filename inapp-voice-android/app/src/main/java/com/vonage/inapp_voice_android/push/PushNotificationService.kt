@@ -20,9 +20,10 @@ class PushNotificationService : FirebaseMessagingService() {
         App.coreContext.run {
             if (sessionId == null) {
                 val user = user ?: return@run
-                clientManager.login(user) {
+                clientManager.login(user, onSuccessCallback = {
                     clientManager.processIncomingPush(remoteMessage)
-                }
+                })
+
             } else {
                 clientManager.processIncomingPush(remoteMessage)
             }

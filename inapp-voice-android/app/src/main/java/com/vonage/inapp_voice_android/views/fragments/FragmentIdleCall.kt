@@ -111,7 +111,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
                 return@setOnClickListener
             }
             // prevent double submit
-//            binding.btCallAUser.isEnabled = false
+            binding.btCallAUser.isEnabled = false
             call(member)
         }
 
