@@ -169,22 +169,23 @@ class VoiceClientManager(private val context: Context) {
         }
     }
 
-    private fun registerDevicePushToken(){
+    private fun registerDevicePushToken() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 task.result?.let { token ->
                     println("FCM Device Token: $token")
-                }
-            }
-        }
-        coreContext.pushToken?.let {
-            client.registerDevicePushToken(it) { err, deviceId ->
-                err?.let {
-                    notifyCallErrorToCallActivity(context, "Error in registering Device Push Token: $err")
-                    println("Error in registering Device Push Token: $err")
-                } ?: deviceId?.let {
-                    coreContext.deviceId = deviceId
-                    println("Device Push Token successfully registered with Device ID: $deviceId")
+                    client.registerDevicePushToken(token) { err, deviceId ->
+                        err?.let {
+                            notifyCallErrorToCallActivity(
+                                context,
+                                "Error in registering Device Push Token: $err"
+                            )
+                            println("Error in registering Device Push Token: $err")
+                        } ?: deviceId?.let {
+                            coreContext.deviceId = deviceId
+                            println("Device Push Token successfully registered with Device ID: $deviceId")
+                        }
+                    }
                 }
             }
         }

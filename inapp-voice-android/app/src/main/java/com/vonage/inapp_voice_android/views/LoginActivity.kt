@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.messaging.FirebaseMessaging
 import com.vonage.inapp_voice_android.App
 import com.vonage.inapp_voice_android.adaptors.RegionRecyclerAdaptor
 import com.vonage.inapp_voice_android.api.APIRetrofit
@@ -34,7 +35,17 @@ class LoginActivity : AppCompatActivity() {
 
     // Only permission with a 'dangerous' Protection Level
     // need to be requested explicitly
-    private val permissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+    private val permissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+        arrayOf(
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.CALL_PHONE,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.MANAGE_OWN_CALLS,
+            Manifest.permission.ANSWER_PHONE_CALLS,
+            Manifest.permission.READ_PHONE_NUMBERS,
+        )
+        else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
         arrayOf(
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.CALL_PHONE,
@@ -95,9 +106,6 @@ class LoginActivity : AppCompatActivity() {
 
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding.etRegion.windowToken, 0)
-            // focus next
-            binding.btLogin.isFocusableInTouchMode = true
-            binding.btLogin.requestFocus()
         }
 
         binding.etRegion.setOnFocusChangeListener { _, hasFocus ->

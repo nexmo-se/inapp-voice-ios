@@ -242,18 +242,14 @@ app.get('/voice/answer', (req, res) => {
   if (username) {
     ncco = [
       {
-        "action": "talk",
-        "text": "Connecting you to " + username
-      },
-      {
         "action": "connect",
+        "ringbackTone":"https://cdn.newvoicemedia.com/webrtc-audio/us-ringback.mp3",
         "endpoint": [
           {
             "type": "app",
             "user": username
           }
-        ],
-        "ringbackTone": process.env.CALLER_RINGTONE_URL
+        ]
       }
     ]
   }
