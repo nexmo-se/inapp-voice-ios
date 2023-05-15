@@ -21,10 +21,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIApplication.shared.delegate = self
         self.initialisePushTokens()
         // Application onboarding
-        AVAudioSession.sharedInstance().requestRecordPermission { (granted:Bool) in
-            print("Allow microphone use. Response: \(granted)")
+        let mediaType = AVMediaType.audio
+        let authorizationStatus = AVCaptureDevice.authorizationStatus(for: mediaType)
+        switch authorizationStatus {
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: mediaType) { granted in
+                print("🎤 access \(granted ? "granted" : "denied")")
+            }
+        case .authorized, .denied, .restricted:
+            print("auth")
         }
-        
+
+        try? AVAudioSession.sharedInstance().setCategory(.playAndRecord)
+
         return true
     }
 
@@ -88,8 +97,6 @@ extension AppDelegate: PKPushRegistryDelegate {
     }
     
     private func processNotification(payload: PKPushPayload) {
-        if (!Session.isLoggedIn) {
-            // Create new vgclient
             if let data = UserDefaults.standard.data(forKey: Constants.userKey) {
                 do {
                     let decoder = JSONDecoder()
@@ -103,11 +110,6 @@ extension AppDelegate: PKPushRegistryDelegate {
                     // no notification
                 }
             }
-
-        }
-        else {
-            NotificationCenter.default.post(name: .handledPush, object: payload)
-        }
     }
 }
 
@@ -115,7 +117,6 @@ extension Notification.Name {
     static let clientStatus = Notification.Name("ClientStatus")
     static let callStatus = Notification.Name("CallStatus")
     static let handledCallData = Notification.Name("CallData")
-    static let handledPush = Notification.Name("CallPush")
 }
 
 

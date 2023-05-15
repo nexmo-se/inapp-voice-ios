@@ -26,8 +26,6 @@ extension VonageClient: CXProviderDelegate {
             return
         }
         
-        configureAudioSession()
-        
         answercall(callId: self.currentCallStatus?.uuid?.toVGCallID()) { isSucess in
             if (!isSucess) {
                 provider.reportCall(with: action.callUUID, endedAt: Date(), reason: .failed)
@@ -77,15 +75,4 @@ extension VonageClient: CXProviderDelegate {
     func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession){
         VGVoiceClient.disableAudio(audioSession)
     }
-    
-    // When the device is locked, the AVAudioSession needs to be configured.
-       private func configureAudioSession() {
-           let audioSession = AVAudioSession.sharedInstance()
-           do {
-               try audioSession.setCategory(AVAudioSession.Category.playAndRecord, mode: .default)
-               try audioSession.setMode(AVAudioSession.Mode.voiceChat)
-           } catch {
-               print(error)
-           }
-       }
 }

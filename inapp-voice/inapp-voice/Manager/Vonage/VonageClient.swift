@@ -42,7 +42,12 @@ class VonageClient: NSObject {
     }
     
     // Callkit
-    lazy var callProvider = { () -> CXProvider in
+    var callProvider: CXProvider!
+    var cxController = CXCallController()
+    
+    override init() {
+        super.init()
+        // setup call provider
         var config: CXProviderConfiguration
         if #available(iOS 14.0, *) {
             config = CXProviderConfiguration()
@@ -52,12 +57,9 @@ class VonageClient: NSObject {
             config = CXProviderConfiguration(localizedName: "Vonage Call")
             config.supportsVideo = false
         }
-        let provider = CXProvider(configuration: config)
-        provider.setDelegate(self, queue: nil)
-        return provider
-    }()
-    
-    lazy var cxController = CXCallController()
+        callProvider = CXProvider(configuration: config)
+        callProvider.setDelegate(self, queue: nil)
+    }
     
     func initClient(user: UserModel){
         self.user = user
@@ -66,33 +68,34 @@ class VonageClient: NSObject {
         config.apiUrl = user.dc
         config.websocketUrl = user.ws
         voiceClient.setConfig(config)
-        VGBaseClient.setDefaultLoggingLevel(.debug)
+        VGBaseClient.setDefaultLoggingLevel(.error)
         self.voiceClient  = voiceClient
         self.voiceClient.delegate = self
     }
     
     func login(user: UserModel) {
-        if (Session.isLoggedIn) {
-            NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .connected, message: nil))
-            return
+        if (!Session.isLoggedIn) {
+            self.initClient(user: user)
         }
-        self.initClient(user: user)
+
         self.voiceClient.createSession(user.token) { error, session in
             if error == nil {
-                self.registerPushTokens()
-                Session.isLoggedIn = true
-                do {
-                    let encoder = JSONEncoder()
-                    
-                    let data = try encoder.encode(user)
-                    
-                    UserDefaults.standard.set(data, forKey: Constants.userKey)
-                    
-                } catch {
-                    print("Fail to encode user")
+                if (!Session.isLoggedIn) {
+                    self.registerPushTokens()
+                    do {
+                        let encoder = JSONEncoder()
+                        
+                        let data = try encoder.encode(user)
+                        
+                        UserDefaults.standard.set(data, forKey: Constants.userKey)
+                        
+                    } catch {
+                        print("Fail to encode user")
+                    }
                 }
+                Session.isLoggedIn = true
                 NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .connected, message: nil))
-
+                
             } else {
                 NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: error!.localizedDescription))
             }
@@ -107,6 +110,8 @@ class VonageClient: NSObject {
             }
             else {
                 Session.isLoggedIn = false
+                self.currentCallStatus = nil
+                self.currentCallData = nil
                 UserDefaults.standard.removeObject(forKey: Constants.userKey)
                 NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: nil))
             }
@@ -114,17 +119,21 @@ class VonageClient: NSObject {
         NotificationCenter.default.removeObserver(self)
     }
     
-    
-    func startOutboundCall(member: String) {
-        voiceClient.serverCall(["to": member]) { error, callId in
-            if error != nil {
-                self.currentCallStatus = CallStatusModel(uuid: nil, state: .completed(remote: false, reason: .failed), type: .outbound, member: nil, message: error!.localizedDescription)
-            } else {
-                
-                if let callId = callId {
-                    self.memberName = member
-                    self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .ringing, type: .outbound, member: member, message: nil)
+    func startOutboundCall(user: UserModel, member: String) {
+        voiceClient.createSession(user.token) { error, session in
+            if error == nil {
+                self.voiceClient.serverCall(["to": member]) { error, callId in
+                    if error != nil {
+                        self.currentCallStatus = CallStatusModel(uuid: nil, state: .completed(remote: false, reason: .failed), type: .outbound, member: nil, message: error!.localizedDescription)
+                    } else {
+                        if let callId = callId {
+                            self.memberName = member
+                            self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .ringing, type: .outbound, member: member, message: nil)
+                        }
+                    }
                 }
+            } else {
+                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: error!.localizedDescription))
             }
         }
     }
@@ -140,11 +149,6 @@ class VonageClient: NSObject {
             }
             UserDefaults.standard.set(device, forKey: Constants.deviceIdKey)
             print("register push token successfully")
-            // Reset observer
-            NotificationCenter.default.removeObserver(self)
-
-            // Attached Observer
-            NotificationCenter.default.addObserver(self, selector: #selector(self.reportVoipPush(_:)), name: .handledPush, object: nil)
         }
     }
     
@@ -272,12 +276,5 @@ class VonageClient: NSObject {
             }
         }
         
-    }
-    
-    @objc private func reportVoipPush(_ notification: NSNotification) {
-        if let payload = notification.object as? PKPushPayload {
-            self.voiceClient.processCallInvitePushData(payload.dictionaryPayload)
-            
-        }
     }
 }

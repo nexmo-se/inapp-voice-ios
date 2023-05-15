@@ -193,7 +193,7 @@ extension CallViewController {
             self.showToast(message: "Invalid member", font: .systemFont(ofSize: 12.0))
             return
         }
-        appDelegate.vgclient.startOutboundCall(member: member)
+        appDelegate.vgclient.startOutboundCall(user: user, member: member)
     }
     
     @IBAction func answerCallClicked(_ sender: Any) {
