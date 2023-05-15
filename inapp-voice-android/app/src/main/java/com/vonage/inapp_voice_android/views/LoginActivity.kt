@@ -4,7 +4,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.messaging.FirebaseMessaging
 import com.vonage.inapp_voice_android.App
 import com.vonage.inapp_voice_android.adaptors.RegionRecyclerAdaptor
 import com.vonage.inapp_voice_android.api.APIRetrofit
@@ -205,7 +203,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(arePermissionsGranted){
-            App.coreContext.telecomHelper
+            coreContext.telecomHelper
         }
     }
 
@@ -213,6 +211,8 @@ class LoginActivity : AppCompatActivity() {
         if (!arePermissionsGranted) {
             // Request permissions
             ActivityCompat.requestPermissions(this, permissions, PERMISSIONS_REQUEST_CODE)
+        }else {
+            coreContext.telecomHelper
         }
     }
 

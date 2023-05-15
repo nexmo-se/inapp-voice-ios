@@ -1,11 +1,26 @@
 package com.vonage.inapp_voice_android.push
 
-import android.util.Log
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.vonage.inapp_voice_android.App
 
 class PushNotificationService : FirebaseMessagingService() {
+    companion object {
+        /**
+         * Request FCM Token Explicitly.
+         */
+        fun requestToken(){
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    task.result?.takeIf { it != App.coreContext.pushToken }?.let { token ->
+                        println("FCM Device Push Token: $token")
+                        App.coreContext.pushToken = token
+                    }
+                }
+            }
+        }
+    }
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         println("PUSH TOKEN:  $token")
