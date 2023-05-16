@@ -10,12 +10,13 @@ class PushNotificationService : FirebaseMessagingService() {
         /**
          * Request FCM Token Explicitly.
          */
-        fun requestToken(){
+        fun requestToken(onSuccessCallback: ((String) -> Unit)? = null){
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    task.result?.takeIf { it != App.coreContext.pushToken }?.let { token ->
+                    task.result?.let { token ->
                         println("FCM Device Push Token: $token")
                         App.coreContext.pushToken = token
+                        onSuccessCallback?.invoke(token)
                     }
                 }
             }
@@ -23,7 +24,7 @@ class PushNotificationService : FirebaseMessagingService() {
     }
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        println("PUSH TOKEN:  $token")
+        println("New FCM Device Push Token:  $token")
         // Set new Push Token
         App.coreContext.pushToken = token
     }
