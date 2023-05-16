@@ -26,7 +26,6 @@ class VoiceClientManager(private val context: Context) {
     private val coreContext = App.coreContext
 
     private fun initClient(user: User){
-        PushNotificationService.requestToken()
         setDefaultLoggingLevel(LoggingLevel.Info)
 
         var config = VGClientConfig()
@@ -170,8 +169,8 @@ class VoiceClientManager(private val context: Context) {
     }
 
     private fun registerDevicePushToken(){
-        coreContext.pushToken?.let {
-            client.registerDevicePushToken(it) { err, deviceId ->
+        val registerTokenCallback : (String) -> Unit = { token ->
+            client.registerDevicePushToken(token) { err, deviceId ->
                 err?.let {
                     println("Error in registering Device Push Token: $err")
                 } ?: deviceId?.let {
@@ -179,6 +178,11 @@ class VoiceClientManager(private val context: Context) {
                     println("Device Push Token successfully registered with Device ID: $deviceId")
                 }
             }
+        }
+        coreContext.pushToken?.let {
+            registerTokenCallback(it)
+        } ?: PushNotificationService.requestToken {
+            registerTokenCallback(it)
         }
     }
 
