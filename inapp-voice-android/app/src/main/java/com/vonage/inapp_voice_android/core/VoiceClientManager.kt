@@ -2,8 +2,6 @@ package com.vonage.inapp_voice_android.core
 
 import android.content.Context
 import android.telecom.DisconnectCause
-import android.util.Log
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.RemoteMessage
 import com.vonage.android_core.PushType
 import com.vonage.android_core.VGClientConfig
@@ -12,6 +10,7 @@ import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.telecom.CallConnection
 import com.vonage.inapp_voice_android.App
 import com.vonage.inapp_voice_android.models.CallData
+import com.vonage.inapp_voice_android.push.PushNotificationService
 import com.vonage.inapp_voice_android.utils.*
 import com.vonage.inapp_voice_android.utils.notifyCallDisconnectedToCallActivity
 import com.vonage.inapp_voice_android.utils.notifyIsMutedToCallActivity
@@ -26,7 +25,8 @@ class VoiceClientManager(private val context: Context) {
     private lateinit var client : VoiceClient
     private val coreContext = App.coreContext
 
-    fun initClient(user: User){
+    private fun initClient(user: User){
+        PushNotificationService.requestToken()
         setDefaultLoggingLevel(LoggingLevel.Info)
 
         var config = VGClientConfig()
@@ -169,23 +169,14 @@ class VoiceClientManager(private val context: Context) {
         }
     }
 
-    private fun registerDevicePushToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                task.result?.let { token ->
-                    println("FCM Device Token: $token")
-                    client.registerDevicePushToken(token) { err, deviceId ->
-                        err?.let {
-                            notifyCallErrorToCallActivity(
-                                context,
-                                "Error in registering Device Push Token: $err"
-                            )
-                            println("Error in registering Device Push Token: $err")
-                        } ?: deviceId?.let {
-                            coreContext.deviceId = deviceId
-                            println("Device Push Token successfully registered with Device ID: $deviceId")
-                        }
-                    }
+    private fun registerDevicePushToken(){
+        coreContext.pushToken?.let {
+            client.registerDevicePushToken(it) { err, deviceId ->
+                err?.let {
+                    println("Error in registering Device Push Token: $err")
+                } ?: deviceId?.let {
+                    coreContext.deviceId = deviceId
+                    println("Device Push Token successfully registered with Device ID: $deviceId")
                 }
             }
         }
@@ -204,7 +195,7 @@ class VoiceClientManager(private val context: Context) {
 
     fun processIncomingPush(remoteMessage: RemoteMessage) {
         val dataString = remoteMessage.data.toString()
-        val type: PushType? = VoiceClient.getPushNotificationType(dataString)
+        val type: PushType = VoiceClient.getPushNotificationType(dataString)
         if (type == PushType.INCOMING_CALL) {
             // This method will trigger the Client's Call Invite Listener
             client.processPushCallInvite(dataString)
