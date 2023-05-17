@@ -195,11 +195,8 @@ class CallActivity : AppCompatActivity() {
         }
 
         val bundle = Bundle()
-        if (currentState == CALL_ANSWERED) {
-            bundle.putString("currentState", "Answered")
-        }
-        else if (currentState == CALL_STARTED){
-            bundle.putString("currentState", "Ringing")
+        if (currentState == CALL_ANSWERED || currentState == CALL_STARTED) {
+            bundle.putString(CALL_STATE, currentState)
         }
         fragment.arguments = bundle
         val fragmentManager = supportFragmentManager
@@ -278,6 +275,7 @@ class CallActivity : AppCompatActivity() {
         const val CALL_STATE = "callState"
         const val CALL_ANSWERED = "answered"
         const val CALL_STARTED = "started"
+        const val CALL_RINGING = "ringing"
         const val CALL_DISCONNECTED = "disconnected"
         const val CALL_ERROR = "callError"
         const val SESSION_ERROR = "sessionError"

@@ -8,7 +8,6 @@ import android.os.Looper
 import android.telephony.TelephonyManager
 import androidx.core.os.postDelayed
 import com.vonage.inapp_voice_android.utils.navigateToCallActivity
-import com.vonage.inapp_voice_android.utils.notifyCallStartedToCallActivity
 
 class CallBroadcastReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {

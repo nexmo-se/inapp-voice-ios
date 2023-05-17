@@ -2,7 +2,6 @@ package com.vonage.inapp_voice_android.core
 
 import android.content.Context
 import android.telecom.DisconnectCause
-import android.util.Log
 import com.google.firebase.messaging.RemoteMessage
 import com.vonage.android_core.PushType
 import com.vonage.android_core.VGClientConfig
