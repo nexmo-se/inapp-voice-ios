@@ -26,6 +26,15 @@ internal fun CallActivity.navigateToLoginActivity(extras: Bundle? = null){
     finish()
 }
 
+internal fun navigateToCallActivity(context: Context, extras: Bundle? = null){
+    val intent = Intent(context, CallActivity::class.java)
+    extras?.let {
+        intent.putExtras(it)
+    }
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+    context.startActivity(intent)
+}
+
 internal fun sendMessageToCallActivity(context: Context, extras: Bundle? = null){
     val intent = Intent(CallActivity.MESSAGE_ACTION)
     extras?.let {

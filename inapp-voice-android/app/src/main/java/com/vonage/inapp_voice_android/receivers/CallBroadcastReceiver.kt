@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.telephony.TelephonyManager
 import androidx.core.os.postDelayed
+import com.vonage.inapp_voice_android.utils.navigateToCallActivity
 import com.vonage.inapp_voice_android.utils.notifyCallStartedToCallActivity
 
 class CallBroadcastReceiver: BroadcastReceiver() {
@@ -18,12 +19,12 @@ class CallBroadcastReceiver: BroadcastReceiver() {
             TelephonyManager.EXTRA_STATE_RINGING -> {
                 // The Call Activity needs to be in foreground
                 // for the audio to be recorded
-                notifyCallStartedToCallActivity(context)
+                navigateToCallActivity(context)
             }
             TelephonyManager.EXTRA_STATE_OFFHOOK -> {
                 //Add 500ms delay to make transition smoother
                 Handler(Looper.getMainLooper()).postDelayed(500){
-                    notifyCallStartedToCallActivity(context)
+                    navigateToCallActivity(context)
                 }
             }
         }

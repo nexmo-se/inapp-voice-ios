@@ -30,7 +30,6 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
     private var _binding: FragmentIdlecallBinding? = null
     private val binding get() = _binding!!
 
-    private var isEnable = false
     private val coreContext = App.coreContext
     private val clientManager = coreContext.clientManager
     private var members = ArrayList<String>()
@@ -51,8 +50,6 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
         _binding = null
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        isEnable = arguments?.getBoolean("isEnable") ?: true
-
         val user = coreContext.user
         binding.tvLoggedUsername.text =   "${user!!.username} (${user!!.region})"
 
@@ -103,7 +100,6 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
         }
 
         // Call Button
-        binding.btCallAUser.isEnabled = isEnable
         binding.btCallAUser.setOnClickListener {
             val member = binding.etCallUser.text.toString()
             if (!members.contains(member)) {

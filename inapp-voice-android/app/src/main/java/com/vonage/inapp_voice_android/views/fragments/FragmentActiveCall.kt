@@ -22,6 +22,7 @@ class FragmentActiveCall: Fragment(R.layout.fragment_activecall) {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentActivecallBinding.inflate(inflater, container, false)
+        binding.tvCallStatus.text = arguments?.getString("currentState") ?: "Ringing"
         return binding.root
     }
 
@@ -37,7 +38,12 @@ class FragmentActiveCall: Fragment(R.layout.fragment_activecall) {
     }
     private fun onHangup(){
         coreContext.activeCall?.let { call ->
-            clientManager.hangupCall(call)
+            if (binding.tvCallStatus.text == "Ringing") {
+                clientManager.rejectCall(call)
+            }
+            else {
+                clientManager.hangupCall(call)
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package com.vonage.inapp_voice_android.core
 
 import android.content.Context
 import android.telecom.DisconnectCause
+import android.util.Log
 import com.google.firebase.messaging.RemoteMessage
 import com.vonage.android_core.PushType
 import com.vonage.android_core.VGClientConfig
@@ -161,6 +162,8 @@ class VoiceClientManager(private val context: Context) {
                 notifyCallErrorToCallActivity(context, "Error starting outbound call: $it")
                 println("Error starting outbound call: $it")
             } ?: callId?.let {
+                notifyCallStartedToCallActivity(context)
+
                 println("Outbound Call successfully started with Call ID: $it")
                 val to = callContext?.get(Constants.CONTEXT_KEY_RECIPIENT) ?: Constants.DEFAULT_DIALED_NUMBER
                 coreContext.telecomHelper.startOutgoingCall(it, to)

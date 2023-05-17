@@ -47,7 +47,7 @@ class CallActivity : AppCompatActivity() {
     private var fallbackState: Int? = null
 
     private var fallbackUsername: Username? = null
-
+    private var currentState = CALL_DISCONNECTED
     private var isMuteToggled = false
     private lateinit var logoutButton: Button
 
@@ -72,12 +72,14 @@ class CallActivity : AppCompatActivity() {
             }
             // Call State Updated
             intent?.getStringExtra(CALL_STATE)?.let {
+                currentState = it
+
                 if (it == CALL_DISCONNECTED) {
-                    replaceFragment(FragmentIdleCall(), true)
+                    replaceFragment(FragmentIdleCall())
                 } else if (it == CALL_STARTED) {
-                    replaceFragment(FragmentIdleCall(), false)
+                    replaceFragment(FragmentActiveCall())
                 } else if (it == CALL_ANSWERED) {
-                    replaceFragment(FragmentActiveCall(), true)
+                    replaceFragment(FragmentActiveCall())
                     updateCallData()
                 }
             }
@@ -107,7 +109,7 @@ class CallActivity : AppCompatActivity() {
         logoutButton = toolbar.btLogout
         logoutButton.visibility = View.VISIBLE
 
-        replaceFragment(FragmentIdleCall(), true)
+        replaceFragment(FragmentIdleCall())
 
         logoutButton.setOnClickListener {
             logoutButton.isEnabled = false
@@ -151,7 +153,7 @@ class CallActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         coreContext.activeCall?.let {
-            replaceFragment(FragmentActiveCall(), true)
+            replaceFragment(FragmentActiveCall())
         }
         if (CallData.callId.isNotEmpty()) {
             updateCallData()
@@ -193,9 +195,9 @@ class CallActivity : AppCompatActivity() {
         }
     }
 
-    private fun replaceFragment(fragment: Fragment, isEnable: Boolean) {
+    private fun replaceFragment(fragment: Fragment) {
 
-        if (fragment.tag == "fragmentActiveCall" || !isEnable) {
+        if (currentState == CALL_ANSWERED || currentState == CALL_STARTED) {
             logoutButton.visibility = View.GONE
         }
         else {
@@ -203,7 +205,12 @@ class CallActivity : AppCompatActivity() {
         }
 
         val bundle = Bundle()
-        bundle.putBoolean("isEnable", isEnable)
+        if (currentState == CALL_ANSWERED) {
+            bundle.putString("currentState", "Answered")
+        }
+        else if (currentState == CALL_STARTED){
+            bundle.putString("currentState", "Ringing")
+        }
         fragment.arguments = bundle
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
@@ -237,11 +244,14 @@ class CallActivity : AppCompatActivity() {
         coreContext.activeCall?.let { call ->
             clientManager.hangupCall(call)
         }
-        replaceFragment(FragmentIdleCall(), true)
+        replaceFragment(FragmentIdleCall())
     }
 
     private fun handleSessionError(message: String) {
         showAlert(this@CallActivity, message, true)
+        // Force to get new token
+        coreContext.sessionId = null
+        coreContext.user = null
         navigateToLoginActivity()
     }
 //    private fun toggleMute() : Boolean{
