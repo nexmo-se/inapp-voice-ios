@@ -107,12 +107,6 @@ class LoginViewController: UIViewController {
         submitButton.isEnabled = false
         userManager.fetchCredential(username: usernameTextField.text!, region: regionTextField.text!, pin: pinTextField.text!, token: nil)
     }
-    
-//        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//            if let vc = segue.destination as? CallViewController {
-//                vc.user = self.user
-//            }
-//        }
 }
 
 //MARK: UITextFieldDelegate
@@ -144,10 +138,6 @@ extension LoginViewController {
                     self!.performSegue(withIdentifier: "goToCallVC", sender: self)
                 }
                 else if (clientStatus.state == .disconnected) {
-                    if let user = self!.user {
-                        self!.userManager.deleteUser(user: user)
-                    }
-                    
                     if clientStatus.message != nil {
                     
                         self!.present(createAlert(message: clientStatus.message!, completion: nil), animated: true, completion: nil)

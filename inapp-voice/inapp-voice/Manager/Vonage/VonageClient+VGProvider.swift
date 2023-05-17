@@ -17,7 +17,7 @@ extension VonageClient: VGVoiceClientDelegate {
     
     func voiceClient(_ client: VGVoiceClient, didReceiveHangupForCall callId: VGCallId, withQuality callQuality: VGRTCQuality, reason: VGHangupReason) {
         let type = self.currentCallStatus == nil ? .outbound : self.currentCallStatus!.type
-        self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: type, member: nil, message: "Call ended by caller/callee")
+        self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: type, member: nil, message: "Call ended")
     }
     
     func voiceClient(_ client: VGVoiceClient, didReceiveInviteCancelForCall callId: String, with reason: VGVoiceInviteCancelReason) {

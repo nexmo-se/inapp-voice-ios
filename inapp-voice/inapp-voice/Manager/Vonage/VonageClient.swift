@@ -64,11 +64,11 @@ class VonageClient: NSObject {
     func initClient(user: UserModel){
         self.user = user
         let voiceClient = VGVoiceClient()
+        VGBaseClient.setDefaultLoggingLevel(.error)
         let config = VGClientConfig()
         config.apiUrl = user.dc
         config.websocketUrl = user.ws
         voiceClient.setConfig(config)
-        VGBaseClient.setDefaultLoggingLevel(.error)
         self.voiceClient  = voiceClient
         self.voiceClient.delegate = self
     }
@@ -104,17 +104,12 @@ class VonageClient: NSObject {
     
     func logout() {
         self.unregisterPushTokens()
+        Session.isLoggedIn = false
+        self.currentCallStatus = nil
+        self.currentCallData = nil
+        UserDefaults.standard.removeObject(forKey: Constants.userKey)
         self.voiceClient.deleteSession { error in
-            if error != nil {
-                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: error!.localizedDescription))
-            }
-            else {
-                Session.isLoggedIn = false
-                self.currentCallStatus = nil
-                self.currentCallData = nil
-                UserDefaults.standard.removeObject(forKey: Constants.userKey)
-                NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: nil))
-            }
+            NotificationCenter.default.post(name: .clientStatus, object: VonageClientStatusModel(state: .disconnected, message: nil))
         }
         NotificationCenter.default.removeObserver(self)
     }
@@ -165,10 +160,20 @@ class VonageClient: NSObject {
         }
     }
     
-    func hangUpCall(callId: String?) {
+    func hangUpCall(callId: String?, attempt:Int = 3) {
         if let callId = callId {
             voiceClient.hangup(callId) { error in
-                self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: false, reason: nil), type: self.currentCallStatus!.type, member: nil, message: error?.localizedDescription)
+                if (error != nil) {
+                    if (attempt > 0) {
+                     self.hangUpCall(callId: callId, attempt: attempt-1)
+                   }
+                   else {
+                       self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: false, reason: nil), type: self.currentCallStatus!.type, member: nil, message: error!.localizedDescription)
+                   }
+                }
+                else {
+                    self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: false, reason: nil), type: self.currentCallStatus!.type, member: nil, message: nil)
+                }
             }
         }
     }
@@ -185,10 +190,20 @@ class VonageClient: NSObject {
         }
     }
     
-    func rejectCall(callId: String?) {
+    func rejectCall(callId: String?, attempt:Int = 3) {
         if let callId = callId {
             voiceClient.reject(callId) { error in
-                self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: .inbound, member: nil, message: error?.localizedDescription)
+                if (error != nil) {
+                    if (attempt > 0) {
+                        self.rejectCall(callId: callId, attempt: attempt-1)
+                    }
+                    else {
+                        self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: .inbound, member: nil, message: error!.localizedDescription)
+                    }
+                }
+                else {
+                    self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: .inbound, member: nil, message: nil)
+                }
             }
         }
     }
@@ -206,12 +221,17 @@ class VonageClient: NSObject {
         }
     }
     
-    func answercall(callId:String?, completion:@escaping (_ isSucess: Bool) -> ()) {
+    func answercall(callId:String?, completion: @escaping (_ isSucess: Bool) -> (), attempt:Int = 3) {
         if let callId = callId {
             voiceClient.answer(callId) { error in
                 if (error != nil) {
-                    self.currentCallStatus = CallStatusModel(uuid: nil, state: .completed(remote: true, reason: .failed), type: .inbound, member: nil, message: error?.localizedDescription)
-                    completion(false)
+                    if (attempt > 0) {
+                        self.answercall(callId: callId, completion: completion, attempt: attempt-1)
+                    }
+                    else {
+                        self.currentCallStatus = CallStatusModel(uuid: nil, state: .completed(remote: true, reason: .failed), type: .inbound, member: nil, message: error!.localizedDescription)
+                            completion(false)
+                    }
                 }
                 else {
                     if let memberName = self.memberName {

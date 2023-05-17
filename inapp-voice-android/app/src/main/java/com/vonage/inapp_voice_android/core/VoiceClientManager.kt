@@ -145,12 +145,12 @@ class VoiceClientManager(private val context: Context) {
 
     fun logout(onSuccessCallback: (() -> Unit)? = null){
         unregisterDevicePushToken()
+        coreContext.sessionId = null
+        coreContext.user = null
         client.deleteSession { error ->
             error?.let {
                 showToast(context, "Error Logging Out: ${error.message}")
             } ?: run {
-                coreContext.sessionId = null
-                coreContext.user = null
                 onSuccessCallback?.invoke()
             }
         }
@@ -209,14 +209,19 @@ class VoiceClientManager(private val context: Context) {
         }
     }
 
-    fun answerCall(call: CallConnection){
+    fun answerCall(call: CallConnection, attempt: Int = 3){
         call.takeIfActive()?.apply {
             client.answer(callId) { err ->
                 if (err != null) {
-                    println("Error Answering Call: $err")
-                    setDisconnected(DisconnectCause(DisconnectCause.ERROR))
-                    clearActiveCall()
-                    notifyCallErrorToCallActivity(context, "Error Answering Call: $err")
+                    if (attempt > 0) {
+                        answerCall(call, attempt -1)
+                    }else {
+                        println("Error Answering Call, Attempt ${attempt}: $err")
+                        setDisconnected(DisconnectCause(DisconnectCause.ERROR))
+                        clearActiveCall()
+                        notifyCallErrorToCallActivity(context, "Unable to Answer the Call: $err")
+                    }
+
                 } else {
                     println("Answered call with id: $callId")
                     setActive()
@@ -226,15 +231,18 @@ class VoiceClientManager(private val context: Context) {
         } ?: call.selfDestroy()
     }
 
-    fun rejectCall(call: CallConnection){
+    fun rejectCall(call: CallConnection, attempt: Int = 3){
         call.takeIfActive()?.apply {
             client.reject(callId){ err ->
                 if (err != null) {
-                    notifyCallErrorToCallActivity(context, "Error Rejecting Call: $err")
-                    println("Error Rejecting Call: $err")
-                    setDisconnected(DisconnectCause(DisconnectCause.ERROR))
-                    clearActiveCall()
-                    notifyCallErrorToCallActivity(context, "Error Rejecting Call: $err")
+                    if (attempt > 0) {
+                        rejectCall(call, attempt -1)
+                    }else {
+                        notifyCallErrorToCallActivity(context, "Unable to Reject the Call: $err")
+                        println("Error Rejecting Call: $err")
+                        setDisconnected(DisconnectCause(DisconnectCause.ERROR))
+                        clearActiveCall()
+                    }
                 } else {
                     println("Rejected call with id: $callId")
                     setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
@@ -245,14 +253,18 @@ class VoiceClientManager(private val context: Context) {
         } ?: call.selfDestroy()
     }
 
-    fun hangupCall(call: CallConnection){
+    fun hangupCall(call: CallConnection, attempt: Int = 3){
         call.takeIfActive()?.apply {
             client.hangup(callId) { err ->
                 if (err != null) {
-                    setDisconnected(DisconnectCause(DisconnectCause.LOCAL))
-                    clearActiveCall()
-                    notifyCallErrorToCallActivity(context, "Error Hanging Up Call: $err")
-                    println("Error Hanging Up Call: $err")
+                    if (attempt > 0) {
+                        hangupCall(call, attempt -1)
+                    }else {
+                        setDisconnected(DisconnectCause(DisconnectCause.LOCAL))
+                        clearActiveCall()
+                        notifyCallErrorToCallActivity(context, "Unable to Hanging Up Call: $err")
+                        println("Error Hanging Up Call: $err")
+                    }
                 } else {
                     println("Hung up call with id: $callId")
                     setDisconnected(DisconnectCause(DisconnectCause.LOCAL))

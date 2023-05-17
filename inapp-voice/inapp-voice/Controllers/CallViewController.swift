@@ -38,7 +38,7 @@ class CallViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+                
         if let data = UserDefaults.standard.data(forKey: Constants.userKey) {
             do {
                 let decoder = JSONDecoder()
@@ -86,6 +86,8 @@ class CallViewController: UIViewController {
         }
         
         // notification
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionStatusReceived(_:)), name: .clientStatus, object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(callReceived(_:)), name: .callStatus, object: nil)
     }
     
@@ -133,7 +135,7 @@ class CallViewController: UIViewController {
         }
     }
     
-    func displayIdleCall(message: String?) {
+    private func displayIdleCall(message: String?) {
         DispatchQueue.main.async { [weak self] in
             if (self == nil) {return}
             
@@ -151,18 +153,42 @@ class CallViewController: UIViewController {
         }
     }
     
-    func disableActionButtons() {
+    private func disableActionButtons() {
         hangupButton.isEnabled = false
         answerButton.isEnabled = false
         rejectButton.isEnabled = false
         callButton.isEnabled = false
     }
     
-    func enableActionButton() {
+    private func enableActionButton() {
         hangupButton.isEnabled = true
         answerButton.isEnabled = true
         rejectButton.isEnabled = true
         callButton.isEnabled = true
+    }
+    
+    private func logout() {
+        if let user = user {
+            userManager.deleteUser(user: user)
+        }
+        appDelegate.vgclient.logout()
+        dismiss(animated: true)
+    }
+    
+    @objc func connectionStatusReceived(_ notification: NSNotification) {
+        if let clientStatus = notification.object as? VonageClientStatusModel {
+            DispatchQueue.main.async { [weak self] in
+                if (self == nil) {return}
+                
+                if (clientStatus.state == .disconnected) {
+                    if clientStatus.message != nil {
+                        self!.present(createAlert(message: clientStatus.message!, completion: { isActionSubmitted in
+                            self!.logout()
+                        }), animated: true, completion: nil)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -212,8 +238,7 @@ extension CallViewController {
     }
     
     @IBAction func onLogoutButtonClicked(_ sender: Any) {
-        appDelegate.vgclient.logout()
-        dismiss(animated: true)
+        logout()
     }
 }
 

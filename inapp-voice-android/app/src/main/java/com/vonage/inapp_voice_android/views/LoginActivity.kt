@@ -157,6 +157,7 @@ class LoginActivity : AppCompatActivity() {
             navigateToCallActivity()
         }
         else if (coreContext.user != null) {
+            // Refresh token
             val user = coreContext.user
             login(user!!.username, user.region, null, user.token)
         }

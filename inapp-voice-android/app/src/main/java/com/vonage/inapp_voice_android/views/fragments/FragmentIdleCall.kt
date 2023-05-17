@@ -50,8 +50,8 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
         _binding = null
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val user = coreContext.user
-        binding.tvLoggedUsername.text =   "${user!!.username} (${user!!.region})"
+        val user = coreContext.user ?: return
+        binding.tvLoggedUsername.text =   "${user.username} (${user.region})"
 
         // Focus button at the start
         binding.btCallAUser.isFocusableInTouchMode = true;

@@ -102,8 +102,15 @@ class CallActivity : AppCompatActivity() {
         binding = ActivityCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val user = coreContext.user
+        if (user == null ) {
+            navigateToLoginActivity()
+            return
+        }
+
         handleIntent(intent)
 
+        //
         // Set toolbar View
         val toolbar = binding.tbCall
         logoutButton = toolbar.btLogout
@@ -112,29 +119,7 @@ class CallActivity : AppCompatActivity() {
         replaceFragment(FragmentIdleCall())
 
         logoutButton.setOnClickListener {
-            logoutButton.isEnabled = false
-            logoutButton.setTextColor(Color.DKGRAY)
-            val user = coreContext.user
-
-            clientManager.logout {
-                CallData.callId = ""
-                navigateToLoginActivity()
-            }
-
-            APIRetrofit.instance.deleteUser(DeleteInformation(user!!.dc, user.userId, user.token)).enqueue(object:
-                Callback<Void> {
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    logoutButton.isEnabled = true
-                    logoutButton.setTextColor(0x0100F5)
-                }
-
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    logoutButton.isEnabled = true
-                    logoutButton.setTextColor(0x0100F5)
-                    showAlert(this@CallActivity, "Failed to Delete User", false)
-                }
-
-            })
+            logout()
         }
 
         binding.btCopyData.setOnClickListener {
@@ -152,6 +137,11 @@ class CallActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        val user = coreContext.user
+        if (user == null ) {
+            navigateToLoginActivity()
+            return
+        }
         coreContext.activeCall?.let {
             replaceFragment(FragmentActiveCall())
         }
@@ -238,6 +228,32 @@ class CallActivity : AppCompatActivity() {
 
     }
 
+    private fun logout() {
+        logoutButton.isEnabled = false
+        logoutButton.setTextColor(Color.DKGRAY)
+        val user = coreContext.user
+
+        clientManager.logout {
+            CallData.callId = ""
+            navigateToLoginActivity()
+        }
+
+        APIRetrofit.instance.deleteUser(DeleteInformation(user!!.dc, user.userId, user.token)).enqueue(object:
+            Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                logoutButton.isEnabled = true
+                logoutButton.setTextColor(0x0100F5)
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                logoutButton.isEnabled = true
+                logoutButton.setTextColor(0x0100F5)
+//                showAlert(this@CallActivity, "Failed to Delete User", false)
+            }
+
+        })
+    }
+
     private fun handleCallError(message: String) {
         showAlert(this@CallActivity, message, false)
         // Hangup call
@@ -249,10 +265,7 @@ class CallActivity : AppCompatActivity() {
 
     private fun handleSessionError(message: String) {
         showAlert(this@CallActivity, message, true)
-        // Force to get new token
-        coreContext.sessionId = null
-        coreContext.user = null
-        navigateToLoginActivity()
+        logout()
     }
 //    private fun toggleMute() : Boolean{
 //        isMuteToggled = binding.btnMute.toggleButton(isMuteToggled)
