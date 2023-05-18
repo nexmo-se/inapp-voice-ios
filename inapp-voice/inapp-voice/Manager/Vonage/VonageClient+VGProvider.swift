@@ -11,13 +11,20 @@ import CallKit
 
 extension VonageClient: VGVoiceClientDelegate {
     func voiceClient(_ client: VGVoiceClient, didReceiveInviteForCall callId: VGCallId, from caller: String, with type: VGVoiceChannelType) {
-        self.memberName = caller
         self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .ringing, type:.inbound, member: caller, message: nil)
     }
     
     func voiceClient(_ client: VGVoiceClient, didReceiveHangupForCall callId: VGCallId, withQuality callQuality: VGRTCQuality, reason: VGHangupReason) {
         let type = self.currentCallStatus == nil ? .outbound : self.currentCallStatus!.type
-        self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: type, member: nil, message: "Call ended")
+        
+        if (reason == VGHangupReason.remoteHangup && currentCallStatus?.state == CallState.ringing) {
+            self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: type, member: nil, message: "Call Rejected")
+        }
+        else {
+            self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: true, reason: nil), type: type, member: nil, message: nil)
+        }
+        
+      
     }
     
     func voiceClient(_ client: VGVoiceClient, didReceiveInviteCancelForCall callId: String, with reason: VGVoiceInviteCancelReason) {
@@ -42,11 +49,10 @@ extension VonageClient: VGVoiceClientDelegate {
     
     func voiceClient(_ client: VGVoiceClient, didReceiveLegStatusUpdateForCall callId: VGCallId, withLegId legId: String, andStatus status: VGLegStatus) {
         if (status == .answered) {
-            if let memberName = memberName {
+            if let memberName = self.currentCallStatus?.member {
                 currentCallData = CallDataModel(username: user!.username, memberName: memberName, myLegId: callId, memberLegId: legId, region: user!.region)
             }
-            
-            self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .answered, type: .outbound, member: nil, message: nil)
+            self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .answered, type: .outbound, member: self.currentCallStatus?.member, message: nil)
         }
     }
     

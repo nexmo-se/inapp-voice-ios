@@ -20,7 +20,6 @@ struct PushInfo {
 class VonageClient: NSObject {
     static let shared = VonageClient()
     var voiceClient = VGVoiceClient()
-    var memberName: String?
     var user: UserModel?
     var isLoggedIn: Bool = false
 
@@ -63,8 +62,8 @@ class VonageClient: NSObject {
     
     func initClient(user: UserModel){
         self.user = user
-        let voiceClient = VGVoiceClient()
         VGBaseClient.setDefaultLoggingLevel(.error)
+        let voiceClient = VGVoiceClient()
         let config = VGClientConfig()
         config.apiUrl = user.dc
         config.websocketUrl = user.ws
@@ -122,7 +121,6 @@ class VonageClient: NSObject {
                         self.currentCallStatus = CallStatusModel(uuid: nil, state: .completed(remote: false, reason: .failed), type: .outbound, member: nil, message: error!.localizedDescription)
                     } else {
                         if let callId = callId {
-                            self.memberName = member
                             self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .ringing, type: .outbound, member: member, message: nil)
                         }
                     }
@@ -168,7 +166,7 @@ class VonageClient: NSObject {
                      self.hangUpCall(callId: callId, attempt: attempt-1)
                    }
                    else {
-                       self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: false, reason: nil), type: self.currentCallStatus!.type, member: nil, message: error!.localizedDescription)
+                       self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .completed(remote: false, reason: nil), type: self.currentCallStatus!.type, member: nil, message: nil)
                    }
                 }
                 else {
@@ -234,10 +232,10 @@ class VonageClient: NSObject {
                     }
                 }
                 else {
-                    if let memberName = self.memberName {
+                    if let memberName = self.currentCallStatus?.member {
                         self.currentCallData = CallDataModel(username: self.user!.username, memberName: memberName, myLegId: callId, memberLegId: nil, region: self.user!.region)
                     }
-                    self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .answered, type: .inbound, member: nil, message: nil)
+                    self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .answered, type: .inbound, member: self.currentCallStatus?.member, message: nil)
                     
                     completion(true)
                 }

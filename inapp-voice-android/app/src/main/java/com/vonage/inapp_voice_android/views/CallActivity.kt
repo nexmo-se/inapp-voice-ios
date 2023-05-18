@@ -70,6 +70,14 @@ class CallActivity : AppCompatActivity() {
             intent?.getBooleanExtra(IS_REMOTE_DISCONNECT, false)?.let {
                 fallbackState = if (it) Connection.STATE_DISCONNECTED else null
             }
+
+            // Call Remotely Disconnected
+            intent?.getBooleanExtra(IS_REMOTE_HANGUP, false)?.let {
+                if (it && currentState == CALL_STARTED) {
+                    showAlert(this@CallActivity, "Call Rejected", false)
+                }
+            }
+
             // Call State Updated
             intent?.getStringExtra(CALL_STATE)?.let {
                 currentState = it
@@ -280,5 +288,6 @@ class CallActivity : AppCompatActivity() {
         const val CALL_ERROR = "callError"
         const val SESSION_ERROR = "sessionError"
         const val IS_REMOTE_DISCONNECT = "isRemoteDisconnect"
+        const val IS_REMOTE_HANGUP = "isRemoteReject"
     }
 }

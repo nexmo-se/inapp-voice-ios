@@ -249,7 +249,8 @@ app.get('/voice/answer', (req, res) => {
             "type": "app",
             "user": username
           }
-        ]
+        ],
+        "timeout": 20
       }
     ]
   }

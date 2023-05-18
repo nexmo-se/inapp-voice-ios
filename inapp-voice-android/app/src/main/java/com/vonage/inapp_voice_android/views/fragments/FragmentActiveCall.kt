@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.vonage.inapp_voice_android.App
 import com.vonage.inapp_voice_android.R
 import com.vonage.inapp_voice_android.databinding.FragmentActivecallBinding
+import com.vonage.inapp_voice_android.models.CallData
 import com.vonage.inapp_voice_android.views.CallActivity.Companion.CALL_ANSWERED
 import com.vonage.inapp_voice_android.views.CallActivity.Companion.CALL_RINGING
 import com.vonage.inapp_voice_android.views.CallActivity.Companion.CALL_STATE
@@ -33,6 +34,8 @@ class FragmentActiveCall: Fragment(R.layout.fragment_activecall) {
             // Use RINGING_LABEL both for CALL_STARTED and CALL_RINGING
             else -> RINGING_LABEL
         }
+
+        binding.tvTargetUser.text = CallData.memberName ?: ""
         return binding.root
     }
 

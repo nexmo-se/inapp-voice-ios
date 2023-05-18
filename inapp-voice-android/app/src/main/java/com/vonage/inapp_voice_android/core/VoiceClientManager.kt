@@ -2,6 +2,7 @@ package com.vonage.inapp_voice_android.core
 
 import android.content.Context
 import android.telecom.DisconnectCause
+import android.util.Log
 import com.google.firebase.messaging.RemoteMessage
 import com.vonage.android_core.PushType
 import com.vonage.android_core.VGClientConfig
@@ -89,7 +90,7 @@ class VoiceClientManager(private val context: Context) {
                 }
                 setDisconnected(DisconnectCause(cause))
                 clearActiveCall()
-                notifyCallDisconnectedToCallActivity(context, isRemote)
+                notifyCallDisconnectedToCallActivity(context, isRemote, reason == HangupReason.remoteHangup)
             }
         }
 
@@ -261,7 +262,8 @@ class VoiceClientManager(private val context: Context) {
                     }else {
                         setDisconnected(DisconnectCause(DisconnectCause.LOCAL))
                         clearActiveCall()
-                        notifyCallErrorToCallActivity(context, "Unable to Hanging Up Call: $err")
+//                        notifyCallErrorToCallActivity(context, "Unable to Hanging Up Call: $err")
+                        notifyCallDisconnectedToCallActivity(context, false)
                         println("Error Hanging Up Call: $err")
                     }
                 } else {

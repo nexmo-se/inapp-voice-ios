@@ -55,10 +55,11 @@ internal fun notifyCallAnsweredToCallActivity(context: Context) {
     sendMessageToCallActivity(context, extras)
 }
 
-internal fun notifyCallDisconnectedToCallActivity(context: Context, isRemote:Boolean) {
+internal fun notifyCallDisconnectedToCallActivity(context: Context, isRemote:Boolean, isRemoteReject: Boolean = false) {
     val extras = Bundle()
     extras.putString(CallActivity.CALL_STATE, CallActivity.CALL_DISCONNECTED)
     extras.putBoolean(CallActivity.IS_REMOTE_DISCONNECT, isRemote)
+    extras.putBoolean(CallActivity.IS_REMOTE_HANGUP, isRemoteReject)
     sendMessageToCallActivity(context, extras)
 }
 
