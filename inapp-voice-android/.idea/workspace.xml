@@ -16,20 +16,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4bb3e6f8-68e0-46e1-9283-bcfb58daf17b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/deploymentTargetDropDown.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/public/vonage-inapp-voice.apk" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/public/vonage-inapp-voice.apk" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/server.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/vonage/inapp_voice_android/core/VoiceClientManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/vonage/inapp_voice_android/core/VoiceClientManager.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/vonage/inapp_voice_android/utils/NavigationUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/vonage/inapp_voice_android/utils/NavigationUtils.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/vonage/inapp_voice_android/views/CallActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/vonage/inapp_voice_android/views/CallActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/vonage/inapp_voice_android/views/fragments/FragmentActiveCall.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/vonage/inapp_voice_android/views/fragments/FragmentActiveCall.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../inapp-voice/Podfile" beforeDir="false" afterPath="$PROJECT_DIR$/../inapp-voice/Podfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../inapp-voice/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../inapp-voice/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../inapp-voice/inapp-voice.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/../inapp-voice/inapp-voice.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../inapp-voice/inapp-voice.xcodeproj/xcshareddata/xcschemes/inapp-voice.xcscheme" beforeDir="false" afterPath="$PROJECT_DIR$/../inapp-voice/inapp-voice.xcodeproj/xcshareddata/xcschemes/inapp-voice.xcscheme" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../inapp-voice/inapp-voice.xcworkspace/xcuserdata/iujie.xcuserdatad/UserInterfaceState.xcuserstate" beforeDir="false" afterPath="$PROJECT_DIR$/../inapp-voice/inapp-voice.xcworkspace/xcuserdata/iujie.xcuserdatad/UserInterfaceState.xcuserstate" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../inapp-voice/inapp-voice/Manager/Vonage/VonageClient+VGProvider.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../inapp-voice/inapp-voice/Manager/Vonage/VonageClient+VGProvider.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../inapp-voice/inapp-voice/Manager/Vonage/VonageClient.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../inapp-voice/inapp-voice/Manager/Vonage/VonageClient.swift" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

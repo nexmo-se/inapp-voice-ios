@@ -49,8 +49,10 @@ extension VonageClient: VGVoiceClientDelegate {
     
     func voiceClient(_ client: VGVoiceClient, didReceiveLegStatusUpdateForCall callId: VGCallId, withLegId legId: String, andStatus status: VGLegStatus) {
         if (status == .answered) {
-            if let memberName = self.currentCallStatus?.member {
-                currentCallData = CallDataModel(username: user!.username, memberName: memberName, myLegId: callId, memberLegId: legId, region: user!.region)
+            if let prevData = self.currentCallData {
+                if (prevData.myLegId == callId) {
+                    currentCallData = CallDataModel(username: prevData.username, memberName: prevData.memberName, myLegId: prevData.myLegId, memberLegId: legId, region: prevData.region)
+                }
             }
             self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .answered, type: .outbound, member: self.currentCallStatus?.member, message: nil)
         }

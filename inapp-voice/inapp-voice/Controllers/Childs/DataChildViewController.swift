@@ -30,15 +30,19 @@ class DataChildViewController: UIViewController {
         copyButton.layer.cornerRadius = Constants.borderRadius
         copyButton.layer.borderColor = UIColor.black.cgColor
         copyButton.layer.borderWidth = 1
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(callDataReceived(_:)), name: .handledCallData, object: nil)
+        view.layer.borderWidth = 2
+        view.layer.borderColor = .init(red: 196/255, green: 53/255, blue: 152/255, alpha: 1)
         
         // Get current callData
         let currentCallData = appDelegate.vgclient.currentCallData
         
         if let callData = currentCallData {
             updateData(callData: callData)
+        } else {
+            view.isHidden = true
         }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(callDataReceived(_:)), name: .handledCallData, object: nil)
     }
     
     deinit {
@@ -46,6 +50,7 @@ class DataChildViewController: UIViewController {
     }
     
     private func updateData(callData: CallDataModel) {
+        view.isHidden = false
         self.callData = callData
         myLegTitle.text = "my LegId - \(callData.username)"
         myLegId.text = callData.myLegId

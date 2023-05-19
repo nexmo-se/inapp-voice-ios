@@ -232,11 +232,7 @@ class VonageClient: NSObject {
                     }
                 }
                 else {
-                    if let memberName = self.currentCallStatus?.member {
-                        self.currentCallData = CallDataModel(username: self.user!.username, memberName: memberName, myLegId: callId, memberLegId: nil, region: self.user!.region)
-                    }
                     self.currentCallStatus = CallStatusModel(uuid: UUID(uuidString: callId)!, state: .answered, type: .inbound, member: self.currentCallStatus?.member, message: nil)
-                    
                     completion(true)
                 }
             }
@@ -251,6 +247,10 @@ class VonageClient: NSObject {
             switch(call.state) {
             case .ringing:
                 if let to = call.member {
+                    // Report Data
+                    if let user = user {
+                        self.currentCallData = CallDataModel(username: user.username, memberName: to, myLegId: call.uuid!.toVGCallID(), memberLegId: nil, region: user.region)
+                    }
                     self.cxController.requestTransaction(
                         with: CXStartCallAction(call: call.uuid!, handle: CXHandle(type: .generic, value: to)),
                         completion: { error in
@@ -281,6 +281,9 @@ class VonageClient: NSObject {
                 update.supportsHolding = false
                 update.supportsGrouping = false
                 update.hasVideo = false
+                if let user = user, let from = call.member {
+                    self.currentCallData = CallDataModel(username: user.username, memberName: from, myLegId: call.uuid!.toVGCallID(), memberLegId: nil, region: user.region)
+                }
                 self.callProvider.reportNewIncomingCall(with: call.uuid!, update: update) { error in
                     if error != nil {
                         self.rejectByCallkit(calluuid: call.uuid)

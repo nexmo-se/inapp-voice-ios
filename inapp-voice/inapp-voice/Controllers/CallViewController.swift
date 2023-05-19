@@ -26,9 +26,6 @@ class CallViewController: UIViewController {
     @IBOutlet weak var rejectButton: UIButton!
     @IBOutlet weak var hangupButton: UIButton!
     
-    // Call Data
-    @IBOutlet weak var callDataView: UIView!
-    
     var user: UserModel!
     var userManager = UserManager()
     
@@ -67,10 +64,6 @@ class CallViewController: UIViewController {
         rejectButton.layer.cornerRadius = Constants.borderRadius
         callButton.layer.cornerRadius = Constants.borderRadius
         hangupButton.layer.cornerRadius = Constants.borderRadius
-        
-        callButton.isEnabled = false
-        callDataView.layer.borderWidth = 2
-        callDataView.layer.borderColor = .init(red: 196/255, green: 53/255, blue: 152/255, alpha: 1)
         
         // Initial View - Members
         memberSearchTextField.delegate = self
@@ -120,7 +113,6 @@ class CallViewController: UIViewController {
             
             if (state == .ringing) {
                 self!.callStatusLabel.text = "Ringing"
-                self!.callDataView.isHidden = true
                 
                 if (type == .inbound) {
                     self!.ringingStackView.isHidden = false
@@ -130,7 +122,6 @@ class CallViewController: UIViewController {
             }
             if (state == .answered) {
                 self!.callStatusLabel.text = "Answered"
-                self!.callDataView.isHidden = false
             }
         }
     }
@@ -202,14 +193,12 @@ extension CallViewController {
                 self!.updateCallStateUI(callStatus: callStatus)
             }
         }
-        
     }
 }
 
 //MARK: Actions
 extension CallViewController {
     @IBAction func onCallbuttonClicked(_ sender: Any) {
-        disableActionButtons()
         if (memberSearchTextField.text == "") {
             self.showToast(message: "Please select a member", font: .systemFont(ofSize: 12.0))
             return
@@ -219,6 +208,8 @@ extension CallViewController {
             self.showToast(message: "Invalid member", font: .systemFont(ofSize: 12.0))
             return
         }
+        disableActionButtons()
+        memberSearchTextField.endEditing(true)
         appDelegate.vgclient.startOutboundCall(user: user, member: member)
     }
     
@@ -276,7 +267,6 @@ extension CallViewController: UITextFieldDelegate {
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
         memberTableView.isHidden = true
-        callButton.isEnabled = true
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         memberSearchResult = filterMembers(input: memberSearchTextField.text!)

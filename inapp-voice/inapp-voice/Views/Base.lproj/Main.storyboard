@@ -268,10 +268,10 @@
                                                                 <textInputTraits key="textInputTraits"/>
                                                             </textField>
                                                             <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="ySi-6E-8rW" userLabel="MemberTableView">
-                                                                <rect key="frame" x="0.0" y="50.000000000000028" width="339" height="200"/>
+                                                                <rect key="frame" x="0.0" y="50.000000000000028" width="339" height="180"/>
                                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                                 <constraints>
-                                                                    <constraint firstAttribute="height" constant="200" id="AAr-bN-GXh"/>
+                                                                    <constraint firstAttribute="height" constant="180" id="AAr-bN-GXh"/>
                                                                 </constraints>
                                                             </tableView>
                                                         </subviews>
@@ -406,7 +406,7 @@
                                     <constraint firstAttribute="trailing" secondItem="jeW-Gr-Txu" secondAttribute="trailing" id="vAv-1L-i9v"/>
                                 </constraints>
                             </stackView>
-                            <containerView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ePn-Ac-JYg" userLabel="CallDataView">
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ePn-Ac-JYg" userLabel="CallDataView">
                                 <rect key="frame" x="14" y="411.66666666666674" width="347" height="340"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="340" id="Fo0-kL-ytg"/>
@@ -439,7 +439,6 @@
                         <outlet property="activeCallStackView" destination="jeW-Gr-Txu" id="q0u-bY-bsk"/>
                         <outlet property="answerButton" destination="38N-ec-HmS" id="1c8-mt-Ijp"/>
                         <outlet property="callButton" destination="ZEz-KN-LOX" id="sal-dJ-AIL"/>
-                        <outlet property="callDataView" destination="ePn-Ac-JYg" id="9xD-bK-0k9"/>
                         <outlet property="callMemberLabel" destination="d8v-rh-gE5" id="1SS-xT-YNo"/>
                         <outlet property="callStatusLabel" destination="nU9-sk-1ir" id="Gne-YG-cTy"/>
                         <outlet property="hangupButton" destination="84R-qq-4Yh" id="oB9-wa-Dtn"/>
