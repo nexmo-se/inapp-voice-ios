@@ -9,7 +9,7 @@ import Foundation
 
 struct Constants {
     static let backendURL = "https://neru-1624522f-inapp-voice-backend-dev.use1.serverless.vonage.com"
-    static let countries = ["Virginia", "Oregon", "Dublin", "Frankfurt", "Singapore", "Sydney"]
+    static let countries = ["US", "EU", "APAC"]
     static let userKey = "appUser"
     static let pushTokenKey = "pushToken"
     static let deviceTokenKey = "deviceToken"

@@ -12,23 +12,38 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const REGIONS = ["virginia", "oregon", "dublin", "frankfurt", "singapore", "sydney"]
+// const REGIONS = ["virginia", "oregon", "dublin", "frankfurt", "singapore", "sydney"]
+// const DATA_CENTER = {
+//   virginia:	"https://api-us-3.vonage.com",
+//   oregon: "https://api-us-4.vonage.com",
+//   dublin:	"https://api-eu-3.vonage.com",
+//   frankfurt:	"https://api-eu-4.vonage.com",
+//   singapore:	"https://api-ap-3.vonage.com",
+//   sydney:	"https://api-ap-4.vonage.com"
+// }
+
+
+// const WEBSOCKET = {
+//   virginia:	"wss://ws-us-3.vonage.com",
+//   oregon:	"wss://ws-us-4.vonage.com",
+//   dublin: "wss://ws-eu-3.vonage.com",
+//   frankfurt:	"wss://ws-eu-4.vonage.com",  
+//   singapore:	"wss://ws-ap-3.vonage.com",
+//   sydney:	"wss://ws-ap-4.vonage.com"
+// }
+
+const REGIONS = ["US", "EU", "APAC"]
+
 const DATA_CENTER = {
-  virginia:	"https://api-us-3.vonage.com",
-  oregon: "https://api-us-4.vonage.com",
-  dublin:	"https://api-eu-3.vonage.com",
-  frankfurt:	"https://api-eu-4.vonage.com",
-  singapore:	"https://api-ap-3.vonage.com",
-  sydney:	"https://api-ap-4.vonage.com"
+  US:	"https://api-us-3.vonage.com",
+  EU:	"https://api-eu-3.vonage.com",
+  APAC:	"https://api-ap-3.vonage.com"
 }
 
 const WEBSOCKET = {
-  virginia:	"wss://ws-us-3.vonage.com",
-  oregon:	"wss://ws-us-4.vonage.com",
-  dublin: "wss://ws-eu-3.vonage.com",
-  frankfurt:	"wss://ws-eu-4.vonage.com",  
-  singapore:	"wss://ws-ap-3.vonage.com",
-  sydney:	"wss://ws-ap-4.vonage.com"
+  US:	"wss://ws-us-3.vonage.com",
+  EU: "wss://ws-eu-3.vonage.com",
+  APAC:	"wss://ws-ap-3.vonage.com"
 }
 
 const API_VERSION = 'v0.3'
@@ -63,7 +78,7 @@ app.get('/', async (req, res, next) => {
 
 app.post('/getCredential', (req, res) => {
   const {username, region, pin , token} = req.body;
-  if (!username || !region || !(pin || token )|| !REGIONS.includes(region.toLowerCase())) {
+  if (!username || !region || !(pin || token )|| !REGIONS.includes(region.toUpperCase())) {
     console.log("getCredential missing information error")
     return res.status(501).end()
   }
@@ -82,7 +97,7 @@ app.post('/getCredential', (req, res) => {
     }
   }
 
-  const selectedRegion = region.toLowerCase()
+  const selectedRegion = region.toUpperCase()
   const restAPI = `${DATA_CENTER[selectedRegion]}/${API_VERSION}`
   const websocket = WEBSOCKET[selectedRegion]
 
