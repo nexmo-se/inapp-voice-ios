@@ -32,7 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("auth")
         }
 
-        try? AVAudioSession.sharedInstance().setCategory(.playAndRecord)
+//        try? AVAudioSession.sharedInstance().setCategory(.playAndRecord)
 
         return true
     }
