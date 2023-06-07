@@ -4,6 +4,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.vonage.inapp_voice_android.App
+import com.vonage.inapp_voice_android.models.FcmEvents
 
 class PushNotificationService : FirebaseMessagingService() {
     companion object {
@@ -34,7 +35,11 @@ class PushNotificationService : FirebaseMessagingService() {
         // Create one using the latest valid Auth Token and notify the ClientManager
         // Else notify the ClientManager directly
         App.coreContext.run {
-            if (sessionId == null) {
+            if (remoteMessage.data.isNotEmpty() && remoteMessage.data["message"] == "updateUsersState") {
+                if (sessionId == null) {return}
+                FcmEvents.serviceEvent.postValue(remoteMessage.messageId)
+            }
+            else if (sessionId == null) {
                 val user = user ?: return@run
                 clientManager.login(user, onSuccessCallback = {
                     clientManager.processIncomingPush(remoteMessage)

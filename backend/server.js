@@ -5,6 +5,9 @@ import axios from 'axios';
 import cors from 'cors';
 import {tokenGenerate} from '@vonage/jwt';
 import fs from 'fs';
+import admin from "firebase-admin";
+
+admin.initializeApp({ credential: admin.credential.cert(process.env.GOOGLE_APPLICATION_CREDENTIALS), projectId: 'inapp-voice-android' }); 
 dotenv.config()
 
 const port = process.env.NERU_APP_PORT || process.env.PORT || 3003; 
@@ -46,6 +49,12 @@ const WEBSOCKET = {
   APAC:	"wss://ws-ap-3.vonage.com"
 }
 
+const BUSY_STATE = ['started', 'ringing', 'answered']
+const IDLE_STATE = ['busy', 'cancelled', 'unanswered', 'disconnected', 'rejected', 'failed', 'timeout', 'completed']
+
+const BUSY_CONV_STATE_KEY = 'busyConv'
+const FCM_TOKEN_STATE_KEY = 'fcmToken'
+
 const API_VERSION = 'v0.3'
 
 const applicationId = neru.config.apiApplicationId || process.env.APPLICATION_ID
@@ -76,7 +85,7 @@ app.get('/', async (req, res, next) => {
     res.send('hello world').status(200);
 });
 
-app.post('/getCredential', (req, res) => {
+app.post('/getCredential', async (req, res) => {
   const {username, region, pin , token} = req.body;
   if (!username || !region || !(pin || token )|| !REGIONS.includes(region.toUpperCase())) {
     console.log("getCredential missing information error")
@@ -101,6 +110,21 @@ app.post('/getCredential', (req, res) => {
   const restAPI = `${DATA_CENTER[selectedRegion]}/${API_VERSION}`
   const websocket = WEBSOCKET[selectedRegion]
 
+  // Remove user from busy state
+  const instanceState = neru.getInstanceState();
+
+  const busyConv = await instanceState.hget(BUSY_CONV_STATE_KEY, selectedRegion);
+  if (busyConv) {
+    let busyConvJson = JSON.parse(busyConv)
+    let index = busyConvJson.findIndex((conv) => conv.users.includes(username))
+    if (index > -1) {
+      busyConvJson.splice(index, 1);
+      await instanceState.hset(BUSY_CONV_STATE_KEY, { [region]: JSON.stringify(busyConvJson) });
+      // Notify frontend
+      notifyUsers(region)
+    }
+  }
+
   axios.get(`${restAPI}/users?name=${username}`, { headers: {"Authorization" : `Bearer ${generateJwt()}`} })
   .then(async (result) => {
       console.log("user exist", result.data._embedded.users[0].name)
@@ -116,6 +140,7 @@ app.post('/getCredential', (req, res) => {
       console.log("user not exist",result.data.name)
       const jwt = generateJwt(username)
 
+      notifyUsers(region)
       return res.status(200).json({username, userId: result.data.id, region, dc: DATA_CENTER[selectedRegion], ws: websocket, token: jwt});
     }).catch(error => {
       console.log("register error", error)
@@ -141,11 +166,24 @@ app.post('/getMembers', (req, res) => {
 
   axios.get(`${restAPI}/users?page_size=100`, { headers: {"Authorization" : `Bearer ${generateJwt()}`} })
   .then(async (result) => {
-      const membersName = result.data._embedded.users
-        .filter((member) => member.name !== username)
-        .map((member) => member.name)
-      
-      return res.status(200).json({members: membersName});
+    // Get busy users
+    const region = Object.keys(DATA_CENTER).find(key => DATA_CENTER[key] === dc);
+    const instanceState = neru.getInstanceState();
+    const busyConv = await instanceState.hget(BUSY_CONV_STATE_KEY, region);
+    let busyUsers = []
+    if (busyConv) {
+      const busyConvJson = JSON.parse(busyConv)
+      busyConvJson.forEach((conv) => {
+      busyUsers = busyUsers.concat(conv.users)
+      })
+    }
+    
+    const uniqueBusyUsers = [...new Set(busyUsers)];
+    const membersName = result.data._embedded.users
+      .filter((member) => member.name !== username && !uniqueBusyUsers.includes(member.name))
+      .map((member) => member.name)
+       
+    return res.status(200).json({members: membersName});
   })
   .catch(error => {
     console.log("get members error: ", error)
@@ -166,10 +204,12 @@ app.delete('/deleteUser', async (req, res) => {
     return res.status(501).end()
   }
 
+  const region = Object.keys(DATA_CENTER).find(key => DATA_CENTER[key] === dc);
   const restAPI = `${dc}/${API_VERSION}`
 
   try {
     await deleteUser(restAPI, userId)
+    notifyUsers(region)
     return res.status(200).end()
   } catch (error) {
     console.log("deleteuser error:", error)
@@ -201,16 +241,141 @@ app.delete('/deleteAllUsers', (req, res) => {
         try {
           await deleteUser(restAPI, userId)
         } catch (error) {
-          console.log("deleteuser error:", error)
+          console.log("deleteAllUsers error:", error)
         }
       });
 
       return res.status(200).send();
   })
   .catch(error => {
-    console.log("get members error: ", error)
+    console.log("deleteAllUsers error: ", error)
     res.status(501).send()
   })
+})
+
+app.delete('/clearBusyUsers', async (req, res) => {
+  const {region, token} = req.body;
+  if (!region || !token || !REGIONS.includes(region.toUpperCase())) {
+    console.log("clearBusyUsers missing information error")
+    return res.status(501).end()
+  }
+  let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+
+  if (tokenDecode.application_id !== applicationId) {
+    console.log("clearBusyUsers wrong token: ", tokenDecode)
+    return res.status(501).end()
+  }
+
+  const instanceState = neru.getInstanceState();
+  await instanceState.hset(BUSY_CONV_STATE_KEY, { [region]: null });
+  return res.status(200).send();
+  
+})
+
+app.delete('/clearFcmTokens', async (req, res) => {
+  const {region, token} = req.body;
+  if (!region || !token || !REGIONS.includes(region.toUpperCase())) {
+    console.log("clearFcmTokens missing information error")
+    return res.status(501).end()
+  }
+  let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+  
+  if (tokenDecode.application_id !== applicationId) {
+    console.log("clearFcmTokens wrong token: ", tokenDecode)
+    return res.status(501).end()
+  }
+  
+  const instanceState = neru.getInstanceState();
+  await instanceState.hset(FCM_TOKEN_STATE_KEY, { [region]: null });
+  return res.status(200).send();
+  
+})
+
+app.post('/registerFcm', async (req, res) => {
+  const {dc, token, fcmToken} = req.body;
+  if (!dc || !token || !fcmToken) {
+    console.log("registerFcm missing information error")
+    return res.status(501).end()
+  }
+  
+  let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+  
+  if (tokenDecode.application_id !== applicationId) {
+    console.log("registerFcm wrong token: ", tokenDecode)
+    return res.status(501).end()
+  }
+  
+  const region = Object.keys(DATA_CENTER).find(key => DATA_CENTER[key] === dc);
+  if (region) {
+    let data = {
+      username: tokenDecode.sub,
+      fcmToken: fcmToken
+    }
+    const instanceState = neru.getInstanceState();
+    const fcmData = await instanceState.hget(FCM_TOKEN_STATE_KEY, region);
+    if (fcmData) {
+      let fcmDataJson = JSON.parse(fcmData)
+      let existFcmIndex = fcmDataJson.findIndex((fcm) => fcm.username == tokenDecode.sub)
+      if (existFcmIndex > -1) {
+        fcmDataJson[existFcmIndex]['fcmToken'] = fcmToken
+      }
+      else {
+        fcmDataJson.push(data)
+      }
+      await instanceState.hset(FCM_TOKEN_STATE_KEY, { [region]: JSON.stringify(fcmDataJson) });
+    }
+    else {
+      await instanceState.hset(FCM_TOKEN_STATE_KEY, { [region]: JSON.stringify([data])});
+    }
+  }
+  else {
+    return res.status(200).send();
+  }
+})
+
+app.post('/unregisterFcm', async (req, res) => {
+  const {dc, token} = req.body;
+  if (!dc || !token) {
+    console.log("unregisterFcm missing information error")
+    return res.status(501).end()
+  }
+  
+  let tokenDecode = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+  
+  if (tokenDecode.application_id !== applicationId) {
+    console.log("registerFcm wrong token: ", tokenDecode)
+    return res.status(501).end()
+  }
+  const region = Object.keys(DATA_CENTER).find(key => DATA_CENTER[key] === dc);
+  if (region) {
+    const instanceState = neru.getInstanceState();
+    const fcmData = await instanceState.hget(FCM_TOKEN_STATE_KEY, region);
+    if (fcmData) {
+      let fcmDataJson = JSON.parse(fcmData)
+      let index = fcmDataJson.findIndex((fcm) => fcm.username == tokenDecode.sub)
+      if (index > -1) {
+        fcmDataJson.splice(index, 1);
+        await instanceState.hset(FCM_TOKEN_STATE_KEY, { [region]: JSON.stringify(fcmDataJson) });
+      }
+    }
+    else {
+      return res.status(200).send();
+    }
+  }
+  else {
+    return res.status(200).send();
+  }
+})
+
+app.post('/notifyUser', async (req, res) => {
+  const {region} = req.body;
+  if (!region || !REGIONS.includes(region.toUpperCase())) {
+    console.log("notifyUser missing information error")
+    return res.status(501).end()
+  }
+  
+  notifyUsers(region)
+  res.status(200).send()
 })
 
 function generateJwt(username) {
@@ -247,7 +412,42 @@ function deleteUser(restAPI, userId) {
   })
 }
 
-app.get('/voice/answer', (req, res) => {
+async function notifyUsers(region) {
+  if (!region) return
+  
+  const instanceState = neru.getInstanceState();
+  const fcmData = await instanceState.hget(FCM_TOKEN_STATE_KEY, region);
+  if (fcmData) {
+    let fcmDataJson = JSON.parse(fcmData)
+    const registrationTokens = fcmDataJson.map((fcmData) => {
+    return fcmData.fcmToken
+    })
+  
+    if (registrationTokens.length == 0) {
+      return
+    }
+    const message = {
+      data: {message: 'updateUsersState'},
+      tokens: registrationTokens,
+    };
+
+    admin
+    .messaging()
+    .sendMulticast(message)
+    .then((response) => {
+      // Response is a message ID string.
+      console.log("Successfully sent message:", response);
+    })
+    .catch((error) => {
+      console.log("Error sending message:", error);
+    });
+  }
+  else {
+    return
+  }
+}
+
+app.get('/voice/answer', async (req, res) => {
   console.log('NCCO request:');
   console.log(`  - caller: ${req.query.from}`);
   console.log(`  - callee: ${req.query.to}`);
@@ -268,17 +468,65 @@ app.get('/voice/answer', (req, res) => {
         "timeout": 20
       }
     ]
+
+    // Add to busy state
+    const region = Object.keys(DATA_CENTER).find(key => DATA_CENTER[key] === req.query.region_url);
+    if (region) {
+      const instanceState = neru.getInstanceState();
+      const busyConv = await instanceState.hget(BUSY_CONV_STATE_KEY, region);
+
+      let data = {
+        conversationId: req.query.conversation_uuid,
+        users: null
+      }
+      if (busyConv) {
+        let busyConvJson = JSON.parse(busyConv)
+        let existBusyUsers = busyConvJson.findIndex((conv) => conv.conversationId == req.query.conversation_uuid)
+        if (existBusyUsers > -1) {
+          busyConvJson[existBusyUsers][users] = data.users
+        }
+        else {
+          busyConvJson.push(data)
+        }
+        await instanceState.hset(BUSY_CONV_STATE_KEY, { [region]: JSON.stringify(busyConvJson) });
+
+      } else {
+        await instanceState.hset(BUSY_CONV_STATE_KEY, { [region]: JSON.stringify([data]) });
+      }
+    }
   }
   res.json(ncco);
 });
 
-app.all('/voice/event', (req, res) => {
-  console.log('EVENT:');
-  console.dir(req.body);
-  console.log('---');
+app.all('/voice/event', async (req, res) => {
+  console.log('EVENT: ', req.body);
+
+  // Update user from busy state
+  const instanceState = neru.getInstanceState();
+
+  Object.keys(DATA_CENTER).forEach(async (region) => {
+    const busyConv = await instanceState.hget(BUSY_CONV_STATE_KEY, region);
+    if (busyConv) {
+      let busyConvJson = JSON.parse(busyConv)
+      let index = busyConvJson.findIndex((conv) => conv.conversationId == req.body.conversation_uuid)
+      
+      if (index > -1) {
+        if (req.body.status && BUSY_STATE.includes(req.body.status.toLowerCase()) && (JSON.stringify(busyConvJson[index]['users']) != JSON.stringify([req.body.from, req.body.to]))) {  
+          busyConvJson[index]['users'] = [req.body.from, req.body.to]
+          await instanceState.hset(BUSY_CONV_STATE_KEY, { [region]: JSON.stringify(busyConvJson) });
+          // Notify frontend
+          notifyUsers(region)
+        }
+        else if (req.body.status && IDLE_STATE.includes(req.body.status.toLowerCase())) {
+          busyConvJson.splice(index, 1);
+          await instanceState.hset(BUSY_CONV_STATE_KEY, { [region]: JSON.stringify(busyConvJson) });
+          // Notify frontend
+          notifyUsers(region)
+        }
+      }
+    }
+  })
   res.sendStatus(200);
 });
-
-// TODO: clean up user
 
 app.listen(port, () => console.log(`Listening on port ${port}`)); 

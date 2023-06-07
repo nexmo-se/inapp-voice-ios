@@ -23,4 +23,14 @@ interface APIService {
     fun getMembers(
         @Body memberInformation: MemberInformation
     ): Call<Members>
+
+    @POST("registerFcm")
+    fun registerFcm(
+        @Body fcmInformation: RegisterFcmInformation
+    ): Call<Void>
+
+    @POST("unregisterFcm")
+    fun unregisterFcm(
+        @Body fcmInformation: UnregisterFcmInformation
+    ): Call<Void>
 }

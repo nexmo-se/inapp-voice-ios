@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>546249334506-i6k12glgliu3tq2kf5rrtuo99d4bttn9.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.546249334506-i6k12glgliu3tq2kf5rrtuo99d4bttn9</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBIhobxbAwaqZLfmEh4dpbbyByhN1YhcfQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>546249334506</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.vonage.inapp-voice-ios</string>
+	<key>PROJECT_ID</key>
+	<string>inapp-voice-android</string>
+	<key>STORAGE_BUCKET</key>
+	<string>inapp-voice-android.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:546249334506:ios:9d49657ca3ff19cc150193</string>
+</dict>
+</plist>

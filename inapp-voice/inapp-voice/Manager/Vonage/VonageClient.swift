@@ -143,6 +143,10 @@ class VonageClient: NSObject {
             UserDefaults.standard.set(device, forKey: Constants.deviceIdKey)
             print("register push token successfully")
         }
+        
+        if let user = user, let fcmToken = PushToken.fcm {
+            FcmManager().registerFcm(user: user, fcmToken: fcmToken)
+        }
     }
     
     func unregisterPushTokens() {
@@ -155,6 +159,9 @@ class VonageClient: NSObject {
             else {
                 UserDefaults.standard.removeObject(forKey: Constants.deviceIdKey)
             }
+        }
+        if let user = user {
+            FcmManager().unregisterFcm(user: user)
         }
     }
     

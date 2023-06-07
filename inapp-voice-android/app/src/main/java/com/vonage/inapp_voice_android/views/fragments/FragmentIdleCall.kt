@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vonage.inapp_voice_android.App
 import com.vonage.inapp_voice_android.R
@@ -16,6 +17,7 @@ import com.vonage.inapp_voice_android.api.APIRetrofit
 import com.vonage.inapp_voice_android.api.MemberInformation
 import com.vonage.inapp_voice_android.core.CoreContext
 import com.vonage.inapp_voice_android.databinding.FragmentIdlecallBinding
+import com.vonage.inapp_voice_android.models.FcmEvents
 import com.vonage.inapp_voice_android.models.Members
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.utils.Constants
@@ -32,6 +34,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
 
     private val coreContext = App.coreContext
     private val clientManager = coreContext.clientManager
+    private var isMembersLoading = false
     private var members = ArrayList<String>()
     private var filteredMembers = ArrayList<String>()
     private val membersAdaptor = MembersRecyclerAdaptor(filteredMembers);
@@ -64,12 +67,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
 
         membersAdaptor.onMemberClick = {
             binding.etCallUser.setText(it)
-            binding.etCallUser.clearFocus()
-            binding.btCallAUser.isFocusableInTouchMode = true;
-            binding.btCallAUser.requestFocus()
-
-            val imm = activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(binding.etCallUser.windowToken, 0)
+            hideKeyboard()
         }
 
         binding.etCallUser.setOnFocusChangeListener { _, hasFocus ->
@@ -103,7 +101,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
         binding.btCallAUser.setOnClickListener {
             val member = binding.etCallUser.text.toString()
             if (!members.contains(member)) {
-                showToast(context!!, "Invalid Member")
+                showToast(context!!, "Invalid Member Or User Busy")
                 return@setOnClickListener
             }
             // prevent double submit
@@ -111,14 +109,37 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
             call(member)
         }
 
+        // Clear Focus when click outside
+        view.setOnClickListener {
+            hideKeyboard()
+        }
+        FcmEvents.serviceEvent.observe(viewLifecycleOwner, Observer {
+            if (binding.etCallUser.isFocused || binding.etCallUser.text.toString() != "") {
+                loadMembers(user)
+            }
+        })
+    }
+
+    private fun hideKeyboard() {
+        binding.etCallUser.clearFocus()
+        binding.btCallAUser.isFocusableInTouchMode = true;
+        binding.btCallAUser.requestFocus()
+
+        val imm = activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.etCallUser.windowToken, 0)
     }
 
     private fun loadMembers(user: User) {
         // Get members from backend
+        if (isMembersLoading) {
+            return
+        }
+        isMembersLoading = true
         APIRetrofit.instance.getMembers(MemberInformation(user.dc, user.username, user.token)).enqueue(object:
             Callback<Members> {
             override fun onResponse(call: Call<Members>, response: Response<Members>) {
                 response.body()?.let { it1 ->
+                    isMembersLoading = false
                     filteredMembers.clear()
                     members.clear()
                     members.addAll(it1.members)
@@ -128,6 +149,7 @@ class FragmentIdleCall: Fragment(R.layout.fragment_idlecall) {
             }
 
             override fun onFailure(call: Call<Members>, t: Throwable) {
+                isMembersLoading = false
                 if (context !== null) {
                     showAlert(context!!, "Failed to Load Members", false)
                 }

@@ -8,6 +8,8 @@
 import UIKit
 import AVFoundation
 import PushKit
+import FirebaseCore
+import FirebaseMessaging
 
 var window:UIWindow?
 
@@ -19,6 +21,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         UIApplication.shared.delegate = self
+        
+        // Configure Firebase
+        FirebaseApp.configure()
+        
         self.initialisePushTokens()
         // Application onboarding
         let mediaType = AVMediaType.audio
@@ -32,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("auth")
         }
 
-        try? AVAudioSession.sharedInstance().setCategory(.playAndRecord)
+        // try? AVAudioSession.sharedInstance().setCategory(.playAndRecord)
 
         return true
     }
@@ -62,6 +68,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // show the alert
         UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true, completion: nil)
     }
+    
+    func application(_ application: UIApplication,
+                     didReceiveRemoteNotification userInfo: [AnyHashable: Any]) async
+    -> UIBackgroundFetchResult {
+        // Print message ID.
+
+        print("receive silent notification")
+        if let message = userInfo["message"] as? String{
+            if (message == "updateUsersState") {
+                NotificationCenter.default.post(name: .updateCallMembersStatus, object: nil)
+            }
+        }
+        return UIBackgroundFetchResult.newData
+    }
+}
+
+extension AppDelegate: MessagingDelegate {
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        print("Firebase registration token: \(String(describing: fcmToken))")
+        PushToken.fcm = fcmToken
+    }
 }
 
 extension AppDelegate: PKPushRegistryDelegate {
@@ -72,6 +99,8 @@ extension AppDelegate: PKPushRegistryDelegate {
                     if (self == nil) {return}
                     
                     UIApplication.shared.registerForRemoteNotifications()
+                    
+                    Messaging.messaging().delegate = self
                     print("is granted!")
                     self!.voipRegistry.delegate = self
                     self!.voipRegistry.desiredPushTypes = [PKPushType.voIP]
@@ -97,19 +126,19 @@ extension AppDelegate: PKPushRegistryDelegate {
     }
     
     private func processNotification(payload: PKPushPayload) {
-            if let data = UserDefaults.standard.data(forKey: Constants.userKey) {
-                do {
-                    let decoder = JSONDecoder()
-                    let user = try decoder.decode(UserModel.self, from: data)
-                    
-                    vgclient.login(user: user)
-                    vgclient.voiceClient.processCallInvitePushData(payload.dictionaryPayload)
-
-                }
-                catch {
-                    // no notification
-                }
+        if let data = UserDefaults.standard.data(forKey: Constants.userKey) {
+            do {
+                let decoder = JSONDecoder()
+                let user = try decoder.decode(UserModel.self, from: data)
+                
+                vgclient.login(user: user)
+                vgclient.voiceClient.processCallInvitePushData(payload.dictionaryPayload)
+                
             }
+            catch {
+                // no notification
+            }
+        }
     }
 }
 
@@ -117,6 +146,7 @@ extension Notification.Name {
     static let clientStatus = Notification.Name("ClientStatus")
     static let callStatus = Notification.Name("CallStatus")
     static let handledCallData = Notification.Name("CallData")
+    static let updateCallMembersStatus = Notification.Name("UpdateCallMembers")
 }
 
 

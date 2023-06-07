@@ -10,6 +10,9 @@ import com.vonage.clientcore.core.api.*
 import com.vonage.inapp_voice_android.models.User
 import com.vonage.inapp_voice_android.telecom.CallConnection
 import com.vonage.inapp_voice_android.App
+import com.vonage.inapp_voice_android.api.APIRetrofit
+import com.vonage.inapp_voice_android.api.RegisterFcmInformation
+import com.vonage.inapp_voice_android.api.UnregisterFcmInformation
 import com.vonage.inapp_voice_android.models.CallData
 import com.vonage.inapp_voice_android.push.PushNotificationService
 import com.vonage.inapp_voice_android.utils.*
@@ -17,6 +20,9 @@ import com.vonage.inapp_voice_android.utils.notifyCallDisconnectedToCallActivity
 import com.vonage.inapp_voice_android.utils.notifyIsMutedToCallActivity
 import com.vonage.inapp_voice_android.utils.showToast
 import com.vonage.voice.api.VoiceClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 /**
  * This Class will act as an interface
@@ -132,7 +138,7 @@ class VoiceClientManager(private val context: Context) {
         client.createSession(user.token){ error, sessionId ->
             sessionId?.let {
                 showToast(context, "Connected")
-                registerDevicePushToken()
+                registerDevicePushToken(user)
                 coreContext.sessionId = it
                 coreContext.user = user
                 onSuccessCallback?.invoke(it)
@@ -144,7 +150,7 @@ class VoiceClientManager(private val context: Context) {
     }
 
     fun logout(onSuccessCallback: (() -> Unit)? = null){
-        unregisterDevicePushToken()
+        unregisterDevicePushToken(coreContext.user)
         coreContext.sessionId = null
         coreContext.user = null
         client.deleteSession { error ->
@@ -171,7 +177,7 @@ class VoiceClientManager(private val context: Context) {
         }
     }
 
-    private fun registerDevicePushToken(){
+    private fun registerDevicePushToken(user: User){
         val registerTokenCallback : (String) -> Unit = { token ->
             client.registerDevicePushToken(token) { err, deviceId ->
                 err?.let {
@@ -181,6 +187,17 @@ class VoiceClientManager(private val context: Context) {
                     println("Device Push Token successfully registered with Device ID: $deviceId")
                 }
             }
+
+            // Register for backend FCM
+            APIRetrofit.instance.registerFcm(RegisterFcmInformation(user.dc, user.token, token))
+                .enqueue(object :
+                    Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    }
+
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                    }
+                })
         }
         coreContext.pushToken?.let {
             registerTokenCallback(it)
@@ -189,7 +206,7 @@ class VoiceClientManager(private val context: Context) {
         }
     }
 
-    private fun unregisterDevicePushToken(){
+    private fun unregisterDevicePushToken(user: User?){
         coreContext.deviceId?.let {
             client.unregisterDevicePushToken(it) { err ->
                 err?.let {
@@ -197,6 +214,16 @@ class VoiceClientManager(private val context: Context) {
                     println("Error in unregistering Device Push Token: $err")
                 }
             }
+        }
+        if (user != null) {
+            APIRetrofit.instance.unregisterFcm(UnregisterFcmInformation(user.dc, user.token))
+                .enqueue(object :
+                    Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    }
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                    }
+                 })
         }
     }
 

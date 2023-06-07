@@ -29,6 +29,7 @@ class CallViewController: UIViewController {
     var user: UserModel!
     var userManager = UserManager()
     
+    var isMembersLoading = false
     var memberList: MemberModel!
     var membersManager = MembersManager()
     var memberSearchResult = [String]()
@@ -82,9 +83,17 @@ class CallViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(connectionStatusReceived(_:)), name: .clientStatus, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(callReceived(_:)), name: .callStatus, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(updateCallMembersStatus(_:)), name: .updateCallMembersStatus, object: nil)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        memberSearchTextField.endEditing(true)
     }
     
     private func loadMembers() {
+        if (isMembersLoading) {return}
+        isMembersLoading = true
         membersManager.fetchMembers(user: user)
     }
     
@@ -165,6 +174,19 @@ class CallViewController: UIViewController {
         appDelegate.vgclient.logout()
         dismiss(animated: true)
     }
+}
+
+//MARK: Notifications
+extension CallViewController {
+    @objc func callReceived(_ notification: NSNotification) {
+        DispatchQueue.main.async { [weak self] in
+            if let callStatus = notification.object as? CallStatusModel {
+                if (self ==  nil) {return}
+                self!.enableActionButton()
+                self!.updateCallStateUI(callStatus: callStatus)
+            }
+        }
+    }
     
     @objc func connectionStatusReceived(_ notification: NSNotification) {
         if let clientStatus = notification.object as? VonageClientStatusModel {
@@ -181,16 +203,12 @@ class CallViewController: UIViewController {
             }
         }
     }
-}
-
-//MARK: Notifications
-extension CallViewController {
-    @objc func callReceived(_ notification: NSNotification) {
+    
+    @objc func updateCallMembersStatus(_ notification: NSNotification) {
         DispatchQueue.main.async { [weak self] in
-            if let callStatus = notification.object as? CallStatusModel {
-                if (self ==  nil) {return}
-                self!.enableActionButton()
-                self!.updateCallStateUI(callStatus: callStatus)
+            if (self == nil) {return}
+            if (!self!.idleCallStackView.isHidden && ( self!.memberSearchTextField.text != "" || !self!.memberTableView.isHidden)) {
+                self!.loadMembers()
             }
         }
     }
@@ -205,7 +223,7 @@ extension CallViewController {
         }
         let member = memberSearchTextField.text!
         if (!memberList.members.contains(member)) {
-            self.showToast(message: "Invalid member", font: .systemFont(ofSize: 12.0))
+            self.showToast(message: "Invalid member Or User busy", font: .systemFont(ofSize: 12.0))
             return
         }
         disableActionButtons()
@@ -238,7 +256,7 @@ extension CallViewController: MembersManagerDelegate {
     func didUpdateMembers(memberList: MemberModel) {
         DispatchQueue.main.async { [weak self] in
             if (self == nil) {return}
-            
+            self!.isMembersLoading = false
             self!.memberList = memberList
             self!.memberSearchResult = memberList.members
             self!.memberTableView.reloadData()
@@ -249,6 +267,7 @@ extension CallViewController: MembersManagerDelegate {
         DispatchQueue.main.async { [weak self] in
             if (self == nil) {return}
             
+            self!.isMembersLoading = false
             let alert = createAlert(message: message) { isActionSubmitted in
                 if (isActionSubmitted) {
                     self!.dismiss(animated: true, completion: nil)

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		A66DBBED35310C4EFB8D653B /* Pods_inapp_voice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C1FE7CC88207812554976A2 /* Pods_inapp_voice.framework */; };
+		EA279B222A3052BF00DFED14 /* FcmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA279B212A3052BF00DFED14 /* FcmManager.swift */; };
+		EA279B242A30547900DFED14 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EA279B232A30547900DFED14 /* GoogleService-Info.plist */; };
 		EA3C6B9129F001B30049D4BA /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C6B9029F001B30049D4BA /* UI.swift */; };
 		EA3C6B9429F003FA0049D4BA /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C6B9329F003FA0049D4BA /* UserManager.swift */; };
 		EA3C6B9729F004D00049D4BA /* CallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C6B9629F004D00049D4BA /* CallViewController.swift */; };
@@ -39,6 +41,8 @@
 		02172B473E26F68BCA04D4E7 /* Pods-inapp-voice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-inapp-voice.release.xcconfig"; path = "Target Support Files/Pods-inapp-voice/Pods-inapp-voice.release.xcconfig"; sourceTree = "<group>"; };
 		6C1FE7CC88207812554976A2 /* Pods_inapp_voice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_inapp_voice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9547B70E74C9D42B48EA1D34 /* Pods-inapp-voice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-inapp-voice.debug.xcconfig"; path = "Target Support Files/Pods-inapp-voice/Pods-inapp-voice.debug.xcconfig"; sourceTree = "<group>"; };
+		EA279B212A3052BF00DFED14 /* FcmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FcmManager.swift; sourceTree = "<group>"; };
+		EA279B232A30547900DFED14 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EA3C6B9029F001B30049D4BA /* UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
 		EA3C6B9329F003FA0049D4BA /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		EA3C6B9629F004D00049D4BA /* CallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallViewController.swift; sourceTree = "<group>"; };
@@ -176,6 +180,7 @@
 				EA8CDA2529EF7CBF00BFDDF5 /* Assets.xcassets */,
 				EA8CDA2729EF7CBF00BFDDF5 /* LaunchScreen.storyboard */,
 				EA8CDA2A29EF7CBF00BFDDF5 /* Info.plist */,
+				EA279B232A30547900DFED14 /* GoogleService-Info.plist */,
 			);
 			path = "inapp-voice";
 			sourceTree = "<group>";
@@ -201,6 +206,7 @@
 			children = (
 				EA3C6B9329F003FA0049D4BA /* UserManager.swift */,
 				EA4FCBFD29F2340C00F07478 /* MembersManager.swift */,
+				EA279B212A3052BF00DFED14 /* FcmManager.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -276,6 +282,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA8CDA2929EF7CBF00BFDDF5 /* LaunchScreen.storyboard in Resources */,
+				EA279B242A30547900DFED14 /* GoogleService-Info.plist in Resources */,
 				EA8CDA2629EF7CBF00BFDDF5 /* Assets.xcassets in Resources */,
 				EA8CDA2429EF7CBD00BFDDF5 /* Main.storyboard in Resources */,
 			);
@@ -334,6 +341,7 @@
 				EAA33DEC29F7B4E2007BA8A1 /* VonageClient+ProviderDelegate.swift in Sources */,
 				EA8CDA2129EF7CBD00BFDDF5 /* LoginViewController.swift in Sources */,
 				EA4FCBFE29F2340C00F07478 /* MembersManager.swift in Sources */,
+				EA279B222A3052BF00DFED14 /* FcmManager.swift in Sources */,
 				EAC0146B29F10DBB00723BC4 /* JSONstringify.swift in Sources */,
 				EA8CDA1D29EF7CBD00BFDDF5 /* AppDelegate.swift in Sources */,
 				EA4FCC0229F2356900F07478 /* MemberModel.swift in Sources */,
@@ -498,7 +506,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "inapp-voice/inapp-voice.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_TEAM = PR6C39UQ38;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "inapp-voice/Info.plist";
@@ -532,7 +540,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "inapp-voice/inapp-voice.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_TEAM = PR6C39UQ38;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "inapp-voice/Info.plist";
